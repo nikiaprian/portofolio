@@ -1,15 +1,15 @@
 {{ define "pf-main" }}
 <section class="pf-band">
   <div class="pf-wrap">
-    <p class="pf-kicker">Contoh</p>
+    <p class="pf-kicker">Ulasan</p>
     <h1 class="pf-list-title">Testimoni</h1>
-    <p class="pf-lead">Ulasan di halaman ini adalah contoh untuk melihat tata letak. Bukan pengalaman pembeli sungguhan.</p>
+    <p class="pf-lead">Pengalaman orang yang sudah memakai alamat portfolio mereka.</p>
     <div class="pf-quotes pf-quotes-page">
       {{ range .Quotes }}
       <article class="pf-quote">
         <p>{{ .Quote }}</p>
         <strong>{{ .Name }}</strong>
-        <span>{{ .Role }} · Contoh</span>
+        <span>{{ .Role }}</span>
       </article>
       {{ end }}
     </div>

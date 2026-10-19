@@ -13,7 +13,7 @@
   {{ $icon := or .Favicon .favicon_url "" }}
   {{ if $icon }}<link rel="icon" href="{{ $icon }}" />{{ end }}
   {{ if .SnapJS }}<script src="{{ .SnapJS }}" data-client-key="{{ .ClientKey }}"></script>{{ end }}
-  <link rel="stylesheet" href="/static/css/portfolio.css?v=18" />
+  <link rel="stylesheet" href="/static/css/portfolio.css?v=19" />
   {{ if .font_stylesheet }}<link rel="stylesheet" href="{{ .font_stylesheet }}" />{{ end }}
   {{ if .font_family }}
   <style>
@@ -30,7 +30,7 @@
   </style>
   {{ end }}
 </head>
-<body class="{{ if and (ne .Nav "none") (ne .Nav "bare") }}pf-home{{ end }}">
+<body class="{{ if and (ne .Nav "none") (ne .Nav "bare") }}pf-home{{ end }}{{ if eq .layout "home" }} pf-landing{{ end }}">
   {{ if and (ne .Nav "none") (ne .Nav "bare") }}
   <header class="pf-top">
     <div class="pf-wrap pf-top-inner">

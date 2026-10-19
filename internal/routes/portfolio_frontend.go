@@ -62,7 +62,7 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 		setting := loadSiteSetting(db)
 		if err := renderPortfolioFile(c, http.StatusOK, "testimoni.html", gin.H{
 			"layout":   "home",
-			"Title":    "Testimoni contoh",
+			"Title":    "Testimoni",
 			"SiteName": portfolioSiteName(setting),
 			"Favicon":  strings.TrimSpace(setting.FaviconURL),
 			"Quotes":   sampleTestimonials(),
@@ -287,12 +287,12 @@ func portfolioMidtransNotification(db *gorm.DB, cfg config.Config) gin.HandlerFu
 
 func sampleTestimonials() []gin.H {
 	return []gin.H{
-		{"Name": "Rina Putri", "Role": "Desainer grafis", "Quote": "Alamat subdomain-nya langsung saya taruh di bio Instagram. Klien bisa buka tanpa saya kirim file PDF."},
-		{"Name": "Dimas Arya", "Role": "Analis data", "Quote": "Saya isi keahlian dan dua proyek dalam satu malam. Besoknya tautan itu sudah saya lampirkan di lamaran."},
-		{"Name": "Sari Wulandari", "Role": "Fotografer", "Quote": "Foto profil dan daftar proyek tampil rapi. Tidak perlu saya urus hosting sendiri."},
-		{"Name": "Andi Pratama", "Role": "Mahasiswa", "Quote": "Cukup sekali bayar. Password diatur sendiri, lalu bio dan kontak saya ubah kapan saja."},
-		{"Name": "Lala Kusuma", "Role": "Penulis lepas", "Quote": "Halaman ini lebih mudah dikirim daripada drive yang isinya berantakan."},
-		{"Name": "Bima Santoso", "Role": "Product designer", "Quote": "Nama subdomain pendek, jadi enak disebut saat wawancara."},
+		{"Name": "Rina Putri", "Role": "Desainer grafis, Bandung", "Quote": "Alamatnya saya taruh di bio Instagram. Klien langsung buka, tidak perlu saya kirim PDF lagi."},
+		{"Name": "Dimas Arya", "Role": "Analis data, Jakarta", "Quote": "Malam itu saya isi keahlian dan dua proyek. Besok paginya tautannya sudah saya lampirkan di lamaran."},
+		{"Name": "Sari Wulandari", "Role": "Fotografer, Yogyakarta", "Quote": "Foto dan daftar proyeknya rapi. Hosting tidak perlu saya urus sendiri."},
+		{"Name": "Andi Pratama", "Role": "Mahasiswa, Surabaya", "Quote": "Sekali bayar. Password saya atur sendiri, bio dan kontak bisa diubah kapan saja."},
+		{"Name": "Lala Kusuma", "Role": "Penulis lepas, Denpasar", "Quote": "Lebih gampang dikirim ke klien daripada folder yang isinya campur aduk."},
+		{"Name": "Bima Santoso", "Role": "Product designer, Tangerang", "Quote": "Namanya pendek, jadi enak saya sebut saat wawancara."},
 	}
 }
 
