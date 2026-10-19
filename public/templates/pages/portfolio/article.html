@@ -10,6 +10,7 @@
       {{ if .hero_caption_html }}<figcaption>{{ .hero_caption_html }}</figcaption>{{ end }}
     </figure>
     {{ end }}
+    <nav class="pf-toc" id="blog-article-toc" hidden aria-label="Daftar isi"></nav>
     <div class="pf-prose">{{ .post_body }}</div>
     {{ if and .post_include_source .post_source }}<p class="pf-source">Sumber: {{ .post_source }}</p>{{ end }}
     {{ if .article_related_posts }}
@@ -38,4 +39,84 @@
   </aside>
   {{ end }}
 </div>
+<script>
+(function () {
+  var toc = document.getElementById("blog-article-toc");
+  var body = document.querySelector(".pf-article-single .pf-prose");
+  if (!toc || !body) return;
+  var heads = body.querySelectorAll("h2, h3");
+  if (!heads.length) return;
+  var used = Object.create(null);
+  function slugify(value) {
+    var text = String(value || "").toLowerCase().trim().replace(/['"]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    if (!text) text = "section";
+    if (used[text]) {
+      used[text] += 1;
+      text = text + "-" + used[text];
+    } else {
+      used[text] = 1;
+    }
+    return text;
+  }
+  function esc(value) {
+    return String(value || "").replace(/[&<>"']/g, function (ch) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
+    });
+  }
+  var items = [];
+  heads.forEach(function (heading) {
+    var label = (heading.textContent || "").trim();
+    if (!label) return;
+    var id = (heading.getAttribute("id") || "").trim() || slugify(label);
+    if (heading.getAttribute("id") && used[id]) {
+      used[id] += 1;
+      id = id + "-" + used[id];
+    } else if (heading.getAttribute("id")) {
+      used[id] = 1;
+    }
+    heading.id = id;
+    items.push({ id: id, label: label, level: heading.tagName === "H3" ? 3 : 2 });
+  });
+  if (!items.length) return;
+  var groups = [];
+  var current = null;
+  items.forEach(function (item) {
+    if (item.level === 2) {
+      current = { h2: item, h3: [] };
+      groups.push(current);
+      return;
+    }
+    if (!current) {
+      current = { h2: null, h3: [] };
+      groups.push(current);
+    }
+    current.h3.push(item);
+  });
+  var list = groups.map(function (group) {
+    var h2 = group.h2 ? '<a class="blog-toc-link" href="#' + esc(group.h2.id) + '">' + esc(group.h2.label) + "</a>" : "";
+    var h3 = group.h3.length
+      ? '<ul class="blog-toc-sublist">' + group.h3.map(function (child) {
+          return '<li class="blog-toc-subitem"><a class="blog-toc-sublink" href="#' + esc(child.id) + '">' + esc(child.label) + "</a></li>";
+        }).join("") + "</ul>"
+      : "";
+    return '<li class="blog-toc-item">' + h2 + h3 + "</li>";
+  }).join("");
+  toc.innerHTML =
+    '<div class="blog-toc-head">' +
+      '<div class="blog-toc-title"><span>Daftar Isi</span></div>' +
+      '<button type="button" class="blog-toc-toggle" aria-expanded="false" aria-label="Tampilkan daftar isi" title="Tampilkan"><span class="pf-toc-icon" aria-hidden="true"></span></button>' +
+    "</div>" +
+    '<ul class="blog-toc-list" hidden>' + list + "</ul>";
+  toc.hidden = false;
+  var toggle = toc.querySelector(".blog-toc-toggle");
+  toggle.addEventListener("click", function () {
+    var open = toggle.getAttribute("aria-expanded") === "true";
+    var next = !open;
+    toggle.setAttribute("aria-expanded", next ? "true" : "false");
+    toggle.setAttribute("aria-label", next ? "Sembunyikan daftar isi" : "Tampilkan daftar isi");
+    toggle.setAttribute("title", next ? "Sembunyikan" : "Tampilkan");
+    toc.querySelector(".blog-toc-list").hidden = !next;
+  });
+})();
+</script>
 {{ end }}

@@ -72,7 +72,7 @@ func PortfolioHostMiddleware(db *gorm.DB, cfg config.Config) gin.HandlerFunc {
 func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 	r.GET("/produk", func(c *gin.Context) {
 		setting := loadSiteSetting(db)
-		if err := renderPortfolioFile(c, http.StatusOK, "products.html", gin.H{
+		if err := renderPortfolioFile(c, db, http.StatusOK, "products.html", gin.H{
 			"Title":    "Produk",
 			"SiteName": portfolioSiteName(setting),
 			"Favicon":  strings.TrimSpace(setting.FaviconURL),
@@ -88,7 +88,7 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			return
 		}
 		setting := loadSiteSetting(db)
-		if err := renderPortfolioFile(c, http.StatusOK, "product.html", gin.H{
+		if err := renderPortfolioFile(c, db, http.StatusOK, "product.html", gin.H{
 			"Title":    item.Name,
 			"SiteName": portfolioSiteName(setting),
 			"Favicon":  strings.TrimSpace(setting.FaviconURL),
@@ -102,7 +102,7 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 	})
 	r.GET("/testimoni", func(c *gin.Context) {
 		setting := loadSiteSetting(db)
-		if err := renderPortfolioFile(c, http.StatusOK, "testimoni.html", gin.H{
+		if err := renderPortfolioFile(c, db, http.StatusOK, "testimoni.html", gin.H{
 			"layout":   "home",
 			"Title":    "Testimoni",
 			"SiteName": portfolioSiteName(setting),
@@ -298,7 +298,7 @@ func registerPortfolioAdminRoutes(adminOnly *gin.RouterGroup, db *gorm.DB, cfg c
 		err := portfolio.SaveSettings(db, portfolio.SettingForm{
 			Price:                   c.PostForm("price"),
 			PaymentWhatsApp:         c.PostForm("payment_whatsapp"),
-			CloudflareAPIToken:     c.PostForm("cloudflare_api_token"),
+			CloudflareAPIToken:      c.PostForm("cloudflare_api_token"),
 			CloudflareZoneID:        c.PostForm("cloudflare_zone_id"),
 			CloudflareRecordType:    c.PostForm("cloudflare_record_type"),
 			CloudflareRecordContent: c.PostForm("cloudflare_record_content"),
@@ -384,7 +384,7 @@ func renderPortfolioLanding(c *gin.Context, db *gorm.DB, cfg config.Config) erro
 	if strings.EqualFold(name, "Portfolio") {
 		title = "Portfolio online"
 	}
-	return renderPortfolioFile(c, http.StatusOK, "landing.html", gin.H{
+	return renderPortfolioFile(c, db, http.StatusOK, "landing.html", gin.H{
 		"layout":      "home",
 		"Title":       title,
 		"Description": "Beli portfolio online dan dapat subdomain untuk menampilkan foto, bio, keahlian, proyek, dan kontak.",
@@ -410,7 +410,7 @@ func renderPortfolioCheckout(c *gin.Context, db *gorm.DB, cfg config.Config, fie
 		status = http.StatusUnprocessableEntity
 	}
 	c.Header("Cache-Control", "no-store")
-	if err := renderPortfolioFile(c, status, "checkout.html", gin.H{
+	if err := renderPortfolioFile(c, db, status, "checkout.html", gin.H{
 		"Title":      "Beli portfolio",
 		"NoIndex":    true,
 		"SiteName":   portfolioSiteName(setting),
@@ -443,7 +443,7 @@ func renderPortfolioPay(c *gin.Context, db *gorm.DB, cfg config.Config, ref stri
 		c.String(http.StatusBadGateway, "pembayaran tidak tersedia")
 		return
 	}
-	if err := renderPortfolioFile(c, http.StatusOK, "pay.html", gin.H{
+	if err := renderPortfolioFile(c, db, http.StatusOK, "pay.html", gin.H{
 		"Title":      "Bayar portfolio",
 		"NoIndex":    true,
 		"SiteName":   portfolioSiteName(loadSiteSetting(db)),
@@ -472,7 +472,7 @@ func renderPortfolioDone(c *gin.Context, db *gorm.DB, cfg config.Config, ref str
 	if paid {
 		passwordSet, _ = portfolioSvc(db, cfg).PasswordSet(order.PortfolioID)
 	}
-	if err := renderPortfolioFile(c, http.StatusOK, "done.html", gin.H{
+	if err := renderPortfolioFile(c, db, http.StatusOK, "done.html", gin.H{
 		"Title":       "Status pembayaran",
 		"NoIndex":     true,
 		"Refresh":     !paid,
@@ -492,7 +492,7 @@ func renderPortfolioPublic(c *gin.Context, db *gorm.DB, cfg config.Config, sub s
 	site, err := portfolioSvc(db, cfg).ActiveBySubdomain(sub)
 	if err != nil {
 		c.Header("Cache-Control", "no-store")
-		return renderPortfolioFile(c, http.StatusNotFound, "missing.html", gin.H{
+		return renderPortfolioFile(c, db, http.StatusNotFound, "missing.html", gin.H{
 			"Title": "Portfolio tidak ditemukan",
 			"Nav":   "none",
 			"Host":  sub + "." + cfg.PortfolioRootDomain,
@@ -515,7 +515,7 @@ func renderPortfolioPublic(c *gin.Context, db *gorm.DB, cfg config.Config, sub s
 			skills = append(skills, skill)
 		}
 	}
-	return renderPortfolioFile(c, http.StatusOK, "public.html", gin.H{
+	return renderPortfolioFile(c, db, http.StatusOK, "public.html", gin.H{
 		"Nav":         "none",
 		"DisplayName": site.DisplayName,
 		"Headline":    site.Headline,
@@ -539,7 +539,7 @@ func renderPortfolioLogin(c *gin.Context, db *gorm.DB, email, notice, message st
 	if message != "" {
 		status = http.StatusUnauthorized
 	}
-	if err := renderPortfolioFile(c, status, "login.html", gin.H{
+	if err := renderPortfolioFile(c, db, status, "login.html", gin.H{
 		"Title":    "Masuk kelola portfolio",
 		"NoIndex":  true,
 		"SiteName": portfolioSiteName(loadSiteSetting(db)),
@@ -566,7 +566,7 @@ func renderPortfolioPassword(c *gin.Context, db *gorm.DB, cfg config.Config, tok
 	if message != "" {
 		status = http.StatusUnprocessableEntity
 	}
-	if err := renderPortfolioFile(c, status, "password.html", gin.H{
+	if err := renderPortfolioFile(c, db, status, "password.html", gin.H{
 		"Title":    "Atur password",
 		"NoIndex":  true,
 		"SiteName": portfolioSiteName(loadSiteSetting(db)),
@@ -607,7 +607,7 @@ func renderPortfolioManage(c *gin.Context, db *gorm.DB, cfg config.Config, site 
 	if message != "" {
 		status = http.StatusUnprocessableEntity
 	}
-	if err := renderPortfolioFile(c, status, "manage.html", gin.H{
+	if err := renderPortfolioFile(c, db, status, "manage.html", gin.H{
 		"Title":        "Kelola portfolio",
 		"NoIndex":      true,
 		"Nav":          "bare",
@@ -692,7 +692,157 @@ func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, messag
 	}
 }
 
-func renderPortfolioFile(c *gin.Context, status int, name string, data any) error {
+func portfolioGinH(data any) gin.H {
+	switch v := data.(type) {
+	case gin.H:
+		return v
+	case map[string]any:
+		return gin.H(v)
+	default:
+		return nil
+	}
+}
+
+func pfStr(data gin.H, key string) string {
+	if data == nil {
+		return ""
+	}
+	v, ok := data[key]
+	if !ok || v == nil {
+		return ""
+	}
+	s := strings.TrimSpace(fmt.Sprint(v))
+	if s == "<nil>" || (s == "0" && key == "error_code") {
+		return ""
+	}
+	return s
+}
+
+func pfFirst(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
+}
+
+func pfSetIfEmpty(data gin.H, key, value string) {
+	if pfStr(data, key) == "" && strings.TrimSpace(value) != "" {
+		data[key] = strings.TrimSpace(value)
+	}
+}
+
+func portfolioCrumb(name, href string, current bool) gin.H {
+	return gin.H{"Name": name, "Href": href, "Current": current}
+}
+
+func portfolioBreadcrumbs(data gin.H) []gin.H {
+	home := portfolioCrumb("Beranda", "/", false)
+	if title := pfStr(data, "post_title"); title != "" {
+		crumbs := []gin.H{home}
+		if parent := pfStr(data, "category_parent_name"); parent != "" {
+			crumbs = append(crumbs, portfolioCrumb(parent, pfStr(data, "category_parent_href"), false))
+		}
+		if cat := pfStr(data, "cat_name"); cat != "" {
+			href := pfStr(data, "cat_href")
+			if href == "" && pfStr(data, "cat_slug") != "" {
+				href = "/" + strings.Trim(pfStr(data, "cat_slug"), "/")
+			}
+			crumbs = append(crumbs, portfolioCrumb(cat, href, false))
+		}
+		crumbs = append(crumbs, portfolioCrumb(title, "", true))
+		return crumbs
+	}
+	switch pfStr(data, "schema_page_type") {
+	case "category":
+		crumbs := []gin.H{home}
+		if parent := pfStr(data, "category_parent_name"); parent != "" {
+			crumbs = append(crumbs, portfolioCrumb(parent, pfStr(data, "category_parent_href"), false))
+		}
+		name := pfFirst(pfStr(data, "category_name"), pfStr(data, "schema_category_title"), pfStr(data, "list_title"), "Kategori")
+		crumbs = append(crumbs, portfolioCrumb(name, "", true))
+		return crumbs
+	case "tag":
+		return []gin.H{home, portfolioCrumb("Tag", "/tag", false), portfolioCrumb(pfFirst(pfStr(data, "tag_name"), "Tag"), "", true)}
+	case "author":
+		return []gin.H{home, portfolioCrumb("Penulis", "/author", false), portfolioCrumb(pfFirst(pfStr(data, "author_name"), "Penulis"), "", true)}
+	case "posts":
+		return []gin.H{home, portfolioCrumb(pfFirst(pfStr(data, "list_title"), pfStr(data, "title"), "Artikel"), "", true)}
+	}
+	path := pfStr(data, "request_path")
+	if strings.HasPrefix(path, "/produk/") {
+		return []gin.H{home, portfolioCrumb("Produk", "/produk", false), portfolioCrumb(pfFirst(pfStr(data, "Name"), pfStr(data, "Title"), "Produk"), "", true)}
+	}
+	name := pfFirst(pfStr(data, "page_title"), pfStr(data, "Title"), pfStr(data, "title"), pfStr(data, "Name"), "Halaman")
+	return []gin.H{home, portfolioCrumb(name, "", true)}
+}
+
+func applyPortfolioHead(c *gin.Context, db *gorm.DB, data gin.H) {
+	if c == nil || data == nil {
+		return
+	}
+	nav := strings.ToLower(pfStr(data, "Nav"))
+	if nav == "none" || nav == "bare" {
+		return
+	}
+	pfSetIfEmpty(data, "meta_title", pfFirst(pfStr(data, "Title"), pfStr(data, "title"), pfStr(data, "page_title"), pfStr(data, "post_title")))
+	pfSetIfEmpty(data, "meta_description", pfFirst(pfStr(data, "Description"), pfStr(data, "Bio")))
+	pfSetIfEmpty(data, "site_name", pfStr(data, "SiteName"))
+	var setting entity.SiteSetting
+	if db != nil {
+		setting = loadSiteSetting(db)
+		pfSetIfEmpty(data, "site_name", setting.SiteName)
+		pfSetIfEmpty(data, "meta_keywords", setting.DefaultKeywords)
+		pfSetIfEmpty(data, "meta_description", setting.DefaultDesc)
+		pfSetIfEmpty(data, "meta_image", setting.DefaultImage)
+		pfSetIfEmpty(data, "publisher_image", pfFirst(pfStr(data, "meta_image"), setting.DefaultImage))
+		pfSetIfEmpty(data, "logo_url", setting.LogoURL)
+		pfSetIfEmpty(data, "favicon_url", setting.FaviconURL)
+		pfSetIfEmpty(data, "theme_color", themeColorMeta(setting))
+		if _, ok := data["header_script"]; !ok {
+			data["header_script"] = clientSiteScriptHTML(setting.HeaderScript)
+			data["footer_script"] = clientSiteScriptHTML(setting.FooterScript)
+		}
+		pfSetIfEmpty(data, "social_facebook_url", setting.SocialFacebookURL)
+		pfSetIfEmpty(data, "social_x_url", setting.SocialXURL)
+		pfSetIfEmpty(data, "social_instagram_url", setting.SocialInstagramURL)
+		pfSetIfEmpty(data, "social_youtube_url", setting.SocialYouTubeURL)
+		pfSetIfEmpty(data, "social_tiktok_url", setting.SocialTikTokURL)
+		injectClientVerificationMeta(db, data)
+	}
+	if pfStr(data, "og_type") == "" {
+		data["og_type"] = "website"
+	}
+	path := "/"
+	if c.Request != nil && c.Request.URL != nil && c.Request.URL.Path != "" {
+		path = c.Request.URL.Path
+	}
+	data["request_path"] = path
+	if path == "/" {
+		data["is_homepage"] = true
+	} else if pfStr(data, "schema_page_type") == "" && pfStr(data, "og_type") != "article" {
+		data["schema_page_type"] = "page"
+		pfSetIfEmpty(data, "page_title", pfFirst(pfStr(data, "Title"), pfStr(data, "title"), pfStr(data, "Name"), "Halaman"))
+	}
+	if pfStr(data, "error_code") != "" {
+		data["NoIndex"] = true
+	}
+	if _, ok := data["breadcrumbs"]; !ok && path != "/" {
+		data["breadcrumbs"] = portfolioBreadcrumbs(data)
+	}
+	if pfStr(data, "current_url") == "" {
+		data["current_url"] = clientCanonicalURL(c)
+	}
+	if db != nil {
+		injectClientAbsoluteAssetURLs(c, setting, data)
+	}
+}
+
+func renderPortfolioFile(c *gin.Context, db *gorm.DB, status int, name string, data any) error {
+	if h := portfolioGinH(data); h != nil {
+		applyPortfolioHead(c, db, h)
+	}
 	tmpl, err := template.ParseFiles(
 		"public/templates/layouts/portfolio/app.html",
 		"public/templates/pages/portfolio/"+name,

@@ -4,15 +4,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ or .Title .meta_title .page_title .post_title .DisplayName "Portfolio" }}</title>
-  {{ $desc := or .Description .meta_description .Bio "" }}
+  {{ $title := or .meta_title .Title .title .page_title .post_title .DisplayName "portofolioku" }}
+  {{ $desc := or .meta_description .Description .Bio "" }}
+  {{ $image := or .meta_image .PhotoURL "" }}
+  <title>{{ $title }}</title>
+  <meta name="title" content="{{ $title }}" />
   {{ if $desc }}<meta name="description" content="{{ $desc }}" />{{ end }}
+  {{ if .meta_keywords }}<meta name="keywords" content="{{ .meta_keywords }}" />{{ end }}
+  {{ if .meta_author }}<meta name="author" content="{{ .meta_author }}" />{{ else if .site_name }}<meta name="author" content="{{ .site_name }}" />{{ end }}
+  {{ if and .meta_author (eq .og_type "article") }}<meta property="article:author" content="{{ .meta_author }}" />{{ end }}
+  {{ if .theme_color }}<meta name="theme-color" content="{{ .theme_color }}" />{{ end }}
+  {{ if .verify_google }}<meta name="google-site-verification" content="{{ .verify_google }}" />{{ end }}
+  {{ if .verify_bing }}<meta name="msvalidate.01" content="{{ .verify_bing }}" />{{ end }}
+  {{ if .verify_yandex }}<meta name="yandex-verification" content="{{ .verify_yandex }}" />{{ end }}
+  {{ if .verify_ahrefs }}<meta name="ahrefs-site-verification" content="{{ .verify_ahrefs }}" />{{ end }}
+  {{ if .NoIndex }}<meta name="robots" content="noindex, nofollow" />{{ else }}<meta name="robots" content="index, follow" />{{ end }}
+  <meta property="og:title" content="{{ $title }}" />
+  {{ if $desc }}<meta property="og:description" content="{{ $desc }}" />{{ end }}
+  {{ if .site_name }}<meta property="og:site_name" content="{{ .site_name }}" />{{ end }}
+  <meta property="og:type" content="{{ or .og_type "website" }}" />
+  {{ if .current_url }}<meta property="og:url" content="{{ .current_url }}" />{{ end }}
   {{ if .current_url }}<link rel="canonical" href="{{ .current_url }}" />{{ end }}
-  {{ if .NoIndex }}<meta name="robots" content="noindex" />{{ end }}
+  {{ if $image }}
+  <meta property="og:image" content="{{ $image }}" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="1024" />
+  {{ end }}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ $title }}" />
+  {{ if $desc }}<meta name="twitter:description" content="{{ $desc }}" />{{ end }}
+  {{ if $image }}<meta name="twitter:image" content="{{ $image }}" />{{ end }}
   {{ if .Refresh }}<meta http-equiv="refresh" content="5" />{{ end }}
+  {{ .scraper_guard_meta }}
+  {{ .json_ld_html }}
   <link rel="icon" type="image/png" href="/static/img/favicon.png?v=2" />
   {{ if .SnapJS }}<script src="{{ .SnapJS }}" data-client-key="{{ .ClientKey }}"></script>{{ end }}
-  <link rel="stylesheet" href="/static/css/portfolio.css?v=97" />
+  <link rel="stylesheet" href="/static/css/portfolio.css?v=102" />
+  {{ if .header_script }}{{ .header_script }}{{ end }}
   {{ if .font_stylesheet }}<link rel="stylesheet" href="{{ .font_stylesheet }}" />{{ end }}
   {{ if .font_family }}
   <style>
@@ -51,9 +79,11 @@
   </header>
   <main{{ if ne .layout "home" }} class="pf-sheet"{{ end }}>
     {{ if eq .layout "home" }}
+    {{ if .breadcrumbs }}<div class="pf-wrap pf-crumb-wrap">{{ template "pf-crumb" . }}</div>{{ end }}
     {{ template "pf-main" . }}
     {{ else }}
     <div class="pf-wrap pf-subpage{{ if eq .layout "article" }} pf-wrap--article{{ end }}">
+      {{ template "pf-crumb" . }}
       {{ template "pf-main" . }}
     </div>
     {{ end }}
@@ -207,6 +237,20 @@
       wrap.appendChild(table);
     });
   </script>
+  {{ if .footer_script }}{{ .footer_script }}{{ end }}
 </body>
 </html>
+{{ end }}
+
+{{ define "pf-crumb" }}
+{{ if .breadcrumbs }}
+<nav class="pf-crumb" aria-label="Breadcrumb">
+  <ol>
+    {{ range $i, $c := .breadcrumbs }}
+    {{ if $i }}<li class="pf-crumb-sep" aria-hidden="true">/</li>{{ end }}
+    <li>{{ if $c.Href }}<a href="{{ $c.Href }}">{{ $c.Name }}</a>{{ else }}<span {{ if $c.Current }}aria-current="page"{{ end }}>{{ $c.Name }}</span>{{ end }}</li>
+    {{ end }}
+  </ol>
+</nav>
+{{ end }}
 {{ end }}

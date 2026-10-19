@@ -1031,7 +1031,7 @@ func serveClientStaticPage(c *gin.Context, db *gorm.DB, page *entity.Page) error
 	}
 	injectClientVerificationMeta(db, data)
 	injectClientAbsoluteAssetURLs(c, siteSetting, data)
-	return renderPortfolioFile(c, http.StatusOK, "info.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "info.html", data)
 }
 
 func serveClientErrorPage(c *gin.Context, db *gorm.DB, status int, heading, description string) {
@@ -1054,7 +1054,7 @@ func serveClientErrorPage(c *gin.Context, db *gorm.DB, status int, heading, desc
 	data["error_title"] = heading
 	data["error_description"] = description
 	data["SiteName"] = portfolioSiteName(siteSetting)
-	if err := renderPortfolioFile(c, status, "error.html", data); err != nil {
+	if err := renderPortfolioFile(c, db, status, "error.html", data); err != nil {
 		c.String(status, "error: %s", http.StatusText(status))
 	}
 }
@@ -1300,7 +1300,7 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		injectClientVerificationMeta(db, data)
 		injectClientAbsoluteAssetURLs(c, siteSetting, data)
 		data["SiteName"] = portfolioSiteName(siteSetting)
-		if err := renderPortfolioFile(c, http.StatusOK, "rss.html", data); err != nil {
+		if err := renderPortfolioFile(c, db, http.StatusOK, "rss.html", data); err != nil {
 			c.String(http.StatusInternalServerError, "render error: %v", err)
 			return
 		}
@@ -1662,6 +1662,8 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		injectClientVerificationMeta(db, data)
 		injectClientAbsoluteAssetURLs(c, siteSetting, data)
 		data["SiteName"] = portfolioSiteName(siteSetting)
+		data["NoIndex"] = true
+		applyPortfolioHead(c, db, data)
 
 		if err := tmpl.ExecuteTemplate(c.Writer, "pf-app", data); err != nil {
 			c.String(http.StatusInternalServerError, "render error: %v", err)
@@ -2603,7 +2605,7 @@ func serveClientCategoryPage(c *gin.Context, db *gorm.DB, category *entity.Categ
 	data["pagination_links"] = client.BuildPaginationLinks(page, totalPages, client.CategoryPublicWebPath(*category))
 	data["pagination_page"] = page
 	data["pagination_total_pages"] = totalPages
-	return renderPortfolioFile(c, http.StatusOK, "blog.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "blog.html", data)
 }
 
 func serveClientTagPage(c *gin.Context, db *gorm.DB, tag *entity.Tag) error {
@@ -2649,7 +2651,7 @@ func serveClientTagPage(c *gin.Context, db *gorm.DB, tag *entity.Tag) error {
 	data["pagination_links"] = client.BuildPaginationLinks(page, totalPages, tagPath)
 	data["pagination_page"] = page
 	data["pagination_total_pages"] = totalPages
-	return renderPortfolioFile(c, http.StatusOK, "blog.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "blog.html", data)
 }
 
 func serveClientPostsPage(c *gin.Context, db *gorm.DB) error {
@@ -2694,7 +2696,7 @@ func serveClientPostsPage(c *gin.Context, db *gorm.DB) error {
 	data["pagination_links"] = client.BuildPaginationLinks(page, totalPages, "/posts")
 	data["pagination_page"] = page
 	data["pagination_total_pages"] = totalPages
-	return renderPortfolioFile(c, http.StatusOK, "blog.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "blog.html", data)
 }
 
 func matchAuthorSlug(u entity.User, slug string) bool {
@@ -2810,7 +2812,7 @@ func serveClientAuthorPage(c *gin.Context, db *gorm.DB, slug string) error {
 	data["pagination_links"] = client.BuildPaginationLinks(page, totalPages, client.AuthorPublicListPath(slug))
 	data["pagination_page"] = page
 	data["pagination_total_pages"] = totalPages
-	return renderPortfolioFile(c, http.StatusOK, "blog.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "blog.html", data)
 }
 
 func authorRoleLabel(role string) string {
@@ -3090,7 +3092,7 @@ func serveClientArticlePage(c *gin.Context, db *gorm.DB, post *entity.Post) erro
 	injectClientVerificationMeta(db, data)
 	injectClientAbsoluteAssetURLs(c, siteSetting, data)
 	data["layout"] = "article"
-	return renderPortfolioFile(c, http.StatusOK, "article.html", data)
+	return renderPortfolioFile(c, db, http.StatusOK, "article.html", data)
 }
 
 // loadAllHTMLTemplates loads all HTML templates from a directory.
