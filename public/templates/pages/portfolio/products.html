@@ -1,0 +1,24 @@
+{{ define "pf-main" }}
+<div class="pf-product-page">
+  <div class="pf-section-head">
+    <p class="pf-kicker">Template</p>
+    <h1 class="pf-list-title">Produk</h1>
+    <p class="pf-lead">Pilih tampilan halaman. Isinya tetap bisa dikustomisasi.</p>
+  </div>
+  <div class="pf-product-grid">
+    {{ range .Products }}
+    <a class="pf-product" href="/produk/{{ .Slug }}">
+      <span class="pf-product-frame tone-{{ .Tone }}" aria-hidden="true">
+        <span class="pf-product-bar"></span>
+        <span class="pf-product-face">
+          <span class="pf-product-avatar"></span>
+          <span class="pf-product-lines"><i></i><i></i><i></i></span>
+        </span>
+      </span>
+      <strong>{{ .Name }}</strong>
+      <span>{{ .Summary }}</span>
+    </a>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

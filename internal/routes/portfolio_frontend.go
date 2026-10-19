@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -23,9 +24,20 @@ import (
 	"github.com/Bebii-Digital/bebii-blog/internal/portfolio"
 )
 
+func portfolioSettings(db *gorm.DB, cfg config.Config) portfolio.Settings {
+	return portfolio.LoadSettings(db, cfg)
+}
+
 func portfolioSvc(db *gorm.DB, cfg config.Config) *portfolio.Service {
-	client := midtrans.NewClient(cfg.MidtransServerKey, cfg.MidtransClientKey, cfg.MidtransIsProduction)
-	return portfolio.NewService(db, cfg.PortfolioPrice, client)
+	settings := portfolioSettings(db, cfg)
+	client := midtrans.NewClient(settings.MidtransServerKey, settings.MidtransClientKey, settings.MidtransIsProduction)
+	return portfolio.NewService(db, portfolio.Options{
+		Price:           settings.Price,
+		Payments:        client,
+		PaymentWhatsApp: settings.PaymentWhatsApp,
+		RootDomain:      cfg.PortfolioRootDomain,
+		DNS:             settings.DNS(),
+	})
 }
 
 // PortfolioHostMiddleware serves an active buyer site on {name}.{root} and leaves the apex site alone.
@@ -58,6 +70,36 @@ func PortfolioHostMiddleware(db *gorm.DB, cfg config.Config) gin.HandlerFunc {
 }
 
 func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
+	r.GET("/produk", func(c *gin.Context) {
+		setting := loadSiteSetting(db)
+		if err := renderPortfolioFile(c, http.StatusOK, "products.html", gin.H{
+			"Title":    "Produk",
+			"SiteName": portfolioSiteName(setting),
+			"Favicon":  strings.TrimSpace(setting.FaviconURL),
+			"Products": portfolio.Templates(),
+		}); err != nil {
+			c.String(http.StatusInternalServerError, "render error: %v", err)
+		}
+	})
+	r.GET("/produk/:slug", func(c *gin.Context) {
+		item, ok := portfolio.TemplateBySlug(c.Param("slug"))
+		if !ok {
+			c.Redirect(http.StatusFound, "/produk")
+			return
+		}
+		setting := loadSiteSetting(db)
+		if err := renderPortfolioFile(c, http.StatusOK, "product.html", gin.H{
+			"Title":    item.Name,
+			"SiteName": portfolioSiteName(setting),
+			"Favicon":  strings.TrimSpace(setting.FaviconURL),
+			"Name":     item.Name,
+			"Summary":  item.Summary,
+			"Detail":   item.Detail,
+			"Tone":     item.Tone,
+		}); err != nil {
+			c.String(http.StatusInternalServerError, "render error: %v", err)
+		}
+	})
 	r.GET("/testimoni", func(c *gin.Context) {
 		setting := loadSiteSetting(db)
 		if err := renderPortfolioFile(c, http.StatusOK, "testimoni.html", gin.H{
@@ -97,7 +139,17 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			renderPortfolioCheckout(c, db, cfg, fields, msg)
 			return
 		}
-		c.Redirect(http.StatusSeeOther, "/beli/bayar/"+order.PublicRef)
+		link, err := portfolio.BuyerWhatsAppLink(portfolioSettings(db, cfg).PaymentWhatsApp, *order, cfg.PortfolioRootDomain)
+		if err != nil {
+			msg := "Pembelian gagal disimpan."
+			var inputErr *portfolio.InputError
+			if errors.As(err, &inputErr) {
+				msg = inputErr.Message
+			}
+			renderPortfolioCheckout(c, db, cfg, fields, msg)
+			return
+		}
+		c.Redirect(http.StatusSeeOther, link)
 	})
 	r.GET("/beli/bayar/:ref", func(c *gin.Context) {
 		renderPortfolioPay(c, db, cfg, c.Param("ref"))
@@ -240,7 +292,31 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 
 func registerPortfolioAdminRoutes(adminOnly *gin.RouterGroup, db *gorm.DB, cfg config.Config) {
 	adminOnly.GET("/portfolios", func(c *gin.Context) {
-		renderPortfolioAdmin(c, db, cfg, c.Query("error"))
+		renderPortfolioAdmin(c, db, cfg, c.Query("error"), c.Query("tersimpan") == "1")
+	})
+	adminOnly.POST("/portfolios/settings", func(c *gin.Context) {
+		err := portfolio.SaveSettings(db, portfolio.SettingForm{
+			Price:                   c.PostForm("price"),
+			PaymentWhatsApp:         c.PostForm("payment_whatsapp"),
+			CloudflareAPIToken:     c.PostForm("cloudflare_api_token"),
+			CloudflareZoneID:        c.PostForm("cloudflare_zone_id"),
+			CloudflareRecordType:    c.PostForm("cloudflare_record_type"),
+			CloudflareRecordContent: c.PostForm("cloudflare_record_content"),
+			CloudflareProxied:       c.PostForm("cloudflare_proxied") == "1",
+			MidtransServerKey:       c.PostForm("midtrans_server_key"),
+			MidtransClientKey:       c.PostForm("midtrans_client_key"),
+			MidtransIsProduction:    c.PostForm("midtrans_is_production") == "1",
+		})
+		if err != nil {
+			msg := "Pengaturan gagal disimpan."
+			var inputErr *portfolio.InputError
+			if errors.As(err, &inputErr) {
+				msg = inputErr.Message
+			}
+			c.Redirect(http.StatusSeeOther, "/admin/portfolios?error="+template.URLQueryEscaper(msg))
+			return
+		}
+		c.Redirect(http.StatusSeeOther, "/admin/portfolios?tersimpan=1")
 	})
 	adminOnly.POST("/portfolios/:id/status", func(c *gin.Context) {
 		id64, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -290,7 +366,7 @@ func sampleTestimonials() []gin.H {
 		{"Name": "Rina Putri", "Role": "Desainer grafis, Bandung", "Quote": "Alamatnya saya taruh di bio Instagram. Klien langsung buka, tidak perlu saya kirim PDF lagi."},
 		{"Name": "Dimas Arya", "Role": "Analis data, Jakarta", "Quote": "Malam itu saya isi keahlian dan dua proyek. Besok paginya tautannya sudah saya lampirkan di lamaran."},
 		{"Name": "Sari Wulandari", "Role": "Fotografer, Yogyakarta", "Quote": "Foto dan daftar proyeknya rapi. Hosting tidak perlu saya urus sendiri."},
-		{"Name": "Andi Pratama", "Role": "Mahasiswa, Surabaya", "Quote": "Sekali bayar. Password saya atur sendiri, bio dan kontak bisa diubah kapan saja."},
+		{"Name": "Andi Pratama", "Role": "Mahasiswa, Surabaya", "Quote": "Password saya atur sendiri, bio dan kontak bisa diubah kapan saja."},
 		{"Name": "Lala Kusuma", "Role": "Penulis lepas, Denpasar", "Quote": "Lebih gampang dikirim ke klien daripada folder yang isinya campur aduk."},
 		{"Name": "Bima Santoso", "Role": "Product designer, Tangerang", "Quote": "Namanya pendek, jadi enak saya sebut saat wawancara."},
 	}
@@ -315,10 +391,11 @@ func renderPortfolioLanding(c *gin.Context, db *gorm.DB, cfg config.Config) erro
 		"SiteName":    name,
 		"Favicon":     strings.TrimSpace(setting.FaviconURL),
 		"Root":        cfg.PortfolioRootDomain,
-		"PriceLabel":  portfolio.FormatIDR(cfg.PortfolioPrice),
+		"PriceLabel":  portfolio.FormatIDR(portfolioSettings(db, cfg).Price),
 		"DemoURL":     demoURL,
 		"Articles":    portfolioLandingArticles(db, setting),
 		"Quotes":      sampleTestimonials()[:3],
+		"Products":    portfolio.HomeTemplates(),
 	})
 }
 
@@ -339,7 +416,7 @@ func renderPortfolioCheckout(c *gin.Context, db *gorm.DB, cfg config.Config, fie
 		"SiteName":   portfolioSiteName(setting),
 		"Favicon":    strings.TrimSpace(setting.FaviconURL),
 		"Root":       cfg.PortfolioRootDomain,
-		"PriceLabel": portfolio.FormatIDR(cfg.PortfolioPrice),
+		"PriceLabel": portfolio.FormatIDR(portfolioSettings(db, cfg).Price),
 		"Name":       fields.Name,
 		"Email":      fields.Email,
 		"WhatsApp":   fields.WhatsApp,
@@ -556,7 +633,7 @@ func renderPortfolioManage(c *gin.Context, db *gorm.DB, cfg config.Config, site 
 	}
 }
 
-func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, message string) {
+func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, message string, saved bool) {
 	sites, orders, err := portfolioSvc(db, cfg).AdminLists()
 	if err != nil {
 		c.String(http.StatusInternalServerError, "portfolio: %v", err)
@@ -595,9 +672,21 @@ func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, messag
 		return
 	}
 	data := adminSitePage(db, "Portfolio", "portfolios", nil)
+	settings := portfolioSettings(db, cfg)
 	data["sites"] = siteRows
 	data["orders"] = orderRows
 	data["error"] = message
+	data["saved"] = saved
+	data["price"] = settings.Price
+	data["payment_whatsapp"] = settings.PaymentWhatsApp
+	data["cloudflare_zone_id"] = settings.CloudflareZoneID
+	data["cloudflare_record_type"] = settings.CloudflareRecordType
+	data["cloudflare_record_content"] = settings.CloudflareRecordContent
+	data["cloudflare_proxied"] = settings.CloudflareProxied
+	data["cloudflare_token_set"] = settings.CloudflareAPIToken != ""
+	data["midtrans_is_production"] = settings.MidtransIsProduction
+	data["midtrans_server_set"] = settings.MidtransServerKey != ""
+	data["midtrans_client_set"] = settings.MidtransClientKey != ""
 	if err := executeAdminTemplate(c, tmpl, db, data); err != nil {
 		c.String(http.StatusInternalServerError, "render error: %v", err)
 	}
@@ -611,10 +700,17 @@ func renderPortfolioFile(c *gin.Context, status int, name string, data any) erro
 	if err != nil {
 		return err
 	}
-	if status > 0 {
-		c.Status(status)
+	// Write the page in one shot. The gzip middleware drops a short first
+	// chunk when a later write is large, which was stripping <head> on /beli.
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, "pf-app", data); err != nil {
+		return err
 	}
-	return tmpl.ExecuteTemplate(c.Writer, "pf-app", data)
+	if status <= 0 {
+		status = http.StatusOK
+	}
+	c.Data(status, "text/html; charset=utf-8", buf.Bytes())
+	return nil
 }
 
 func portfolioLandingArticles(db *gorm.DB, setting entity.SiteSetting) []gin.H {

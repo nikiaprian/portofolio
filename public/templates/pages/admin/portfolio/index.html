@@ -5,6 +5,71 @@
     <p class="text-secondary mb-0">Pesanan dan situs subdomain pembeli.</p>
   </div>
   {{ if .error }}<div class="alert alert-warning">{{ .error }}</div>{{ end }}
+  {{ if .saved }}<div class="alert alert-success">Pengaturan tersimpan.</div>{{ end }}
+
+  <form class="card shadow-sm mb-4" method="post" action="{{ .public_base }}/admin/portfolios/settings">
+    <div class="card-header">Pengaturan pembelian</div>
+    <div class="card-body">
+      <p class="text-secondary">Pembelian saat ini diarahkan ke WhatsApp. Midtrans tetap disimpan untuk dipakai nanti. Cloudflare dipakai untuk mengecek dan menambahkan subdomain saat ada yang membeli.</p>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="pf-price">Harga (rupiah)</label>
+          <input class="form-control" id="pf-price" name="price" inputmode="numeric" required value="{{ .price }}" />
+        </div>
+        <div class="col-md-8">
+          <label class="form-label" for="pf-wa">WhatsApp pembayaran</label>
+          <input class="form-control" id="pf-wa" name="payment_whatsapp" value="{{ .payment_whatsapp }}" placeholder="08…" />
+          <div class="form-text">Nomor yang menerima pesan dari pembeli.</div>
+        </div>
+        <div class="col-12"><h2 class="h6 mb-0">Cloudflare</h2></div>
+        <div class="col-md-6">
+          <label class="form-label" for="pf-cf-token">API token</label>
+          <input class="form-control" id="pf-cf-token" name="cloudflare_api_token" type="password" autocomplete="off" placeholder="{{ if .cloudflare_token_set }}Token tersimpan{{ end }}" />
+          <div class="form-text">Kosongkan jika tidak ingin mengubah token.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="pf-cf-zone">Zone ID</label>
+          <input class="form-control" id="pf-cf-zone" name="cloudflare_zone_id" value="{{ .cloudflare_zone_id }}" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="pf-cf-type">Jenis DNS</label>
+          <select class="form-select" id="pf-cf-type" name="cloudflare_record_type">
+            <option value="CNAME" {{ if ne .cloudflare_record_type "A" }}selected{{ end }}>CNAME</option>
+            <option value="A" {{ if eq .cloudflare_record_type "A" }}selected{{ end }}>A</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="pf-cf-content">Tujuan DNS</label>
+          <input class="form-control" id="pf-cf-content" name="cloudflare_record_content" value="{{ .cloudflare_record_content }}" placeholder="nama server atau alamat IP" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="pf-cf-proxied" name="cloudflare_proxied" value="1" {{ if .cloudflare_proxied }}checked{{ end }} />
+            <label class="form-check-label" for="pf-cf-proxied">Proxy Cloudflare</label>
+          </div>
+        </div>
+        <div class="col-12"><h2 class="h6 mb-0">Midtrans</h2></div>
+        <div class="col-md-6">
+          <label class="form-label" for="pf-mt-server">Server key</label>
+          <input class="form-control" id="pf-mt-server" name="midtrans_server_key" type="password" autocomplete="off" placeholder="{{ if .midtrans_server_set }}Key tersimpan{{ end }}" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="pf-mt-client">Client key</label>
+          <input class="form-control" id="pf-mt-client" name="midtrans_client_key" type="password" autocomplete="off" placeholder="{{ if .midtrans_client_set }}Key tersimpan{{ end }}" />
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="pf-mt-prod" name="midtrans_is_production" value="1" {{ if .midtrans_is_production }}checked{{ end }} />
+            <label class="form-check-label" for="pf-mt-prod">Mode production</label>
+          </div>
+          <div class="form-text">Kosongkan server key dan client key jika tidak ingin mengubahnya.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-primary" type="submit">Simpan pengaturan</button>
+    </div>
+  </form>
 
   <div class="card shadow-sm mb-4">
     <div class="card-header">Situs</div>

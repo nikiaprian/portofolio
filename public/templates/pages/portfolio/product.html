@@ -1,0 +1,21 @@
+{{ define "pf-main" }}
+<div class="pf-product-page pf-product-detail">
+  <p class="pf-kicker">Template</p>
+  <h1>{{ .Name }}</h1>
+  <p class="pf-lead">{{ .Detail }}</p>
+  <div class="pf-product-stage tone-{{ .Tone }}" aria-hidden="true">
+    <div class="pf-product-frame">
+      <span class="pf-product-bar"></span>
+      <span class="pf-product-face">
+        <span class="pf-product-avatar"></span>
+        <span class="pf-product-lines"><i></i><i></i><i></i></span>
+      </span>
+    </div>
+  </div>
+  <p class="pf-lead">{{ .Summary }}</p>
+  <div class="pf-actions">
+    <a class="pf-btn" href="/beli">Pakai template ini</a>
+    <a class="pf-btn alt" href="/produk">Semua produk</a>
+  </div>
+</div>
+{{ end }}

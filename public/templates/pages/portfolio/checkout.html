@@ -1,9 +1,9 @@
 {{ define "pf-main" }}
-<div class="pf-split">
+<div class="pf-split pf-checkout">
   <div>
     <p class="pf-kicker">Checkout</p>
     <h1>Ambil subdomain Anda.</h1>
-    <p class="pf-lead">Setelah lunas, situs tampil di nama yang Anda pilih. Password diatur dari halaman selesai bayar.</p>
+    <p class="pf-lead">Situs tampil dengan nama yang Anda pilih.</p>
   </div>
   <form class="pf-form pf-card" method="post" action="/beli">
     {{ if .Error }}<p class="pf-error">{{ .Error }}</p>{{ end }}
@@ -14,7 +14,7 @@
       <input name="subdomain" required minlength="3" maxlength="30" pattern="[a-z0-9][a-z0-9-]{1,28}[a-z0-9]" value="{{ .Subdomain }}" placeholder="namaanda" />
     </label>
     <p class="pf-help">Alamat: <strong id="pf-host">{{ if .Subdomain }}{{ .Subdomain }}{{ else }}nama{{ end }}.{{ .Root }}</strong></p>
-    <button class="pf-btn" type="submit">Lanjut bayar {{ .PriceLabel }}</button>
+    <button class="pf-btn" type="submit">Lanjut Pembayaran</button>
   </form>
 </div>
 <script>

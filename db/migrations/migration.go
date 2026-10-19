@@ -195,6 +195,7 @@ func Run(db *gorm.DB) error {
 		&entity.Portfolio{},
 		&entity.PortfolioOrder{},
 		&entity.PortfolioAccount{},
+		&entity.PortfolioSetting{},
 	); err != nil {
 		return err
 	}

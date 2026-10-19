@@ -1,82 +1,169 @@
 {{ define "pf-main" }}
 <section class="pf-hero">
   <div class="pf-wrap pf-hero-grid">
-    <div>
-      <p class="pf-kicker">Portfolio online</p>
-      <h1>Punya alamat sendiri untuk karya Anda.</h1>
-      <p class="pf-lead">Beli sekali, dapat subdomain, lalu isi foto, bio, keahlian, proyek, dan kontak. Situsnya langsung hidup setelah pembayaran lunas.</p>
+    <div class="pf-hero-copy">
+      <p class="pf-kicker">Untuk portofolio yang ingin Anda kirim</p>
+      <h1>Satu tautan, dan portofolio Anda <span>langsung kelihatan.</span></h1>
+      <p class="pf-lead">Foto, cerita singkat, keahlian, dan proyek bisa duduk di satu halaman. Pilih namanya, lalu isi sendiri. Tautannya siap dikirim.</p>
       <div class="pf-actions">
-        <a class="pf-btn" href="/beli">Ambil subdomain</a>
-        <a class="pf-btn alt" href="/#cara">Lihat caranya</a>
+        <a class="pf-btn" href="/beli">Buat Portofolio-ku</a>
       </div>
       <ul class="pf-trust">
-        <li>Sekali bayar</li>
-        <li>Aktif setelah lunas</li>
-        <li>Isi diubah kapan saja</li>
+        <li>Domain dengan nama Anda</li>
+        <li>Langsung aktif</li>
+        <li>Dapat dikustomisasi kapanpun</li>
       </ul>
     </div>
+    <div class="pf-preview-stage">
     <aside class="pf-preview" aria-label="Contoh tampilan portfolio">
-      <div class="pf-preview-bar"><span></span><span></span><span></span><em>namaanda.{{ .Root }}</em></div>
-      <div class="pf-preview-cover" aria-hidden="true"></div>
-      <div class="pf-preview-body">
-        <div class="pf-preview-who">
-          <div class="pf-preview-avatar" aria-hidden="true">NA</div>
-          <div>
-            <strong>Nama Anda</strong>
-            <p>Desainer produk</p>
+      <div class="pf-preview-bar"><span></span><span></span><span></span><em>nama.{{ .Root }}</em></div>
+      <div class="pf-preview-tabs" role="tablist" aria-label="Isi halaman">
+        <button type="button" role="tab" class="is-active" data-preview="profil" aria-selected="true">Profil</button>
+        <button type="button" role="tab" data-preview="proyek" aria-selected="false">Proyek</button>
+        <button type="button" role="tab" data-preview="kontak" aria-selected="false">Kontak</button>
+      </div>
+      <div class="pf-preview-panel is-active" data-preview-panel="profil">
+        <div class="pf-preview-cover" aria-hidden="true"><img src="/static/img/preview-cover.jpg" alt=""></div>
+        <div class="pf-preview-body">
+          <div class="pf-preview-avatar" aria-hidden="true"><img src="/static/img/preview-avatar.jpg" alt=""></div>
+          <div class="pf-preview-who">
+            <div>
+              <strong>Nama Anda</strong>
+              <p>Desainer produk</p>
+            </div>
+            <div class="pf-preview-edu">
+              <span class="pf-preview-edu-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10 12 5l9 5-9 5-9-5Z"/><path d="M7 12.2V16c1.4 1.2 3.1 1.8 5 1.8s3.6-.6 5-1.8v-3.8"/></svg>
+              </span>
+              <div>
+                <span>Pendidikan</span>
+                <strong>Nama kampus</strong>
+              </div>
+            </div>
+          </div>
+          <p>Satu halaman yang bisa dikirim ke klien, lamaran, atau bio media sosial.</p>
+          <div class="pf-chip-row">
+            <span class="pf-chip">Foto</span>
+            <span class="pf-chip">Bio</span>
+            <span class="pf-chip">Keahlian</span>
+            <span class="pf-chip">Proyek</span>
+            <span class="pf-chip">Kontak</span>
           </div>
         </div>
-        <p>Satu halaman yang bisa dikirim ke klien, lamaran, atau bio media sosial.</p>
-        <div class="pf-chip-row">
-          <span class="pf-chip">Foto</span>
-          <span class="pf-chip">Bio</span>
-          <span class="pf-chip">Keahlian</span>
-          <span class="pf-chip">Proyek</span>
-          <span class="pf-chip">Kontak</span>
-        </div>
-        <div class="pf-preview-works">
-          <div class="pf-preview-work">
-            <span>Proyek</span>
-            <strong>Situs jurnal</strong>
+      </div>
+      <div class="pf-preview-panel" data-preview-panel="proyek">
+        <div class="pf-preview-body pf-preview-body--plain">
+          <p class="pf-preview-note">Empat karya yang bisa langsung dibuka.</p>
+          <div class="pf-preview-works">
+            <article class="pf-preview-work">
+              <span class="pf-work-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h7.5L18 8v11.5H7z"/><path d="M14.5 4.8V8H18"/><path d="M10 12.2h5M10 15.4h3.6"/></svg></span>
+              <div><strong>Situs jurnal</strong><span>Arsip tulisan yang rapi</span></div>
+            </article>
+            <article class="pf-preview-work pf-work-b">
+              <span class="pf-work-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5h10v13H7z"/><path d="M10 9.2h4M10 12.2h4M10 15.2h2.4"/></svg></span>
+              <div><strong>Aplikasi catatan</strong><span>Catatan yang tinggal diklik</span></div>
+            </article>
+            <article class="pf-preview-work pf-work-c">
+              <span class="pf-work-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="9" r="2.1"/><circle cx="15.5" cy="9" r="2.1"/><circle cx="12" cy="14.6" r="2.1"/></svg></span>
+              <div><strong>Identitas merek</strong><span>Warna dan logo singkat</span></div>
+            </article>
+            <article class="pf-preview-work pf-work-d">
+              <span class="pf-work-art" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="6.5" width="14" height="11" rx="2"/><circle cx="9.2" cy="10.2" r="1.3"/><path d="m6 16 3.4-2.8 2.2 1.8 2-1.4L18 16"/></svg></span>
+              <div><strong>Galeri foto</strong><span>Gambar yang bisa dibuka</span></div>
+            </article>
           </div>
-          <div class="pf-preview-work">
-            <span>Proyek</span>
-            <strong>Aplikasi catatan</strong>
+        </div>
+      </div>
+      <div class="pf-preview-panel" data-preview-panel="kontak">
+        <div class="pf-preview-body pf-preview-body--plain">
+          <p class="pf-preview-note">Orang bisa menghubungi Anda dari sini.</p>
+          <div class="pf-preview-contact">
+            <span class="pf-contact-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.2"/><path d="m4.2 7.2 7.8 5.6 7.8-5.6"/></svg></span>
+            <div><span>Email</span><strong>nama@domain.id</strong></div>
+          </div>
+          <div class="pf-preview-contact">
+            <span class="pf-contact-mark pf-contact-wa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 17.8 8.1 15.6a6.4 6.4 0 1 1 2.4 2.3l-3.3-.1Z"/></svg></span>
+            <div><span>WhatsApp</span><strong>0812 0000 0000</strong></div>
+          </div>
+          <div class="pf-preview-contact">
+            <span class="pf-contact-mark pf-contact-link" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.2 4.2 0 0 0 6 .4l1.4-1.4a4.2 4.2 0 0 0-6-6L10 8.4"/><path d="M14 10a4.2 4.2 0 0 0-6-.4L6.6 11a4.2 4.2 0 0 0 6 6L14 15.6"/></svg></span>
+            <div><span>Tautan</span><strong>nama.{{ .Root }}</strong></div>
+          </div>
+          <div class="pf-preview-contact">
+            <span class="pf-contact-mark pf-contact-ig" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="4"/><circle cx="12" cy="12" r="3.1"/><circle cx="16.3" cy="7.7" r="0.7" fill="currentColor" stroke="none"/></svg></span>
+            <div><span>Instagram</span><strong>@namaanda</strong></div>
           </div>
         </div>
       </div>
     </aside>
+    <div class="pf-float" aria-hidden="true">Contoh Halaman</div>
+    </div>
+  </div>
+</section>
+
+<section class="pf-band" id="produk">
+  <div class="pf-wrap">
+    <div class="pf-section-head">
+      <p class="pf-kicker">Template</p>
+      <h2 class="pf-section-title">Pilih tampilan halaman</h2>
+      <p class="pf-lead">Template siap dipakai. Bisa dikustomisasi dengan mudah.</p>
+    </div>
+    <div class="pf-product-grid">
+      {{ range .Products }}
+      <a class="pf-product" href="/produk/{{ .Slug }}">
+        <span class="pf-product-frame tone-{{ .Tone }}" aria-hidden="true">
+          <span class="pf-product-bar"></span>
+          <span class="pf-product-face">
+            <span class="pf-product-avatar"></span>
+            <span class="pf-product-lines"><i></i><i></i><i></i></span>
+          </span>
+        </span>
+        <strong>{{ .Name }}</strong>
+        <span>{{ .Summary }}</span>
+      </a>
+      {{ end }}
+    </div>
+    <div class="pf-actions pf-center"><a class="pf-btn alt" href="/produk">Lihat semua produk</a></div>
   </div>
 </section>
 
 <section class="pf-band pf-band-plain" id="isi">
   <div class="pf-wrap">
     <div class="pf-section-head">
-      <p class="pf-kicker">Isinya</p>
-      <h2 class="pf-section-title">Yang tampil di situs</h2>
-      <p class="pf-lead">Satu halaman yang cukup untuk dikirim, tanpa Anda mengurus hosting.</p>
+      <p class="pf-kicker">Di halaman Anda</p>
+      <h2 class="pf-section-title">Satu halaman yang langsung terbaca</h2>
+      <p class="pf-lead">Profil, keahlian, proyek, dan kontak tersusun rapi. Cukup dibuka lewat tautannya.</p>
     </div>
-    <div class="pf-grid">
-      <article class="pf-card pf-feature">
+    <div class="pf-bento">
+      <article class="pf-card pf-feature pf-bento-wide">
         <span class="pf-feature-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.2"/><path d="M5 19.2c1.4-3 3.8-4.5 7-4.5s5.6 1.5 7 4.5"/></svg>
         </span>
         <h3>Profil</h3>
-        <p>Foto, nama, kalimat pembuka, dan bio singkat.</p>
+        <p>Foto, nama, dan beberapa kalimat untuk mendeskripsikan tentang Anda.</p>
+        <div class="pf-bento-sample" aria-hidden="true">
+          <img src="/static/img/preview-avatar.jpg" alt="">
+          <div>
+            <strong>Nama Anda</strong>
+            <small>Desainer produk</small>
+            <p>Membuat produk yang enak dipakai, dari riset sampai tampilan.</p>
+            <div class="pf-bento-tags"><span>Riset</span><span>Antarmuka</span><span>Prototipe</span></div>
+          </div>
+        </div>
       </article>
       <article class="pf-card pf-feature">
         <span class="pf-feature-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         </span>
         <h3>Keahlian dan proyek</h3>
-        <p>Daftar keahlian plus kartu proyek dengan tautan.</p>
+        <p>Keahlian yang dikuasai, plus proyek yang bisa diklik.</p>
       </article>
       <article class="pf-card pf-feature">
         <span class="pf-feature-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7.5h14v10.2H5z"/><path d="M5 8.2 12 13l7-4.8"/></svg>
         </span>
         <h3>Kontak</h3>
-        <p>Email, WhatsApp, dan tautan yang ingin Anda bagikan.</p>
+        <p>Email, WhatsApp, atau tautan lain yang ingin dibagikan.</p>
       </article>
     </div>
   </div>
@@ -85,14 +172,14 @@
 <section class="pf-band" id="cara">
   <div class="pf-wrap">
     <div class="pf-section-head">
-      <p class="pf-kicker">Langkah</p>
-      <h2 class="pf-section-title">Cara kerjanya</h2>
-      <p class="pf-lead">Tiga langkah, lalu alamat itu bisa langsung Anda kirim.</p>
+      <p class="pf-kicker">Tiga langkah</p>
+      <h2 class="pf-section-title">Dari nama domain sampai halaman jadi</h2>
+      <p class="pf-lead">Pilih nama domain, selesaikan pembayaran, lalu kustomisasi isinya.</p>
     </div>
     <div class="pf-grid">
-      <article class="pf-card"><p class="pf-step">01</p><h3>Pilih nama</h3><p>Isi nama, email, WhatsApp, dan subdomain yang masih kosong.</p></article>
-      <article class="pf-card"><p class="pf-step">02</p><h3>Bayar</h3><p>Pembayaran lewat Midtrans. Setelah lunas, alamat itu langsung aktif.</p></article>
-      <article class="pf-card"><p class="pf-step">03</p><h3>Isi portfolio</h3><p>Atur password, lalu lengkapi isi dari halaman kelola.</p></article>
+      <article class="pf-card"><p class="pf-step">01</p><h3>Pilih nama domain</h3><p>Nama yang masih kosong, email dan WhatsApp.</p></article>
+      <article class="pf-card"><p class="pf-step">02</p><h3>Pembayaran</h3><p>Pembayaran mudah dan cepat. Alamatnya langsung aktif.</p></article>
+      <article class="pf-card"><p class="pf-step">03</p><h3>Kustomisasi</h3><p>Lengkapi foto, bio, keahlian, proyek, dan kontak dari halaman kelola.</p></article>
     </div>
   </div>
 </section>
@@ -100,9 +187,9 @@
 <section class="pf-band pf-band-plain" id="testimoni">
   <div class="pf-wrap">
     <div class="pf-section-head">
-      <p class="pf-kicker">Ulasan</p>
-      <h2 class="pf-section-title">Testimoni</h2>
-      <p class="pf-lead">Mereka memakai alamatnya untuk lamaran, klien, dan bio.</p>
+      <p class="pf-kicker">Dari pemakainya</p>
+      <h2 class="pf-section-title">Mereka sudah mengirim tautannya</h2>
+      <p class="pf-lead">Ada yang untuk lamaran, ada yang untuk klien, ada yang ditaruh di bio.</p>
     </div>
     <div class="pf-quotes">
       {{ range .Quotes }}
@@ -121,12 +208,12 @@
   <div class="pf-wrap">
     <div class="pf-demo">
       <div>
-        <p class="pf-kicker">Langsung bisa dibuka</p>
-        <h2>Lihat halaman yang sudah online</h2>
-        <p class="pf-lead">Satu template yang sama dipakai setiap pembeli. Isinya yang berbeda.</p>
+        <p class="pf-kicker">Contoh halaman</p>
+        <h2>Lihat salah satu halamannya</h2>
+        <p class="pf-lead">Susunannya sama. Foto, cerita, dan karyanya yang membedakan.</p>
       </div>
       {{ if .DemoURL }}
-      <div class="pf-actions"><a class="pf-btn alt" href="{{ .DemoURL }}">Buka contoh.{{ .Root }}</a></div>
+      <div class="pf-actions"><a class="pf-btn alt" href="{{ .DemoURL }}">Buka Contoh</a></div>
       {{ else }}
       <p>Contoh akan muncul di <strong>contoh.{{ .Root }}</strong> setelah situs contoh diaktifkan.</p>
       {{ end }}
@@ -137,14 +224,14 @@
 <section class="pf-band pf-band-plain" id="harga">
   <div class="pf-wrap">
     <article class="pf-price-card">
-      <p class="pf-kicker">Sekali bayar</p>
+      <p class="pf-kicker">Untuk satu halaman</p>
       <h2>Harga</h2>
       <p class="pf-price">{{ .PriceLabel }}</p>
-      <p>Satu subdomain dan satu halaman portfolio yang bisa Anda ubah sendiri.</p>
+      <p>Halaman itu lalu bisa Anda ubah sendiri.</p>
       <ul class="pf-includes">
-        <li>Subdomain aktif setelah pembayaran lunas</li>
+        <li>Alamat langsung aktif</li>
         <li>Foto, bio, keahlian, proyek, dan kontak</li>
-        <li>Password dan isi diatur dari halaman kelola</li>
+        <li>Kustomisasi diatur dari halaman kelola</li>
       </ul>
       <div class="pf-actions"><a class="pf-btn" href="/beli">Beli sekarang</a></div>
     </article>
@@ -154,13 +241,13 @@
 <section class="pf-band" id="faq">
   <div class="pf-wrap pf-faq-wrap">
     <div class="pf-section-head">
-      <p class="pf-kicker">Sebelum beli</p>
-      <h2 class="pf-section-title">Pertanyaan</h2>
+      <p class="pf-kicker">Sebelum memutuskan</p>
+      <h2 class="pf-section-title">Pertanyaan yang sering muncul</h2>
     </div>
     <div class="pf-faq">
-      <details open><summary>Kapan subdomain aktif?</summary><p>Begitu pembayaran berstatus lunas. Nama yang belum dibayar dilepas lagi setelah 24 jam.</p></details>
-      <details><summary>Apa yang bisa diubah nanti?</summary><p>Foto, nama, bio, keahlian, proyek, dan kontak. Nama subdomain tidak berubah dari halaman kelola.</p></details>
-      <details><summary>Di mana artikelnya?</summary><p>Artikel tetap ada di menu Artikel. Halaman depan ini khusus untuk menjual portfolio.</p></details>
+      <details open><summary>Kapan alamatnya aktif?</summary><p>Alamatnya langsung aktif. Nama yang tidak dilanjutkan dilepas lagi setelah 24 jam.</p></details>
+      <details><summary>Apa yang masih bisa diubah?</summary><p>Foto, nama, bio, keahlian, proyek, dan kontak. Nama subdomain tidak berubah dari halaman kelola.</p></details>
+      <details><summary>Artikelnya ke mana?</summary><p>Tetap ada di menu Artikel. Halaman depan ini khusus untuk halaman portfolio.</p></details>
     </div>
   </div>
 </section>
@@ -169,7 +256,7 @@
 <section class="pf-band pf-band-plain" id="artikel">
   <div class="pf-wrap">
     <div class="pf-section-head">
-      <p class="pf-kicker">Bacaan</p>
+      <p class="pf-kicker">Kalau ingin membaca dulu</p>
       <h2 class="pf-section-title">Artikel</h2>
     </div>
     <div class="pf-articles">

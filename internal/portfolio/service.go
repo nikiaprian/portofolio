@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	"github.com/Bebii-Digital/bebii-blog/internal/cloudflare"
 	"github.com/Bebii-Digital/bebii-blog/internal/entity"
 	"github.com/Bebii-Digital/bebii-blog/internal/midtrans"
 )
@@ -64,16 +65,35 @@ type Notification struct {
 
 // Service owns portfolio checkout, activation, and buyer edits.
 type Service struct {
-	db       *gorm.DB
-	price    int64
-	payments *midtrans.Client
+	db          *gorm.DB
+	price       int64
+	payments    *midtrans.Client
+	payWhatsApp string
+	rootDomain  string
+	dns         *cloudflare.Client
 }
 
-func NewService(db *gorm.DB, price int64, payments *midtrans.Client) *Service {
-	if price <= 0 {
-		price = 149000
+// Options configures a Service from the current admin settings.
+type Options struct {
+	Price           int64
+	Payments        *midtrans.Client
+	PaymentWhatsApp string
+	RootDomain      string
+	DNS             *cloudflare.Client
+}
+
+func NewService(db *gorm.DB, opt Options) *Service {
+	if opt.Price <= 0 {
+		opt.Price = 149000
 	}
-	return &Service{db: db, price: price, payments: payments}
+	return &Service{
+		db:          db,
+		price:       opt.Price,
+		payments:    opt.Payments,
+		payWhatsApp: strings.TrimSpace(opt.PaymentWhatsApp),
+		rootDomain:  strings.TrimSpace(opt.RootDomain),
+		dns:         opt.DNS,
+	}
 }
 
 func (s *Service) Price() int64 { return s.price }
@@ -95,8 +115,19 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 	if msg := ValidateSubdomain(sub); msg != "" {
 		return nil, &InputError{Message: msg}
 	}
-	if s.payments == nil || !s.payments.Configured() {
-		return nil, &InputError{Message: "Pembayaran belum dikonfigurasi."}
+	if ValidateWhatsApp(s.payWhatsApp) != "" {
+		return nil, &InputError{Message: "Nomor WhatsApp pembayaran belum diatur di admin."}
+	}
+	fqdn := strings.Trim(sub+"."+s.rootDomain, ".")
+	if s.dns != nil {
+		taken, dnsErr := s.dns.Exists(fqdn)
+		if dnsErr != nil {
+			log.Printf("portfolio dns exists: %v", dnsErr)
+			return nil, &InputError{Message: "Pengecekan domain gagal. Coba lagi sebentar."}
+		}
+		if taken {
+			return nil, &InputError{Message: "Subdomain ini sudah dipakai."}
+		}
 	}
 
 	now := time.Now()
@@ -119,6 +150,8 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 		Amount:          s.price,
 		Status:          entity.PortfolioOrderPending,
 	}
+	var stale []entity.Portfolio
+	_ = s.db.Where("status = ? AND created_at < ? AND dns_record_id <> ''", entity.PortfolioPending, now.Add(-PendingHold)).Find(&stale).Error
 	site := entity.Portfolio{
 		Subdomain:   sub,
 		Status:      entity.PortfolioPending,
@@ -158,40 +191,37 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 	if err != nil {
 		return nil, err
 	}
-
-	finish := ""
-	if finishURL != nil {
-		finish = finishURL(order.PublicRef)
+	s.deleteReleasedDNS(stale)
+	if s.dns != nil {
+		recordID, dnsErr := s.dns.Create(fqdn)
+		if dnsErr != nil {
+			log.Printf("portfolio dns create: %v", dnsErr)
+			_ = s.db.Where("portfolio_id = ?", site.ID).Delete(&entity.PortfolioOrder{}).Error
+			_ = s.db.Delete(&entity.Portfolio{}, site.ID).Error
+			return nil, &InputError{Message: "Domain belum bisa ditambahkan. Coba lagi sebentar."}
+		}
+		if err := s.db.Model(&entity.Portfolio{}).Where("id = ?", site.ID).Update("dns_record_id", recordID).Error; err != nil {
+			_ = s.dns.Delete(recordID)
+			return nil, err
+		}
 	}
-	snap, snapErr := s.payments.CreateSnapToken(midtrans.SnapRequest{
-		TransactionDetails: midtrans.TransactionDetails{
-			OrderID:     order.MidtransOrderID,
-			GrossAmount: order.Amount,
-		},
-		ItemDetails: []midtrans.ItemDetail{{
-			ID:       "portfolio",
-			Price:    order.Amount,
-			Quantity: 1,
-			Name:     "Portfolio online " + sub,
-		}},
-		CustomerDetails: &midtrans.CustomerDetails{
-			FirstName: name,
-			Email:     email,
-			Phone:     whatsapp,
-		},
-		Callbacks: &midtrans.SnapCallbacks{Finish: finish},
-	})
-	if snapErr != nil {
-		log.Printf("portfolio snap: %v", snapErr)
-		_ = s.db.Where("portfolio_id = ?", site.ID).Delete(&entity.PortfolioOrder{}).Error
-		_ = s.db.Delete(&entity.Portfolio{}, site.ID).Error
-		return nil, &InputError{Message: "Pembayaran belum bisa dibuat. Coba lagi sebentar."}
-	}
-	order.SnapToken = snap.Token
-	if err := s.db.Model(&order).Update("snap_token", snap.Token).Error; err != nil {
-		return nil, err
-	}
+	_ = finishURL
 	return &order, nil
+}
+
+func (s *Service) deleteReleasedDNS(stale []entity.Portfolio) {
+	if s.dns == nil {
+		return
+	}
+	for _, site := range stale {
+		var n int64
+		if err := s.db.Model(&entity.Portfolio{}).Where("id = ?", site.ID).Count(&n).Error; err != nil || n > 0 {
+			continue
+		}
+		if err := s.dns.Delete(site.DNSRecordID); err != nil {
+			log.Printf("portfolio dns delete: %v", err)
+		}
+	}
 }
 
 func (s *Service) OrderByPublicRef(ref string) (*entity.PortfolioOrder, error) {

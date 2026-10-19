@@ -24,6 +24,7 @@ func TestPortfolioTemplatesParse(t *testing.T) {
 		"landing.html", "checkout.html", "pay.html", "done.html",
 		"public.html", "missing.html", "login.html", "password.html", "manage.html",
 		"blog.html", "article.html", "info.html", "testimoni.html", "error.html", "rss.html",
+		"products.html", "product.html",
 	}
 	for _, name := range pages {
 		path := filepath.Join(root, "public", "templates", "pages", "portfolio", name)
@@ -50,6 +51,8 @@ func TestPortfolioBuyerRoutes(t *testing.T) {
 		found[route.Method+" "+route.Path] = true
 	}
 	for _, want := range []string{
+		"GET /produk",
+		"GET /produk/:slug",
 		"GET /testimoni",
 		"GET /beli",
 		"POST /beli",
@@ -100,7 +103,7 @@ func TestPortfolioPagesRenderCopy(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := buf.String()
-	for _, needle := range []string{"Punya alamat sendiri", "Rp149.000", "Cara menata portfolio", "/posts", "contoh.localhost"} {
+	for _, needle := range []string{"langsung kelihatan", "Rp149.000", "Cara menata portfolio", "/posts", "contoh.localhost"} {
 		if !strings.Contains(body, needle) {
 			t.Fatalf("landing missing %q", needle)
 		}
