@@ -267,16 +267,6 @@
             </li>
             <li class="nav-item">
               <a
-                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/custom-layout"
-                class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "custom_layout") }} active{{ end }}"
-                {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "custom_layout") }}aria-current="page"{{ end }}
-              >
-                <i class="nav-icon bi bi-layout-text-window-reverse" aria-hidden="true"></i>
-                <p>Custom layout</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
                 href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/site-settings"
                 class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "site") }} active{{ end }}"
                 {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "site") }}aria-current="page"{{ end }}

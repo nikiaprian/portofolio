@@ -119,25 +119,26 @@ func NormalizeArticleSchemaType(v string) string {
 	}
 }
 
+const defaultRobotsTxt = "User-agent: *\nAllow: /\n\nSitemap: https://portofolioku.id/sitemap.xml\n"
+
 // DefaultSiteSetting returns baseline values when no row exists in site_settings yet.
 func DefaultSiteSetting() SiteSetting {
-	colors := SiteColorPreset(ColorThemeDefault)
 	d := SiteSetting{
-		SiteName:   "Portfolio",
-		FooterCopy: "",
-		Tagline:    "",
-		LogoURL:    "",
-		FaviconURL: "/static/images/favicon.ico",
+		SiteName:   "portofolioku",
+		FooterCopy: "Portfolio online dengan subdomain sendiri. Pilih namanya, lalu isi sendiri.",
+		Tagline:    "Portfolio online dengan subdomain sendiri.",
+		LogoURL:    "/static/img/logo.png",
+		FaviconURL: "/static/img/favicon.png",
 
-		ColorTheme:          ColorThemeDefault,
-		TextPrimary:         colors.TextPrimary,
-		TextSecondary:       colors.TextSecondary,
-		BackgroundPrimary:   colors.BackgroundPrimary,
-		BackgroundSecondary: colors.BackgroundSecondary,
-		PrimaryButton:       colors.PrimaryButton,
-		SecondaryButton:     colors.SecondaryButton,
-		AccentColor:         colors.AccentColor,
-		BorderColor:         colors.BorderColor,
+		ColorTheme:          ColorThemeCustom,
+		TextPrimary:         "#1c1730",
+		TextSecondary:       "#5c5478",
+		BackgroundPrimary:   "#f6f5fb",
+		BackgroundSecondary: "#ffffff",
+		PrimaryButton:       "#6d5bd0",
+		SecondaryButton:     "#5c5478",
+		AccentColor:         "#6d5bd0",
+		BorderColor:         "#e4e0f0",
 
 		FontFamily:              `system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif`,
 		ContentFontSize:         "17px",
@@ -154,7 +155,11 @@ func DefaultSiteSetting() SiteSetting {
 		ImgResizeEnabled:   false,
 
 		NotFoundRedirectMode: NotFoundRedirectHome,
-		DefaultTitle:         "Portfolio",
+		DefaultTitle:         "Portofolioku — Portfolio online dengan nama Anda",
+		DefaultDesc:          "Foto, cerita singkat, keahlian, dan proyek di satu halaman. Pilih nama subdomain, lalu isi sendiri. Tautannya siap dikirim.",
+		DefaultImage:         "/static/img/logo.png",
+		DefaultKeywords:      "portofolioku, portfolio online, portofolio online, subdomain, portfolio lamaran, halaman portfolio",
+		RobotsTxt:            defaultRobotsTxt,
 
 		HomepageLayout: HomeLayoutDefault,
 

@@ -10,10 +10,9 @@
   {{ if .current_url }}<link rel="canonical" href="{{ .current_url }}" />{{ end }}
   {{ if .NoIndex }}<meta name="robots" content="noindex" />{{ end }}
   {{ if .Refresh }}<meta http-equiv="refresh" content="5" />{{ end }}
-  {{ $icon := or .Favicon .favicon_url "" }}
-  {{ if $icon }}<link rel="icon" href="{{ $icon }}" />{{ end }}
+  <link rel="icon" type="image/png" href="/static/img/favicon.png?v=2" />
   {{ if .SnapJS }}<script src="{{ .SnapJS }}" data-client-key="{{ .ClientKey }}"></script>{{ end }}
-  <link rel="stylesheet" href="/static/css/portfolio.css?v=92" />
+  <link rel="stylesheet" href="/static/css/portfolio.css?v=97" />
   {{ if .font_stylesheet }}<link rel="stylesheet" href="{{ .font_stylesheet }}" />{{ end }}
   {{ if .font_family }}
   <style>
@@ -35,14 +34,12 @@
   <header class="pf-top">
     <div class="pf-wrap pf-top-inner">
       <a class="pf-brand" href="/" aria-label="portofolioku">
-        <svg class="pf-logo" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="9" fill="#6d5bd0"/>
-          <circle cx="16" cy="12.5" r="3.3" fill="#fff"/>
-          <path d="M9.8 22.6c1.3-2.6 3.3-3.9 6.2-3.9s4.9 1.3 6.2 3.9" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <span>portofolioku</span>
+        <img class="pf-logo" src="/static/img/logo.png?v=4" alt="">
       </a>
-      <nav class="pf-nav-links" aria-label="Utama">
+      <button class="pf-menu" type="button" aria-expanded="false" aria-controls="pf-nav" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="pf-nav-links" id="pf-nav" aria-label="Utama">
         <a href="/">Beranda</a>
         <a href="/#harga">Harga</a>
         <a href="/produk">Produk</a>
@@ -64,7 +61,7 @@
   <footer class="pf-sitefoot">
     <div class="pf-wrap pf-sitefoot-grid">
       <div>
-        <strong>portofolioku</strong>
+        <img class="pf-logo pf-logo-foot" src="/static/img/logo.png?v=4" alt="portofolioku">
         <p>Portfolio online dengan subdomain sendiri. Pilih namanya, lalu isi sendiri.</p>
       </div>
       <nav aria-label="Bawah">
@@ -178,6 +175,29 @@
       mark();
       window.addEventListener("scroll", mark, { passive: true });
       window.addEventListener("hashchange", mark);
+    })();
+    (function () {
+      var button = document.querySelector(".pf-menu");
+      var nav = document.getElementById("pf-nav");
+      if (!button || !nav) return;
+      function close() {
+        button.setAttribute("aria-expanded", "false");
+        nav.classList.remove("is-open");
+      }
+      button.addEventListener("click", function () {
+        var open = button.getAttribute("aria-expanded") !== "true";
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+        nav.classList.toggle("is-open", open);
+      });
+      nav.querySelectorAll("a").forEach(function (link) {
+        link.addEventListener("click", close);
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") close();
+      });
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 800) close();
+      });
     })();
     document.querySelectorAll(".pf-prose table").forEach(function (table) {
       if (table.parentElement && table.parentElement.classList.contains("pf-table-scroll")) return;

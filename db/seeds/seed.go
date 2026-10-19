@@ -30,6 +30,9 @@ func Run(db *gorm.DB) error {
 		if err := seedSiteLayout(db); err != nil {
 			return err
 		}
+		if err := ensurePortofoliokuSiteDefaults(db); err != nil {
+			return err
+		}
 		return seedSiteWebImageProviders(db)
 	}
 
