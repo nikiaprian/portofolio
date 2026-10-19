@@ -1,0 +1,11 @@
+{{ define "pf-main" }}
+<section class="pf-center">
+  <p class="pf-kicker">{{ .error_code }}</p>
+  <h1>{{ .error_title }}</h1>
+  <p class="pf-lead">{{ .error_description }}</p>
+  <div class="pf-actions">
+    <a class="pf-btn" href="/">Kembali ke beranda</a>
+    <a class="pf-btn alt" href="/posts">Lihat artikel</a>
+  </div>
+</section>
+{{ end }}

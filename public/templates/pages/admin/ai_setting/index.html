@@ -1,0 +1,1299 @@
+{{ define "admin-content" }}
+<div class="container-fluid pb-4" id="admin-ai-setting-root">
+  <div
+    id="ai-setting-error"
+    class="alert alert-danger d-none py-2 small"
+    role="alert"
+  ></div>
+
+  <style>
+    .ai-settings-tabs-card .nav-tabs .nav-link {
+      color: var(--admin-text-primary);
+      border-color: transparent;
+    }
+    .ai-settings-tabs-card .nav-tabs .nav-link:hover,
+    .ai-settings-tabs-card .nav-tabs .nav-link:focus {
+      color: var(--admin-text-secondary);
+      border-color: var(--bs-border-color) var(--bs-border-color) transparent;
+    }
+    .ai-settings-tabs-card .nav-tabs .nav-link.active {
+      color: var(--admin-text-primary);
+      background-color: var(--bs-body-bg);
+      border-color: var(--bs-border-color) var(--bs-border-color)
+        var(--bs-body-bg);
+    }
+  </style>
+
+  <div class="card admin-crud-card shadow-sm ai-settings-tabs-card">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex flex-column gap-1">
+        <h5 class="mb-0 fw-semibold lh-sm">Pengaturan AI</h5>
+        <p
+          class="small text-secondary mb-0 lh-sm"
+          data-admin-info-note
+          data-admin-info-title="Pengaturan AI"
+        >
+          API key penyedia dan prompt untuk parafrase scraper serta pembuatan
+          bulk post. Key disimpan di tabel <code>ai_setting</code>. Minimal satu
+          key diperlukan untuk fitur Buat dengan AI. Nama model memakai
+          dropdown; biarkan &quot;Default&quot; atau pilih preset. Jika DB
+          berisi ID yang tidak ada di daftar, nilainya akan muncul sebagai opsi
+          custom setelah dimuat.
+        </p>
+      </div>
+    </div>
+    <div class="card-header py-0 px-0 bg-body-tertiary bg-opacity-25">
+      <ul
+        class="nav nav-tabs card-header-tabs flex-nowrap flex-md-wrap mx-2 mx-md-3 mb-0 mt-2 gap-1 gap-md-0"
+        id="ai-settings-tabs"
+        role="tablist"
+      >
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active rounded-top px-3 py-2"
+            id="ais-tab-api-key"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-api-key"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-api-key"
+            aria-selected="true"
+          >
+            <i class="bi bi-key me-1" aria-hidden="true"></i>
+            API Key AI
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ais-tab-scraper-prompt"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-scraper-prompt"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-scraper-prompt"
+            aria-selected="false"
+          >
+            <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>
+            Prompt scraper
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ais-tab-generate-prompt"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-generate-prompt"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-generate-prompt"
+            aria-selected="false"
+          >
+            <i class="bi bi-magic me-1" aria-hidden="true"></i>
+            Prompt generate
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <form id="form-ai-setting" class="admin-crud-post-form" novalidate>
+        <div class="tab-content" id="ai-settings-tab-content">
+          <div
+            class="tab-pane fade show active"
+            id="ais-pane-api-key"
+            role="tabpanel"
+            aria-labelledby="ais-tab-api-key"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <h6 class="post-form-section__title mb-1">API Key &amp; Model AI</h6>
+                  <p class="text-muted small mb-0">Konfigurasi API key, model default, serta fitur search untuk setiap penyedia AI.</p>
+                </div>
+              </div>
+
+              <div class="row g-3 g-xl-4">
+                <!-- Gemini Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-google text-primary fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">Gemini</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .Gemini }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum ada key</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Ambil API key Gemini">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div>
+                        <label for="ais-gemini" class="form-label small fw-medium mb-1">API Key Gemini</label>
+                        <textarea class="form-control font-monospace small" id="ais-gemini" name="gemini" rows="2" autocomplete="off" placeholder="Key Google AI Studio">{{- with .ai_setting }}{{ .Gemini }}{{ end -}}</textarea>
+                      </div>
+
+                      <div>
+                        <label for="ais-gemini-model" class="form-label small fw-medium mb-1">Model Gemini (opsional)</label>
+                        <select class="form-select font-monospace small" id="ais-gemini-model" name="gemini_model" autocomplete="off">
+                          <option value="">Default (penyedia)</option>
+                          <optgroup label="Model Stabil (GA)">
+                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                            <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                          </optgroup>
+                          <optgroup label="Model Preview / Experimental">
+                            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+                            <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                            <option value="gemini-2.5-flash-preview">gemini-2.5-flash-preview</option>
+                            <option value="gemini-2.5-flash-lite-preview">gemini-2.5-flash-lite-preview</option>
+                            <option value="gemini-2.5-pro-preview">gemini-2.5-pro-preview</option>
+                            <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-check form-switch bg-body-tertiary p-2 rounded ps-5 border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="ais-gemini-search-mode" name="gemini_search_mode" {{ with .ai_setting }}{{ if .GeminiSearchMode }}checked{{ end }}{{ end }} />
+                        <label class="form-check-label small fw-medium" for="ais-gemini-search-mode">Gemini Search Mode</label>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="gemini" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="gemini">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="gemini"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- OpenAI Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-robot text-success fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">OpenAI</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .OpenAI }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum ada key</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://platform.openai.com/settings/organization/api-keys" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Ambil API key OpenAI">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div>
+                        <label for="ais-openai" class="form-label small fw-medium mb-1">API Key OpenAI</label>
+                        <textarea class="form-control font-monospace small" id="ais-openai" name="openai" rows="2" autocomplete="off" placeholder="sk-...">{{- with .ai_setting }}{{ .OpenAI }}{{ end -}}</textarea>
+                      </div>
+
+                      <div>
+                        <label for="ais-openai-model" class="form-label small fw-medium mb-1">Model OpenAI (opsional)</label>
+                        <select class="form-select font-monospace small" id="ais-openai-model" name="openai_model" autocomplete="off">
+                          <option value="">Default (penyedia)</option>
+                          <optgroup label="Model Stabil (GA)">
+                            <option value="gpt-4o">gpt-4o</option>
+                            <option value="gpt-4o-mini">gpt-4o-mini</option>
+                            <option value="gpt-4-turbo">gpt-4-turbo</option>
+                          </optgroup>
+                          <optgroup label="Reasoning / Preview">
+                            <option value="o3-mini">o3-mini</option>
+                            <option value="o1">o1</option>
+                            <option value="o1-mini">o1-mini</option>
+                            <option value="gpt-4.5-preview">gpt-4.5-preview</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-check form-switch bg-body-tertiary p-2 rounded ps-5 border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="ais-openai-search-mode" name="openai_search_mode" {{ with .ai_setting }}{{ if .OpenAISearchMode }}checked{{ end }}{{ end }} />
+                        <label class="form-check-label small fw-medium" for="ais-openai-search-mode">OpenAI Search Mode</label>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="openai" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="openai">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="openai"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Groq Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-lightning-charge text-warning fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">Groq</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .Groq }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum ada key</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Ambil API key Groq">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div>
+                        <label for="ais-groq" class="form-label small fw-medium mb-1">API Key Groq</label>
+                        <textarea class="form-control font-monospace small" id="ais-groq" name="groq" rows="2" autocomplete="off" placeholder="gsk_...">{{- with .ai_setting }}{{ .Groq }}{{ end -}}</textarea>
+                      </div>
+
+                      <div>
+                        <label for="ais-groq-model" class="form-label small fw-medium mb-1">Model Groq (opsional)</label>
+                        <select class="form-select font-monospace small" id="ais-groq-model" name="groq_model" autocomplete="off">
+                          <option value="">Default (penyedia)</option>
+                          <optgroup label="Model Stabil (GA)">
+                            <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+                            <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
+                            <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                            <option value="gemma2-9b-it">gemma2-9b-it</option>
+                            <option value="qwen-2.5-coder-32b">qwen-2.5-coder-32b</option>
+                          </optgroup>
+                          <optgroup label="Agentic Search / Reasoning">
+                            <option value="groq/compound">groq/compound (Web Search)</option>
+                            <option value="groq/compound-mini">groq/compound-mini (Web Search)</option>
+                            <option value="deepseek-r1-distill-llama-70b">deepseek-r1-distill-llama-70b</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-check form-switch bg-body-tertiary p-2 rounded ps-5 border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="ais-groq-search-mode" name="groq_search_mode" {{ with .ai_setting }}{{ if .GroqSearchMode }}checked{{ end }}{{ end }} />
+                        <label class="form-check-label small fw-medium" for="ais-groq-search-mode">Groq Search Mode</label>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="groq" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="groq">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="groq"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Claude Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-stars text-danger fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">Claude (Anthropic)</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .Claude }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum ada key</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Ambil API key Claude">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div>
+                        <label for="ais-claude" class="form-label small fw-medium mb-1">API Key Claude</label>
+                        <textarea class="form-control font-monospace small" id="ais-claude" name="claude" rows="2" autocomplete="off" placeholder="sk-ant-api03-...">{{- with .ai_setting }}{{ .Claude }}{{ end -}}</textarea>
+                      </div>
+
+                      <div>
+                        <label for="ais-claude-model" class="form-label small fw-medium mb-1">Model Claude (opsional)</label>
+                        <select class="form-select font-monospace small" id="ais-claude-model" name="claude_model" autocomplete="off">
+                          <option value="">Default (penyedia)</option>
+                          <optgroup label="Model Stabil (GA)">
+                            <option value="claude-3-7-sonnet-20250219">claude-3-7-sonnet-20250219</option>
+                            <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
+                            <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+                            <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
+                            <option value="claude-3-haiku-20240307">claude-3-haiku-20240307</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-check form-switch bg-body-tertiary p-2 rounded ps-5 border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="ais-claude-search-mode" name="claude_search_mode" {{ with .ai_setting }}{{ if .ClaudeSearchMode }}checked{{ end }}{{ end }} />
+                        <label class="form-check-label small fw-medium" for="ais-claude-search-mode">Claude Search Mode</label>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="claude" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="claude">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="claude"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- OpenCode Zen Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-code-slash text-info fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">OpenCode Zen</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .OpenCode }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum ada key</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://opencode.ai/auth" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Ambil API key OpenCode Zen">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div>
+                        <label for="ais-opencode" class="form-label small fw-medium mb-1">API Key OpenCode Zen</label>
+                        <textarea class="form-control font-monospace small" id="ais-opencode" name="opencode" rows="2" autocomplete="off" placeholder="sk-...">{{- with .ai_setting }}{{ .OpenCode }}{{ end -}}</textarea>
+                      </div>
+
+                      <div>
+                        <label for="ais-opencode-model" class="form-label small fw-medium mb-1">Model OpenCode Zen (opsional)</label>
+                        <select class="form-select font-monospace small" id="ais-opencode-model" name="opencode_model" autocomplete="off">
+                          <option value="">Default (mimo-v2.5-free)</option>
+                          <optgroup label="Free Models">
+                            <option value="mimo-v2.5-free">mimo-v2.5-free</option>
+                            <option value="deepseek-v4-flash-free">deepseek-v4-flash-free</option>
+                            <option value="laguna-s-2.1-free">laguna-s-2.1-free</option>
+                            <option value="ling-3.0-flash-free">ling-3.0-flash-free</option>
+                            <option value="north-mini-code-free">north-mini-code-free</option>
+                            <option value="nemotron-3-ultra-free">nemotron-3-ultra-free</option>
+                            <option value="big-pickle">big-pickle</option>
+                          </optgroup>
+                          <optgroup label="Paid Models">
+                            <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+                            <option value="deepseek-v4-flash">deepseek-v4-flash</option>
+                            <option value="kimi-k2.5">kimi-k2.5</option>
+                            <option value="kimi-k2.6">kimi-k2.6</option>
+                            <option value="kimi-k2.7-code">kimi-k2.7-code</option>
+                            <option value="minimax-m3">minimax-m3</option>
+                            <option value="minimax-m2.7">minimax-m2.7</option>
+                            <option value="minimax-m2.5">minimax-m2.5</option>
+                            <option value="glm-5.2">glm-5.2</option>
+                            <option value="glm-5.1">glm-5.1</option>
+                            <option value="glm-5">glm-5</option>
+                            <option value="grok-4.5">grok-4.5</option>
+                            <option value="grok-build-0.1">grok-build-0.1</option>
+                          </optgroup>
+                        </select>
+                      </div>
+
+                      <div class="form-check form-switch bg-body-tertiary p-2 rounded ps-5 border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="ais-opencode-search-mode" name="opencode_search_mode" {{ with .ai_setting }}{{ if .OpenCodeSearchMode }}checked{{ end }}{{ end }} />
+                        <label class="form-check-label small fw-medium" for="ais-opencode-search-mode">OpenCode Search Mode</label>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="opencode" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="opencode">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="opencode"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- OpenCode Zen (local) Provider Card -->
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="card h-100 border shadow-sm rounded-3">
+                    <div class="card-header bg-body-tertiary bg-opacity-75 py-2.5 px-3 d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-hdd-network text-info fs-5" aria-hidden="true"></i>
+                        <span class="fw-semibold">OpenCode Zen (local)</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        {{ with .ai_setting }}
+                          {{ if not .OpenCodeLocal.Configured }}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Belum dikonfigurasi</span>
+                          {{ else }}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Aktif</span>
+                          {{ end }}
+                        {{ end }}
+                        <a href="https://opencode.ai/docs/server" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-light border p-1 lh-1 text-secondary" title="Dokumentasi OpenCode server">
+                          <i class="bi bi-box-arrow-up-right small"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column gap-3">
+                      <div class="row g-2">
+                        <div class="col-8">
+                          <label for="ais-opencode-local-host" class="form-label small fw-medium mb-1">Host (http/https)</label>
+                          <input type="text" class="form-control font-monospace small" id="ais-opencode-local-host" name="opencode_local_host" autocomplete="off" placeholder="http://127.0.0.1" value="{{- with .ai_setting }}{{ .OpenCodeLocal.Host }}{{ end -}}" />
+                        </div>
+                        <div class="col-4">
+                          <label for="ais-opencode-local-port" class="form-label small fw-medium mb-1">Port</label>
+                          <input type="text" inputmode="numeric" class="form-control font-monospace small" id="ais-opencode-local-port" name="opencode_local_port" autocomplete="off" placeholder="4096" value="{{- with .ai_setting }}{{ .OpenCodeLocal.Port }}{{ end -}}" />
+                        </div>
+                      </div>
+                      <div class="form-text small mt-n2">
+                        Contoh: <code>http://localhost</code> + port <code>4096</code>, atau host lengkap <code>http://127.0.0.1:4096</code>. Auth opsional (Basic Auth).
+                      </div>
+
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label for="ais-opencode-local-username" class="form-label small fw-medium mb-1">Username (opsional)</label>
+                          <input type="text" class="form-control font-monospace small" id="ais-opencode-local-username" name="opencode_local_username" autocomplete="off" placeholder="opencode" value="{{- with .ai_setting }}{{ .OpenCodeLocal.Username }}{{ end -}}" />
+                        </div>
+                        <div class="col-6">
+                          <label for="ais-opencode-local-password" class="form-label small fw-medium mb-1">Password (opsional)</label>
+                          <div class="input-group input-group-sm">
+                            <input type="password" class="form-control font-monospace small" id="ais-opencode-local-password" name="opencode_local_password" autocomplete="new-password" placeholder="••••••••" value="{{- with .ai_setting }}{{ .OpenCodeLocal.Password }}{{ end -}}" />
+                            <button
+                              type="button"
+                              class="btn btn-outline-secondary"
+                              id="ais-opencode-local-password-toggle"
+                              aria-label="Tampilkan password"
+                              aria-pressed="false"
+                              title="Tampilkan/sembunyikan password"
+                            >
+                              <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label for="ais-opencode-local-model" class="form-label small fw-medium mb-1">Model</label>
+                        <div class="input-group input-group-sm">
+                          <select class="form-select font-monospace small" id="ais-opencode-local-model" name="opencode_local_model" autocomplete="off">
+                            <option value="auto">Auto (free models, fallback)</option>
+                            {{- with .ai_setting }}
+                              {{- $m := .OpenCodeLocal.Model }}
+                              {{- if and $m (ne $m "auto") }}
+                                <option value="{{ $m }}" selected>{{ $m }}</option>
+                              {{- end }}
+                            {{- end }}
+                          </select>
+                          <button type="button" class="btn btn-outline-secondary" id="ais-opencode-local-models-refresh" title="Muat daftar model dari server local">
+                            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                        <div class="form-text small">
+                          Klik refresh untuk memuat model. <code>Auto</code> memakai model gratis berurutan; jika kuota habis diganti model gratis lain.
+                        </div>
+                      </div>
+
+                      <div class="mt-auto pt-2 border-top">
+                        <label class="form-label small text-muted mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-chat-dots"></i> Tes Respon API
+                        </label>
+                        <div class="ais-test-chat-box">
+                          <div class="input-group input-group-sm">
+                            <input type="text" class="form-control font-monospace ais-test-input" data-provider="opencode_local" placeholder="Ketik pesan tes..." />
+                            <button type="button" class="btn btn-outline-primary ais-test-send" data-provider="opencode_local">
+                              <i class="bi bi-send" aria-hidden="true"></i>
+                            </button>
+                          </div>
+                          <textarea class="ais-test-result d-none w-100 mt-2" data-provider="opencode_local"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-4 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-api"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="ais-pane-scraper-prompt"
+            role="tabpanel"
+            aria-labelledby="ais-tab-scraper-prompt"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <h6 class="post-form-section__title">Parafrase AI scraper</h6>
+              <div
+                class="accordion accordion-flush mb-3"
+                id="ais-scraper-placeholders-accordion"
+                data-admin-info-note
+                data-admin-info-title="Placeholder prompt scraper"
+              >
+                <div class="accordion-item border rounded">
+                  <h2
+                    class="accordion-header"
+                    id="ais-scraper-placeholders-heading"
+                  >
+                    <button
+                      class="accordion-button collapsed py-2 px-3 small fw-semibold"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#ais-scraper-placeholders-body"
+                      aria-expanded="false"
+                      aria-controls="ais-scraper-placeholders-body"
+                    >
+                      Placeholder prompt scraper
+                    </button>
+                  </h2>
+                  <div
+                    id="ais-scraper-placeholders-body"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="ais-scraper-placeholders-heading"
+                    data-bs-parent="#ais-scraper-placeholders-accordion"
+                  >
+                    <div class="accordion-body small py-2 px-3">
+                      Token berikut diganti otomatis saat AI memparafrase
+                      artikel hasil scraper:
+                      <ul class="mb-0 mt-2 ps-3">
+                        <li>
+                          <code>{{"{{title}}"}}</code> — the source article
+                          judul artikel sumber (sebelum diparafrase).
+                        </li>
+                        <li>
+                          <code>{{"{{content}}"}}</code> — the source article
+                          isi artikel sumber sebagai teks polos (umumnya dipakai
+                          di prompt konten; bisa juga dipakai di prompt judul
+                          sebagai konteks tambahan).
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                  <label for="ais-scraper-provider" class="form-label"
+                    >Penyedia AI scraper</label
+                  >
+                  <select
+                    class="form-select small"
+                    id="ais-scraper-provider"
+                    name="scraper_ai_provider"
+                  >
+                    <option value="auto">Auto (terbaik yang tersedia)</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="groq">Groq</option>
+                    <option value="claude">Claude</option>
+                    <option value="opencode">OpenCode Zen</option>
+                    <option value="opencode_local">OpenCode Zen (local)</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label for="ais-scraper-prompt-title" class="form-label"
+                    >Prompt judul scraper</label
+                  >
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-scraper-prompt-title"
+                    name="scraper_prompt_title"
+                    rows="8"
+                    placeholder="Prompt untuk memparafrase judul hasil scraper"
+                  >
+{{- with .ai_setting }}{{ .ScraperPromptTitle }}{{ end -}}</textarea>
+                  <div class="form-text">
+                    Sertakan <code>{{"{{title}}"}}</code> untuk judul sumber;
+                    opsional <code>{{"{{content}}"}}</code> jika instruksi perlu
+                    melihat teks artikel.
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label for="ais-scraper-prompt-content" class="form-label"
+                    >Prompt konten scraper</label
+                  >
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-scraper-prompt-content"
+                    name="scraper_prompt_content"
+                    rows="8"
+                    placeholder="Prompt untuk memparafrase konten artikel hasil scraper"
+                  >
+{{- with .ai_setting }}{{ .ScraperPromptContent }}{{ end -}}</textarea>
+                  <div class="form-text">
+                    Sertakan <code>{{"{{content}}"}}</code> untuk memasukkan
+                    teks sumber yang akan diparafrase;
+                    <code>{{"{{title}}"}}</code>
+                    untuk judul sumber (berguna dalam instruksi atau konteks).
+                  </div>
+                </div>
+              </div>
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-scraper"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="ais-pane-generate-prompt"
+            role="tabpanel"
+            aria-labelledby="ais-tab-generate-prompt"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <h6 class="post-form-section__title">Prompt generate artikel</h6>
+              <div
+                class="accordion accordion-flush mb-3"
+                id="ais-generate-placeholders-accordion"
+                data-admin-info-note
+                data-admin-info-title="Placeholder bulk & generate artikel"
+              >
+                <div class="accordion-item border rounded">
+                  <h2
+                    class="accordion-header"
+                    id="ais-generate-placeholders-heading"
+                  >
+                    <button
+                      class="accordion-button collapsed py-2 px-3 small fw-semibold"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#ais-generate-placeholders-body"
+                      aria-expanded="false"
+                      aria-controls="ais-generate-placeholders-body"
+                    >
+                      Placeholder bulk &amp; generate artikel
+                    </button>
+                  </h2>
+                  <div
+                    id="ais-generate-placeholders-body"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="ais-generate-placeholders-heading"
+                    data-bs-parent="#ais-generate-placeholders-accordion"
+                  >
+                    <div class="accordion-body small py-2 px-3">
+                      Untuk template <em>isi artikel</em>,
+                      <em>meta deskripsi</em>, dan <em>kata kunci / SEO</em> di
+                      bawah, token dalam kurung seperti
+                      <code>{{"{{title}}"}}</code> akan diganti oleh sistem.
+                      Nama Inggris dan nama Indonesia lama dianggap sama:
+                      <ul class="mb-2 mt-2 ps-3">
+                        <li>
+                          <code>{{"{{title}}"}}</code> /
+                          <code>{{"{{judul}}"}}</code> — the article title being
+                          yang dibuat (satu baris dari daftar bulk, atau judul
+                          di form post).
+                        </li>
+                        <li>
+                          <code>{{"{{keywords}}"}}</code> /
+                          <code>{{"{{kata_kunci}}"}}</code> — in the
+                          <strong>template isi</strong>: kata kunci awal bulk
+                          (fallback ke judul jika kosong). Pada
+                          <strong>prompt meta setelah isi tersedia</strong>:
+                          nama tag terpilih, dipisahkan koma.
+                        </li>
+                        <li>
+                          <code>{{"{{content}}"}}</code> /
+                          <code>{{"{{isi}}"}}</code> — in the
+                          <strong>template isi</strong>: petunjuk singkat untuk
+                          AI (opsional dari API; jika kosong memakai teks
+                          default). Pada
+                          <strong
+                            >meta / keyword prompts after generation</strong
+                          >: kutipan teks polos dari HTML yang baru dibuat.
+                        </li>
+                        <li>
+                          <code>{{"{{meta_description}}"}}</code> /
+                          <code>{{"{{deskripsi}}"}}</code> — in the
+                          <strong>template isi</strong>: arahan untuk meta
+                          deskripsi (dari pengaturan atau default). Di prompt
+                          meta terpisah biasanya kosong.
+                        </li>
+                      </ul>
+                      <strong>Prompt judul (Saran judul)</strong> — tidak
+                      memakai placeholder di atas; sistem menambahkan kata kunci
+                      dan jumlah judul setelah teks Anda.<br />
+                      <strong>Prompt gambar (sampul &amp; dalam konten)</strong>
+                      — hanya <code>{{"{{title}}"}}</code> (judul artikel).
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <ul
+                    class="nav nav-tabs mb-3"
+                    id="ais-generate-sub-tabs"
+                    role="tablist"
+                  >
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link active"
+                        id="ais-generate-sub-tab-general"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-general"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-general"
+                        aria-selected="true"
+                      >
+                        Umum
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="ais-generate-sub-tab-prompt-123"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-prompt-123"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-prompt-123"
+                        aria-selected="false"
+                      >
+                        Prompt konten
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="ais-generate-sub-tab-image"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-image"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-image"
+                        aria-selected="false"
+                      >
+                        Prompt gambar
+                      </button>
+                    </li>
+                  </ul>
+                  <div
+                    class="tab-content border rounded p-3"
+                    id="ais-generate-sub-tab-content"
+                  >
+                    <div
+                      class="tab-pane fade show active"
+                      id="ais-generate-sub-pane-general"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-general"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12 col-lg-4">
+                          <label for="ais-generate-provider" class="form-label"
+                            >Penyedia AI generate</label
+                          >
+                          <select
+                            class="form-select small"
+                            id="ais-generate-provider"
+                            name="generate_ai_provider"
+                          >
+                            <option value="auto">
+                              Auto (terbaik yang tersedia)
+                            </option>
+                            <option value="gemini">Gemini</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="groq">Groq</option>
+                            <option value="claude">Claude</option>
+                            <option value="opencode">OpenCode Zen</option>
+                            <option value="opencode_local">OpenCode Zen (local)</option>
+                          </select>
+                        </div>
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-title"
+                            class="form-label"
+                            >Prompt judul generate (saran)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-title"
+                            name="generate_prompt_title"
+                            rows="4"
+                            placeholder="Instruksi untuk saran judul AI (kosongkan untuk default sistem)."
+                            aria-describedby="ais-generate-prompt-title-help ais-generate-prompt-title-count"
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptTitle }}{{ end -}}</textarea>
+                          <div
+                            id="ais-generate-prompt-title-help"
+                            class="form-text"
+                          >
+                            Gunakan instruksi umum saja —
+                            <code>{{"{{...}}"}}</code> tokens here are
+                            <strong>not</strong>
+                            diganti; sistem menambahkan kata kunci dan jumlah
+                            judul di akhir prompt. Bulk
+                            <strong>Buat ulang judul</strong> menambahkan teks
+                            yang sama di awal (lalu aturan jumlah baris tetap).
+                          </div>
+                          <div
+                            id="ais-generate-prompt-title-count"
+                            class="form-text text-end"
+                          >
+                            0 karakter
+                          </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                          <label for="ais-generate-meta-desc" class="form-label"
+                            >Prompt meta deskripsi generate</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-meta-desc"
+                            name="generate_prompt_meta_description"
+                            rows="3"
+                            placeholder="Arahan default untuk meta_description."
+                            aria-describedby="ais-generate-meta-desc-help ais-generate-meta-desc-count"
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptMetaDescription }}{{ end -}}</textarea>
+                          <div
+                            id="ais-generate-meta-desc-help"
+                            class="form-text"
+                          >
+                            Berjalan setelah isi HTML tersedia; arti
+                            <code>{{"{{keywords}}"}}</code> and
+                            <code>{{"{{content}}"}}</code> follow the reference
+                            mengikuti kotak referensi di atas.
+                          </div>
+                          <div
+                            id="ais-generate-meta-desc-count"
+                            class="form-text text-end"
+                          >
+                            0 karakter
+                          </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                          <label for="ais-generate-meta-kw" class="form-label"
+                            >Prompt kata kunci / SEO generate</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-meta-kw"
+                            name="generate_prompt_meta_keywords"
+                            rows="3"
+                            placeholder="Instruksi tambahan untuk kata kunci dan SEO."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptMetaKeywords }}{{ end -}}</textarea>
+                          <div class="form-text">
+                            Waktunya sama seperti meta deskripsi: isi sudah
+                            dibuat —
+                            <code>{{"{{title}}"}}</code>,
+                            <code>{{"{{keywords}}"}}</code> (tag names),
+                            <code>{{"{{content}}"}}</code> (body excerpt).
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="ais-generate-sub-pane-prompt-123"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-prompt-123"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <ul
+                            class="nav nav-tabs mb-3"
+                            id="ais-generate-content-tabs"
+                            role="tablist"
+                          >
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link active"
+                                id="ais-generate-content-tab-1"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-1"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-1"
+                                aria-selected="true"
+                              >
+                                Prompt konten 1
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link"
+                                id="ais-generate-content-tab-2"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-2"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-2"
+                                aria-selected="false"
+                              >
+                                Prompt konten 2
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link"
+                                id="ais-generate-content-tab-3"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-3"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-3"
+                                aria-selected="false"
+                              >
+                                Prompt konten 3
+                              </button>
+                            </li>
+                          </ul>
+                          <div
+                            class="tab-content border rounded p-3"
+                            id="ais-generate-content-tab-content"
+                          >
+                            <div
+                              class="tab-pane fade show active"
+                              id="ais-generate-content-pane-1"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-1"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name"
+                                    class="form-label"
+                                    >Nama prompt konten 1</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name"
+                                    name="generate_prompt_content_name"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 1"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName }}{{ .GeneratePromptContentName }}{{ else }}Prompt konten 1{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content"
+                                    class="form-label"
+                                    >Prompt isi generate 1 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content"
+                                    name="generate_prompt_content"
+                                    rows="8"
+                                    placeholder="title, keywords, content, meta_description"
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Lihat kotak referensi di atas:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>
+                                    (plus legacy <code>judul</code> /
+                                    <code>kata_kunci</code> / <code>isi</code> /
+                                    <code>deskripsi</code>).
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade"
+                              id="ais-generate-content-pane-2"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-2"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name-2"
+                                    class="form-label"
+                                    >Nama prompt konten 2</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name-2"
+                                    name="generate_prompt_content_name_2"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 2"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName2 }}{{ .GeneratePromptContentName2 }}{{ else }}Prompt konten 2{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content-2"
+                                    class="form-label"
+                                    >Prompt isi generate 2 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content-2"
+                                    name="generate_prompt_content_2"
+                                    rows="8"
+                                    placeholder="Template alternatif untuk body artikel (pilihan 2)."
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent2 }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Placeholder sama dengan prompt 1:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade"
+                              id="ais-generate-content-pane-3"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-3"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name-3"
+                                    class="form-label"
+                                    >Nama prompt konten 3</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name-3"
+                                    name="generate_prompt_content_name_3"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 3"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName3 }}{{ .GeneratePromptContentName3 }}{{ else }}Prompt konten 3{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content-3"
+                                    class="form-label"
+                                    >Prompt isi generate 3 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content-3"
+                                    name="generate_prompt_content_3"
+                                    rows="8"
+                                    placeholder="Template alternatif untuk body artikel (pilihan 3)."
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent3 }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Placeholder sama dengan prompt 1:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="ais-generate-sub-pane-image"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-image"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-image"
+                            class="form-label"
+                            >Prompt gambar generate (sampul)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-image"
+                            name="generate_prompt_image"
+                            rows="3"
+                            placeholder="Template prompt default untuk pembuatan gambar sampul AI."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptImage }}{{ end -}}</textarea>
+                          <p class="form-text mb-0">
+                            Pembuatan sampul memanggil Images API
+                            <strong>OpenAI</strong> (memerlukan API key OpenAI
+                            di atas). Untuk memakai Google, pilih
+                            <strong>Gemini</strong> di form post. Placeholder:
+                            <code>{{"{{title}}"}}</code> = judul artikel.
+                          </p>
+                        </div>
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-image-to-content"
+                            class="form-label"
+                            >Prompt gambar generate (dalam konten)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-image-to-content"
+                            name="generate_prompt_image_to_content"
+                            rows="3"
+                            placeholder="Template default saat menyisipkan gambar AI ke isi artikel (manual, bulk, scraper)."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptImageToContent }}{{ end -}}</textarea>
+                          <p class="form-text mb-0">
+                            Dipakai untuk gambar kedua saat “gambar ke konten”
+                            aktif, dan untuk aksi editor “buat gambar ke
+                            konten”. Placeholder:
+                            <code>{{"{{title}}"}}</code> = judul artikel.
+                          </p>
+                        </div>
+                        <div class="col-12">
+                          <label class="form-label d-block"
+                            >Sampul bulk post — template background</label
+                          >
+                          <p class="form-text mb-2">
+                            Dipakai saat membuat post secara bulk: teks judul
+                            digambar di atasnya. Jika kosong, sampul memakai
+                            gradasi <strong>warna aksen</strong> situs (dari
+                            Pengaturan site).
+                          </p>
+                          <div class="row g-2 align-items-end">
+                            <div class="col-12 col-md-5">
+                              <input
+                                type="file"
+                                class="form-control form-control-sm"
+                                id="ais-bulk-cover-bg-file"
+                                multiple
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                              />
+                            </div>
+                            <div class="col-12 col-md-7">
+                              <label
+                                for="ais-bulk-cover-bg-url"
+                                class="form-label small mb-0"
+                                >URL gambar (satu per baris)</label
+                              >
+                              <textarea
+                                class="form-control form-control-sm font-monospace"
+                                id="ais-bulk-cover-bg-url"
+                                name="bulk_cover_background_url"
+                                rows="4"
+                                maxlength="20000"
+                                placeholder="/static/uploads/bulk-covers/template-1.webp&#10;/static/uploads/bulk-covers/template-2.webp"
+                                autocomplete="off"
+                              >
+{{ with .ai_setting }}{{ .BulkCoverBackgroundURL }}{{ end }}</textarea>
+                            </div>
+                          </div>
+                          <div
+                            id="ais-bulk-cover-preview-list"
+                            class="row g-2 mt-1"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-generate"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/tinymce/tinymce.min.js?v={{ .asset_version }}"></script>
+<script src="/static/js/admin/tinymce.min.js?v={{ .asset_version }}"></script>
+<script
+  defer
+  src="/static/js/admin/ai_setting.min.js?v={{ .asset_version }}"
+></script>
+{{ end }} {{ template "layouts-admin-app" . }}

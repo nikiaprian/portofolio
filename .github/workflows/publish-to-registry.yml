@@ -1,0 +1,157 @@
+# Publish release bundle ke Bebii Registry (domain.myexams.web.id)
+#
+# Channel registry:
+#   push branch dev  → artefak bebii-blog-dev
+#   push branch main / tag v* → artefak bebii-blog (production)
+#
+# Isi bundle (root arsip):
+#   app               — binary linux/amd64 (CGO_ENABLED=0)
+#   public/           — static + templates (JS sudah di-minify)
+#   package.json      — metadata versi
+#
+# Opsional override: workflow_dispatch (input version / artifact)
+# Opsional validasi: push tag v8.0.6 harus sama dengan package.json
+#
+# Secrets:
+#   BEBII_REGISTRY_URL          https://domain.myexams.web.id
+#   BEBII_REGISTRY_TOKEN        = REGISTRY_UPLOAD_TOKEN di server (POST upload)
+#   BEBII_REGISTRY_READ_TOKEN   = REGISTRY_READ_TOKEN di server (GET /latest)
+
+name: Publish to Bebii Registry
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Override versi (kosongkan = pakai package.json)"
+        required: false
+        type: string
+      artifact:
+        description: "Override nama artefak (kosongkan = dev→bebii-blog-dev, main/tag→bebii-blog)"
+        required: false
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Read version & artifact from package.json
+        id: pkg
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          ARTIFACT="bebii-blog"
+          echo "package.json → version=${VERSION}"
+
+          if [[ "${GITHUB_REF}" == refs/heads/dev ]]; then
+            ARTIFACT="bebii-blog-dev"
+            echo "Branch dev → registry artifact ${ARTIFACT}"
+          elif [[ "${GITHUB_REF}" == refs/heads/main || "${GITHUB_REF}" == refs/tags/v* ]]; then
+            ARTIFACT="bebii-blog"
+            echo "Branch/tag production → registry artifact ${ARTIFACT}"
+          fi
+
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          if [ -n "${{ github.event.inputs.artifact }}" ]; then
+            ARTIFACT="${{ github.event.inputs.artifact }}"
+          fi
+
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG_VER="${GITHUB_REF_NAME#v}"
+            if [ "${TAG_VER}" != "${VERSION}" ]; then
+              echo "::error::Tag v${TAG_VER} tidak sama dengan package.json version ${VERSION}"
+              exit 1
+            fi
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "name=${ARTIFACT}" >> "$GITHUB_OUTPUT"
+          echo "Registry target: ${ARTIFACT} v${VERSION}"
+
+      - name: Build frontend (minify JS)
+        run: |
+          npm ci
+          npm run dev
+          rm -rf node_modules
+
+      - name: Build Go binary (linux/amd64)
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go mod download
+          mkdir -p release
+          go build -ldflags="-s -w" -o release/app ./cmd
+          chmod +x release/app
+          ls -lh release/app
+
+      - name: Pack .tar.gz for registry
+        id: pack
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.pkg.outputs.version }}"
+          ARTIFACT="${{ steps.pkg.outputs.name }}"
+          FILE="${ARTIFACT}-${VERSION}.tar.gz"
+          STAGE="release/stage"
+          rm -rf "${STAGE}"
+          mkdir -p "${STAGE}"
+          cp release/app "${STAGE}/app"
+          cp package.json "${STAGE}/"
+          cp -a public "${STAGE}/"
+          tar -czf "${FILE}" -C "${STAGE}" .
+          echo "file=${FILE}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Bebii registry (latest otomatis)
+        env:
+          REGISTRY_URL: ${{ secrets.BEBII_REGISTRY_URL }}
+          REGISTRY_TOKEN: ${{ secrets.BEBII_REGISTRY_TOKEN }}
+        run: |
+          set -euo pipefail
+          REGISTRY_URL="${REGISTRY_URL%/}"
+          VERSION="${{ steps.pkg.outputs.version }}"
+          ARTIFACT="${{ steps.pkg.outputs.name }}"
+          FILE="${{ steps.pack.outputs.file }}"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${REGISTRY_TOKEN}" \
+            -H "X-Registry-Version: ${VERSION}" \
+            -H "X-Registry-Filename: ${FILE}" \
+            -H "X-Git-Sha: ${GITHUB_SHA}" \
+            -H "Content-Type: application/gzip" \
+            --data-binary @"${FILE}" \
+            "${REGISTRY_URL}/api/registry/${ARTIFACT}?version=${VERSION}&filename=${FILE}&git_sha=${GITHUB_SHA}"
+          echo "Uploaded ${ARTIFACT} v${VERSION}"
+
+      - name: Verify latest on registry
+        env:
+          REGISTRY_URL: ${{ secrets.BEBII_REGISTRY_URL }}
+          REGISTRY_READ_TOKEN: ${{ secrets.BEBII_REGISTRY_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          REGISTRY_URL="${REGISTRY_URL%/}"
+          if [[ -z "${REGISTRY_READ_TOKEN}" ]]; then
+            echo "::error::BEBII_REGISTRY_READ_TOKEN belum di-set di GitHub Secrets (diperlukan untuk GET /latest)."
+            exit 1
+          fi
+          curl -fsS -H "Authorization: Bearer ${REGISTRY_READ_TOKEN}" \
+            "${REGISTRY_URL}/api/registry/${{ steps.pkg.outputs.name }}/latest"

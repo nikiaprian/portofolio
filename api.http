@@ -1,0 +1,760 @@
+@baseUrl = http://localhost:8080
+@apiPrefix = /api/v1
+@token = 
+@adminEmail = admin@bebii.com
+@adminPassword = admin123
+@userId = 1
+@categoryId = 1
+@tagId = 1
+@postId = 1
+@pageId = 1
+@jobId = replace-with-bulk-generate-job-id
+
+### Health
+GET {{baseUrl}}/health
+
+
+###
+### PUBLIC (no JWT)
+###
+
+### List published posts (e.g. after scraper runs)
+# image (img_resize_enabled=false): https://cdn.example.com/uploads/posts/cover.webp
+# image (img_resize_enabled=true):  {{baseUrl}}/img/cdn.example.com/uploads/posts/cover.webp
+# author.role is omitted on public post/author APIs
+GET {{baseUrl}}{{apiPrefix}}/posts?page=1&size=10
+Accept: application/json
+
+###
+### Get published post by slug
+GET {{baseUrl}}{{apiPrefix}}/posts/slug/your-post-slug
+Accept: application/json
+
+###
+### Get public author by slug
+GET {{baseUrl}}{{apiPrefix}}/authors/your-author-slug
+Accept: application/json
+
+###
+### List categories (public)
+GET {{baseUrl}}{{apiPrefix}}/categories?page=1&size=50
+Accept: application/json
+
+###
+### Get tag by slug (public)
+GET {{baseUrl}}{{apiPrefix}}/tag/jadwal-motogp
+Accept: application/json
+
+###
+### SEO files (public)
+GET {{baseUrl}}{{apiPrefix}}/robots.txt
+Accept: text/plain
+
+###
+GET {{baseUrl}}{{apiPrefix}}/ads.txt
+Accept: text/plain
+
+###
+GET {{baseUrl}}{{apiPrefix}}/sitemap.xml
+Accept: application/xml
+
+###
+GET {{baseUrl}}{{apiPrefix}}/site-scripts
+Accept: application/json
+
+###
+### AUTH
+###
+
+### Register
+POST {{baseUrl}}{{apiPrefix}}/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "secret123"
+}
+
+###
+### Login
+# @name login
+POST {{baseUrl}}{{apiPrefix}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+###
+### Logout
+POST {{baseUrl}}{{apiPrefix}}/auth/logout
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### USERS CRUD
+###
+
+### List users
+GET {{baseUrl}}{{apiPrefix}}/admin/users?page=1&size=10&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create user
+POST {{baseUrl}}{{apiPrefix}}/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Writer Baru",
+  "username": "writerbaru",
+  "email": "writerbaru@example.com",
+  "password": "secret123",
+  "role": "writer",
+  "enabled": true,
+  "profile": "",
+  "image": ""
+}
+
+###
+### Get user by id
+GET {{baseUrl}}{{apiPrefix}}/admin/users/{{userId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update user
+PUT {{baseUrl}}{{apiPrefix}}/admin/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Writer Baru (updated)",
+  "username": "writerbaru",
+  "email": "writerbaru@example.com",
+  "role": "writer",
+  "enabled": true,
+  "profile": "Bio singkat penulis",
+  "image": ""
+}
+
+###
+### Delete user
+DELETE {{baseUrl}}{{apiPrefix}}/admin/users/{{userId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### CATEGORIES CRUD
+###
+
+### List categories
+GET {{baseUrl}}{{apiPrefix}}/admin/categories?page=1&size=10&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create category
+POST {{baseUrl}}{{apiPrefix}}/admin/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Teknologi",
+  "slug": "teknologi",
+  "title": "Berita Teknologi Terkini",
+  "keyword": "teknologi, gadget, software",
+  "description": "Kategori artikel teknologi",
+  "sort": 1
+}
+
+###
+### Get category by id
+GET {{baseUrl}}{{apiPrefix}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update category
+PUT {{baseUrl}}{{apiPrefix}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Teknologi",
+  "slug": "teknologi",
+  "title": "Teknologi & Inovasi",
+  "keyword": "teknologi, inovasi",
+  "description": "Deskripsi kategori diperbarui",
+  "sort": 2,
+  "clear_parent": true
+}
+
+###
+### Delete category
+DELETE {{baseUrl}}{{apiPrefix}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### TAGS CRUD
+###
+
+### List tags
+GET {{baseUrl}}{{apiPrefix}}/admin/tags?page=1&size=10&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create tag
+POST {{baseUrl}}{{apiPrefix}}/admin/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Artificial Intelligence",
+  "slug": "artificial-intelligence"
+}
+
+###
+### Get tag by id
+GET {{baseUrl}}{{apiPrefix}}/admin/tags/{{tagId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update tag
+PUT {{baseUrl}}{{apiPrefix}}/admin/tags/{{tagId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Artificial Intelligence",
+  "slug": "ai"
+}
+
+###
+### Delete tag
+DELETE {{baseUrl}}{{apiPrefix}}/admin/tags/{{tagId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### AI SETTING (singleton ai_setting row; admin GET/PUT, writers: bulk template + cover upload)
+###
+
+### Get AI settings (keys, models, scraper + generate prompts)
+GET {{baseUrl}}{{apiPrefix}}/admin/ai-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update AI settings — keys/models always applied; prompt fields: omit key = keep DB, "" = clear
+### provider: auto | gemini | openai | groq | claude
+### Prompt placeholders use \u007b\u007b…\u007d\u007d so the .http client does not treat {{title}}/{{content}} as file variables.
+PUT {{baseUrl}}{{apiPrefix}}/admin/ai-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "gemini": "",
+  "groq": "",
+  "openai": "",
+  "claude": "",
+  "gemini_model": "gemini-3-flash-preview",
+  "groq_model": "groq/llama-3.3-70b-versatile",
+  "openai_model": "gpt-4o-mini",
+  "claude_model": "claude-3-5-sonnet-20241022",
+  "scraper_ai_provider": "auto",
+  "generate_ai_provider": "auto",
+  "scraper_prompt_title": "Parafrase judul berita berikut ke Bahasa Indonesia yang natural.\n- Pertahankan makna, jangan tambah fakta\n- Jangan pakai tanda kutip\n- Output: judul saja (1 baris)\n\nJudul:\n\u007b\u007btitle\u007d\u007d",
+  "scraper_prompt_content": "Parafrase artikel ke HTML. Isi:\n\u007b\u007bcontent\u007d\u007d",
+  "generate_prompt_title": "",
+  "generate_prompt_content_name": "Default",
+  "generate_prompt_content": "",
+  "generate_prompt_content_name_2": "Variant 2",
+  "generate_prompt_content_2": "",
+  "generate_prompt_content_name_3": "Variant 3",
+  "generate_prompt_content_3": "",
+  "generate_prompt_meta_description": "",
+  "generate_prompt_meta_keywords": "",
+  "generate_prompt_image": "",
+  "generate_prompt_image_to_content": "",
+  "bulk_cover_background_url": ""
+}
+
+###
+### SITE SETTING (branding + default SEO meta, singleton)
+###
+
+### Get site setting
+GET {{baseUrl}}{{apiPrefix}}/admin/site-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Upload site asset (logo, favicon, or default_image) — multipart form
+### kind: logo | favicon | default_image ; field name: image
+POST {{baseUrl}}{{apiPrefix}}/admin/site-setting/upload-image
+Authorization: Bearer {{token}}
+
+###
+### Update site setting
+PUT {{baseUrl}}{{apiPrefix}}/admin/site-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "site_name": "Bebii Blog",
+  "tagline": "Short tagline for the site",
+  "logo_url": "",
+  "favicon_url": "/static/images/favicon.ico",
+  "text_primary": "#212529",
+  "text_secondary": "#6c757d",
+  "background_primary": "#ffffff",
+  "background_secondary": "#f8f9fa",
+  "primary_button": "#0d6efd",
+  "secondary_button": "#6c757d",
+  "accent_color": "#c62828",
+  "border_color": "#ced4da",
+  "login_url": "",
+  "default_title": "Bebii Blog",
+  "default_description": "Default meta description for SEO and social previews.",
+  "default_image": "",
+  "default_keywords": "blog, news, technology"
+}
+
+
+###
+### SITE CONNECTIONS (webmaster verification codes, singleton)
+###
+
+### Get site connections
+GET {{baseUrl}}{{apiPrefix}}/admin/site-connections
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update site connections
+PUT {{baseUrl}}{{apiPrefix}}/admin/site-connections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "ahrefs": "",
+  "google": "",
+  "bing": "",
+  "yandex": "",
+  "auto_post_enabled": true,
+  "auto_post_template": "\u007b\u007btitle\u007d\u007d\n\u007b\u007burl\u007d\u007d\n\u007b\u007bsnippet\u007d\u007d",
+  "facebook_enabled": true,
+  "facebook_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "facebook_token": "",
+  "x_enabled": true,
+  "x_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "x_token": "",
+  "tiktok_enabled": true,
+  "tiktok_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "tiktok_token": "",
+  "instagram_enabled": true,
+  "instagram_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "instagram_token": ""
+}
+
+###
+### SCRAPER (RSS per category; AI prompts in ai_setting: scraper_prompt_*)
+###
+
+### Get scraper setting (global + category_feeds[])
+GET {{baseUrl}}{{apiPrefix}}/admin/scraper-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update scraper setting
+### scraper_ai_provider: off | auto | gemini | openai | groq | claude
+### category_feeds: omit/null = do not change per-category rows
+PUT {{baseUrl}}{{apiPrefix}}/admin/scraper-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "enabled": true,
+  "interval_mins": 15,
+  "pause_between_categories_mins": 2,
+  "scraper_ai_provider": "auto",
+  "category_feeds": [
+    {
+      "category_slug": "nasional",
+      "feed_urls": "https://www.cnnindonesia.com/nasional/rss",
+      "enabled": true,
+      "include_source": true,
+      "article_status": "published",
+      "image_mode": "scrape",
+      "web_search_source": "auto",
+      "image_to_content": false,
+      "author_email": "{{adminEmail}}"
+    }
+  ]
+}
+
+###
+### Run scraper now (202 Accepted; background; skips if no active feeds)
+POST {{baseUrl}}{{apiPrefix}}/admin/scraper-setting/run-now
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Scraper logs — ?page=&size=&level=info|warn|error&q= (retention: ADMIN_LOG_RETENTION_HOURS)
+GET {{baseUrl}}{{apiPrefix}}/admin/scraper-logs?page=1&size=50&level=&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Clear scraper logs
+DELETE {{baseUrl}}{{apiPrefix}}/admin/scraper-logs
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### LOGIN LOGS (sign-in audit; ?success=1|0; same retention as scraper/bulk logs)
+###
+
+### List login logs
+GET {{baseUrl}}{{apiPrefix}}/admin/login-logs?page=1&size=50&success=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### BULK POST (titles + batch generate; prompts in ai_setting / bulk-post-template)
+###
+
+### Bulk post logs — writers see own rows; ?level=&event=&q=
+GET {{baseUrl}}{{apiPrefix}}/admin/bulk-post-logs?page=1&size=50&level=&event=&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Clear bulk post logs
+DELETE {{baseUrl}}{{apiPrefix}}/admin/bulk-post-logs
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Save bulk post prompt template (writer/admin; merge — only sent keys)
+PUT {{baseUrl}}{{apiPrefix}}/admin/ai-setting/bulk-post-template
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "generate_prompt_title": "",
+  "generate_prompt_content_name": "Default",
+  "generate_prompt_content": "",
+  "generate_prompt_content_name_2": "Variant 2",
+  "generate_prompt_content_2": "",
+  "generate_prompt_meta_description": "",
+  "generate_prompt_meta_keywords": "",
+  "generate_prompt_image": "",
+  "generate_prompt_image_to_content": "",
+  "bulk_cover_background_url": ""
+}
+
+###
+### Upload background cover bulk (multipart; field: image)
+POST {{baseUrl}}{{apiPrefix}}/admin/ai-setting/upload-bulk-cover-background
+Authorization: Bearer {{token}}
+
+###
+### Suggest titles from keyword (response: titles_text, one title per line)
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-suggest-titles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "keyword": "resep kue rumahan",
+  "count": 5,
+  "provider": "auto"
+}
+
+###
+### Regenerate titles (line count must match titles_text)
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-regenerate-titles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "titles_text": "Judul pertama\nJudul kedua",
+  "keyword": "resep kue",
+  "provider": "auto"
+}
+
+###
+### Scrape titles from XML feed (url or raw xml)
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-scrape-xml-titles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "url": "https://www.cnnindonesia.com/nasional/rss"
+}
+
+###
+### Check bulk title similarity (≥90% vs DB + prior lines)
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-check-titles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "titles_text": "Judul pertama\nJudul kedua"
+}
+
+###
+### Bulk-generate posts (async 202; poll job_id)
+### status: draft | published | scheduled
+### cover_image_mode: template | generate_image | web_search
+### category_ids / category_refs / slugs: length must match titles
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "keyword": "resep kue",
+  "titles": ["Cara membuat brownies", "Tips kue kering"],
+  "category_id": 1,
+  "author_id": 1,
+  "tags": [1],
+  "slugs": ["", ""],
+  "category_refs": ["nasional", "nasional"],
+  "provider": "auto",
+  "prompt_content_variant": 1,
+  "status": "draft",
+  "interval_minutes": 0,
+  "generate_delay_minutes": 1,
+  "batch_base_time": "",
+  "title_index": 0,
+  "content_placeholder": "",
+  "meta_description_placeholder": "",
+  "cover_image_from_feeds": true,
+  "cover_image_mode": "template",
+  "cover_web_search_source": "auto",
+  "image_prompt": "",
+  "image_to_content_enabled": false
+}
+
+###
+### Active bulk-generate job for current user
+GET {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-generate-jobs-active
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Bulk-generate job status
+GET {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-generate-jobs/{{jobId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Cancel bulk-generate job
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-generate-jobs/{{jobId}}/cancel
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Bulk-update post status
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/bulk-status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "ids": [1, 2, 3],
+  "status": "published"
+}
+
+
+###
+### MANUAL POST AI LOGS
+###
+
+### List manual post AI logs (writers see own rows)
+GET {{baseUrl}}{{apiPrefix}}/admin/manual-post-ai-logs?page=1&size=50
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Clear manual post AI logs
+DELETE {{baseUrl}}{{apiPrefix}}/admin/manual-post-ai-logs
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### POSTS CRUD — status: draft | published | scheduled
+###
+
+### List posts
+GET {{baseUrl}}{{apiPrefix}}/admin/posts?page=1&size=10&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create post
+POST {{baseUrl}}{{apiPrefix}}/admin/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Judul Artikel Contoh",
+  "slug": "judul-artikel-contoh",
+  "content": "<p>Isi artikel minimal sepuluh karakter untuk validasi API.</p>",
+  "status": "draft",
+  "author_id": {{userId}},
+  "category_id": {{categoryId}},
+  "tags": [{{tagId}}],
+  "source": "https://example.com/sumber-artikel",
+  "include_source": true,
+  "meta_description": "",
+  "meta_keywords": ""
+}
+
+###
+### AI — manual post draft (HTML content + meta; title required if prompt empty)
+### provider: auto | openai | gemini | groq | claude ; prompt_content_variant: 1 | 2 | 3
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/generate-draft
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Cara membuat kue lembut di rumah",
+  "prompt": "",
+  "provider": "auto",
+  "prompt_content_variant": 1,
+  "tags": [{{tagId}}]
+}
+
+###
+### AI — post image (cover or in-content)
+### purpose: cover | content ; source: ai | web_search
+### web_search_source: auto | openverse | wikimedia | unsplash | pixabay | pexels | bing | wordpress
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/generate-image
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Cara membuat kue lembut di rumah",
+  "prompt": "",
+  "provider": "auto",
+  "purpose": "cover",
+  "source": "ai"
+}
+
+###
+### Get post by id
+GET {{baseUrl}}{{apiPrefix}}/admin/posts/{{postId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update post
+PUT {{baseUrl}}{{apiPrefix}}/admin/posts/{{postId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Judul Artikel Contoh (updated)",
+  "slug": "judul-artikel-contoh",
+  "content": "<p>Isi artikel yang sudah diperbarui.</p>",
+  "status": "published",
+  "author_id": {{userId}},
+  "category_id": {{categoryId}},
+  "tags": [{{tagId}}],
+  "source": "https://example.com/sumber-artikel",
+  "include_source": false,
+  "meta_description": "Meta deskripsi opsional",
+  "meta_keywords": "kata kunci, contoh"
+}
+
+###
+### Delete post
+DELETE {{baseUrl}}{{apiPrefix}}/admin/posts/{{postId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### PAGES CRUD — status: draft | published
+###
+
+### List pages
+GET {{baseUrl}}{{apiPrefix}}/admin/pages?page=1&size=10&q=
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create page
+POST {{baseUrl}}{{apiPrefix}}/admin/pages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Tentang Kami",
+  "slug": "tentang-kami",
+  "content": "<p>Halaman statis tentang situs ini.</p>",
+  "status": "published"
+}
+
+###
+### Get page by id
+GET {{baseUrl}}{{apiPrefix}}/admin/pages/{{pageId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update page
+PUT {{baseUrl}}{{apiPrefix}}/admin/pages/{{pageId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Tentang Kami",
+  "slug": "tentang-kami",
+  "content": "<p>Konten halaman diperbarui.</p>",
+  "status": "published"
+}
+
+###
+### Delete page
+DELETE {{baseUrl}}{{apiPrefix}}/admin/pages/{{pageId}}
+Authorization: Bearer {{token}}
+Accept: application/json

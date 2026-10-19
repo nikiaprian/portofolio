@@ -1,0 +1,296 @@
+{{ define "client-header" }}
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+      <a class="site-logo site-logo--news" href="{{ .public_base }}/">
+        {{ if .logo_url }}
+        <span class="site-logo-img-wrap block">
+          <span class="site-logo-text site-logo-text--fallback sr-only">
+            {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}
+          </span>
+          <img class="site-logo-img site-logo-img--pending max-h-12 object-contain" src="{{ .logo_url }}"
+            alt="{{ if .site_name }}{{ .site_name }}{{ else }}Beranda{{ end }}" width="160" height="40"
+            decoding="sync" fetchpriority="high" />
+        </span>
+        {{ else }}
+        <span class="site-logo-text text-2xl font-bold">
+          {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}
+        </span>
+        {{ end }}
+      </a>
+
+      <!-- Desktop Nav - Sejajar Logo -->
+      <nav class="header-nav-primary hidden md:flex items-center justify-between gap-6 h-full text-sm font-sans flex-1 max-w-5xl mx-4 lg:mx-8 min-w-0" aria-label="Kategori">
+        <div class="flex w-full min-w-0 items-stretch h-full" id="header-nav-scroll">
+          <div
+            class="header-nav-cats flex min-w-0 flex-1 flex-nowrap items-center gap-5 lg:gap-8 overflow-x-auto overflow-y-hidden overscroll-x-contain scrollbar-none h-full"
+            id="header-nav-cats">
+            <a href="{{ .public_base }}/" class="header-nav-link header-nav-link--home shrink-0 px-0.5 hover:text-yellow-600 transition flex items-center h-full"
+              data-nav="home">Home</a>
+            {{- range .nav_categories -}}
+            {{- if .Children -}}
+            <div class="header-nav-dropdown shrink-0 flex items-center h-full" data-dropdown-panel="nav-dd-{{ .ID }}">
+              <a class="header-nav-link header-nav-link--has-children px-0.5 hover:text-yellow-600 transition flex items-center gap-1 h-full"
+                href="{{ $.public_base }}/{{ .Slug }}" data-cat-slug="{{ .Slug }}" aria-haspopup="true"
+                aria-expanded="false" aria-controls="nav-dd-{{ .ID }}">
+                {{ .Name }}
+                <svg class="header-nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+                  focusable="false">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            {{- else -}}
+            <a href="{{ $.public_base }}/{{ .Slug }}" class="header-nav-link shrink-0 px-0.5 hover:text-yellow-600 transition flex items-center h-full"
+              data-cat-slug="{{ .Slug }}">{{ .Name }}</a>
+            {{- end -}}
+            {{- end -}}
+          </div>
+          <button type="button" class="header-nav-scroll-next h-full flex items-center px-2" id="header-nav-scroll-next"
+            aria-label="Lihat kategori berikutnya" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button id="searchBtn" class="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700" aria-label="Open search">
+          <i class="bi bi-search"></i>
+        </button>
+
+        <button id="menuBtn" class="md:hidden w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700" aria-label="Open menu">
+          ☰
+        </button>
+      </div>
+    </div>
+
+    <!-- Hidden dropdown layers block for template ranges -->
+    <div class="header-nav-dropdown-layer" id="header-nav-dropdown-layer" aria-hidden="true" style="display: none;">
+      {{- range .nav_categories -}}
+      {{- if .Children -}}
+      <div class="header-nav-dropdown-panel is-collapsed" id="nav-dd-{{ .ID }}" role="menu"
+        aria-label="Subkategori {{ .Name }}" aria-hidden="true">
+        {{- $parentCat := . -}}
+        {{- range .Children -}}
+        <a role="menuitem" class="header-nav-dropdown-item"
+          href="{{ $.public_base }}/{{ $parentCat.Slug }}/{{ .Slug }}" data-cat-slug="{{ .Slug }}"
+          data-parent-slug="{{ $parentCat.Slug }}">{{ .Name }}</a>
+        {{- end -}}
+      </div>
+      {{- end -}}
+      {{- end -}}
+    </div>
+
+    <!-- Mobile Nav -->
+    <nav id="mobileMenu" class="hidden md:hidden pb-4 animate-slideDown border-t border-gray-100 dark:border-slate-800"
+      aria-label="Kategori">
+      <div class="grid grid-cols-2 gap-3 pt-4 text-sm font-sans">
+        <a href="{{ .public_base }}/" class="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700">Home</a>
+        {{- range .nav_categories -}}
+        {{- $parentCat := . -}}
+        <a href="{{ $.public_base }}/{{ .Slug }}" class="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700">{{ .Name }}</a>
+        {{- if .Children -}}
+        {{- range .Children -}}
+        <a href="{{ $.public_base }}/{{ $parentCat.Slug }}/{{ .Slug }}"
+          class="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700">{{ .Name }}</a>
+        {{- end -}}
+        {{- end -}}
+        {{- end -}}
+      </div>
+    </nav>
+
+    <!-- Search Panel -->
+    <section id="searchPanel" class="fixed inset-0 z-[60] hidden bg-black/60 px-4 py-6">
+      <div class="max-w-3xl mx-auto rounded-2xl bg-white shadow-2xl border border-gray-200 animate-slideDown dark:bg-slate-900 dark:border-slate-700">
+        <div class="flex items-center justify-between border-b border-gray-200 p-4 dark:border-slate-700">
+          <h2 class="text-xl font-bold">Search Articles</h2>
+          <button id="closeSearch" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 transition dark:bg-slate-800 dark:hover:bg-slate-700" aria-label="Close search">
+            ✕
+          </button>
+        </div>
+
+        <div class="p-4">
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Type title, category, or keyword..."
+            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 font-sans text-sm outline-none focus:border-yellow-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+
+          <p id="searchCount" class="mt-3 text-sm text-gray-500 font-sans dark:text-slate-400">
+            Start typing to search available articles.
+          </p>
+
+          <div id="searchResults" class="mt-4 max-h-[55vh] overflow-y-auto divide-y divide-gray-200 dark:divide-slate-700"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</header>
+
+<script>
+    const menuBtn = document.getElementById("menuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    const searchBtn = document.getElementById("searchBtn");
+    const searchPanel = document.getElementById("searchPanel");
+    const closeSearch = document.getElementById("closeSearch");
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    const searchCount = document.getElementById("searchCount");
+
+    function getArticles() {
+      const items = [];
+      const seen = new Set();
+
+      document.querySelectorAll("a").forEach(a => {
+        const titleEl = a.querySelector(".blog-posts-title, .blog-popular-title, h2.text-2xl, h2.text-4xl, h3, .home-neo-main-title, .home-neo-side-title");
+        if (!titleEl) return;
+        
+        let title = titleEl.textContent.trim();
+        if (!title) return;
+
+        let href = a.getAttribute("href");
+        if (!href || href === "#" || href.startsWith("javascript:")) return;
+
+        try {
+           const u = new URL(href, window.location.origin);
+           href = u.pathname + u.search + u.hash;
+        } catch(e) {}
+
+        if (seen.has(href)) return;
+        seen.add(href);
+
+        let category = "Artikel";
+        const catEl = a.querySelector(".bg-yellow-400, .blog-posts-cat, .home-neo-main-cat, .home-neo-side-cat");
+        if (catEl) {
+           category = catEl.textContent.trim();
+        }
+
+        let summary = "";
+        const sumEl = a.querySelector(".blog-posts-excerpt, .home-neo-main-excerpt");
+        if (sumEl) {
+           summary = sumEl.textContent.trim();
+        }
+
+        items.push({
+          href: href,
+          title: title,
+          category: category,
+          summary: summary
+        });
+      });
+      return items;
+    }
+
+    let articles = [];
+
+    menuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+
+    function openSearchPanel() {
+      articles = getArticles();
+      searchPanel.classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+      setTimeout(() => searchInput.focus(), 50);
+    }
+
+    function closeSearchPanel() {
+      searchPanel.classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = "";
+      searchCount.textContent = "Start typing to search available articles.";
+    }
+
+    function renderSearchResults(query) {
+      const keyword = query.trim().toLowerCase();
+
+      if (!keyword) {
+        searchResults.innerHTML = "";
+        searchCount.textContent = "Start typing to search available articles.";
+        return;
+      }
+
+      const filteredArticles = articles.filter((article) => {
+        const searchableText = `${article.title} ${article.category} ${article.summary}`.toLowerCase();
+        return searchableText.includes(keyword);
+      });
+
+      searchCount.textContent = `${filteredArticles.length} result${filteredArticles.length === 1 ? "" : "s"} found.`;
+
+      if (filteredArticles.length === 0) {
+        searchResults.innerHTML = `
+          <div class="py-8 text-center">
+            <p class="font-bold">No article found.</p>
+            <p class="mt-1 text-sm text-gray-500 font-sans dark:text-slate-400">
+              Try another keyword, such as football, health, travel, or education.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      searchResults.innerHTML = filteredArticles.map((article) => {
+        return `
+          <a href="${article.href}" class="block py-4 group">
+            <p class="text-xs uppercase font-bold text-blue-800 font-sans dark:text-blue-300">
+              ${article.category}
+            </p>
+            <h3 class="mt-1 text-lg font-bold group-hover:text-yellow-700 transition dark:group-hover:text-yellow-400">
+              ${article.title}
+            </h3>
+            ${article.summary ? `<p class="mt-1 text-sm text-gray-600 font-sans dark:text-slate-400">${article.summary}</p>` : ''}
+          </a>
+        `;
+      }).join("");
+
+      searchResults.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeSearchPanel);
+      });
+    }
+
+    searchBtn.addEventListener("click", openSearchPanel);
+    closeSearch.addEventListener("click", closeSearchPanel);
+
+    searchPanel.addEventListener("click", (event) => {
+      if (event.target === searchPanel) {
+        closeSearchPanel();
+      }
+    });
+
+    searchInput.addEventListener("input", (event) => {
+      renderSearchResults(event.target.value);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !searchPanel.classList.contains("hidden")) {
+        closeSearchPanel();
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openSearchPanel();
+      }
+    });
+
+    // need fix if access / should be match with home
+    const currentPage = window.location.pathname;
+    const currentPageSlug = currentPage.split("/").pop();
+    const currentPageLink = document.querySelectorAll(`a[data-cat-slug]`);
+    const homeLink = document.querySelector("a[data-nav='home']");
+    currentPageLink.forEach((link) => {
+      if (link.getAttribute("data-cat-slug") === currentPageSlug) {
+        link.classList.add("underline","decoration-indigo-500","underline-offset-4");
+      } else if (currentPage === "/") {
+        homeLink.classList.add("underline","decoration-indigo-500","underline-offset-4");
+      }
+    });
+  </script>
+{{ end }}

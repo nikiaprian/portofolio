@@ -1,0 +1,33 @@
+{{ define "client-blog-sidebar-ssr" }}
+<aside
+  class="theme1-sidebar blog-popular-wrap lg:pl-2 self-start"
+  id="blog-popular-wrap"
+  aria-label="Sidebar artikel"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  <div class="theme1-sidebar-inner flex flex-col gap-8">
+    {{ if .ads_sidebar }}
+    <div class="border border-gray-200 overflow-hidden site-ad site-ad--sidebar shrink-0">{{ .ads_sidebar }}</div>
+    {{ end }}
+
+    <section class="theme1-popular-side blog-popular-wrap-sticky shrink-0" aria-label="Artikel terbaru">
+      <h2 class="theme1-section-title text-xl font-bold text-gray-900 mb-4 pb-1 border-b-4 border-amber-500 inline-block">Artikel Terbaru</h2>
+      <ol class="blog-popular-list space-y-0" id="blog-popular-list" data-sidebar-source="latest">
+        {{ range .latest_posts }}
+        <li class="blog-popular-item">
+          <a class="blog-popular-link flex items-start gap-3 py-3 border-b border-gray-200 group" href="{{ .href }}">
+            <span class="text-2xl font-extrabold text-gray-400 group-hover:text-amber-600 transition leading-none mt-0.5 w-7 shrink-0 text-right tabular-nums">{{ .rank }}</span>
+            <div class="flex-1 min-w-0">
+              <span class="blog-popular-title block text-sm font-bold leading-snug group-hover:text-amber-700 transition">{{ .title }}</span>
+              {{ if .time }}<span class="blog-popular-meta mt-1 block text-xs text-gray-500 font-sans">{{ .time }}</span>{{ end }}
+            </div>
+          </a>
+        </li>
+        {{ end }}
+      </ol>
+    </section>
+  </div>
+</aside>
+{{ end }}

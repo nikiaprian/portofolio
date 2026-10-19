@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>This site can't be reached</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #202124;
+        --text: #9aa0a6;
+        --text-muted: #777777;
+        --link: #8ab4f8;
+        --border: #5f6368;
+        --btn-text: #202124;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .main-frame-error {
+        min-height: 100%;
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        padding: 0 clamp(16px, 10vw, 10%);
+      }
+
+      .error-container {
+        width: 100%;
+        max-width: 630px;
+        padding: clamp(48px, 14vh, 120px) 0 clamp(32px, 8vh, 64px);
+      }
+
+      .icon-wrap {
+        filter: invert(1);
+        margin-bottom: clamp(24px, 5vw, 40px);
+        line-height: 0;
+      }
+
+      .icon {
+        width: clamp(48px, 12vw, 64px);
+        height: clamp(48px, 12vw, 64px);
+        display: block;
+      }
+
+      .error-heading {
+        margin: 0 0 15px;
+        font-size: clamp(1.25rem, 4.5vw, 1.6rem);
+        font-weight: 600;
+        line-height: 1.25;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+        color: var(--text);
+      }
+
+      .error-message {
+        margin: 0 0 15px;
+        font-size: clamp(0.95rem, 3.2vw, 1rem);
+        line-height: 1.25;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+        color: var(--text);
+      }
+
+      .error-message strong {
+        font-weight: 600;
+        color: #bdc1c6;
+      }
+
+      .troubleshooting-section {
+        margin-top: 15px;
+        font-size: clamp(0.95rem, 3.2vw, 1rem);
+        line-height: 1.25;
+        color: var(--text);
+      }
+
+      .troubleshooting-section > p {
+        margin: 0 0 8px;
+      }
+
+      .troubleshooting-list {
+        margin: 0;
+        padding-left: 1.5rem;
+        padding-bottom: 2rem;
+        list-style-type: disc;
+      }
+
+      .troubleshooting-list li {
+        margin-bottom: 4px;
+      }
+
+      .troubleshooting-link {
+        color: var(--link);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .troubleshooting-link:hover,
+      .troubleshooting-link:focus-visible {
+        text-decoration: underline;
+      }
+
+      .error-code {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text);
+      }
+
+      .button-container {
+        margin-top: clamp(32px, 8vw, 51px);
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        appearance: none;
+        border-radius: 40px;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        line-height: 1.2;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+
+      .btn:focus-visible {
+        outline: 2px solid var(--link);
+        outline-offset: 2px;
+      }
+
+      .btn-details {
+        color: var(--link);
+        background: transparent;
+        border: 1px solid var(--border);
+      }
+
+      .btn-details:hover {
+        background-color: var(--link);
+        color: var(--btn-text);
+        border-color: var(--link);
+      }
+
+      .btn-reload {
+        color: var(--btn-text);
+        background-color: var(--link);
+        border: 1px solid var(--border);
+      }
+
+      .btn-reload:hover {
+        filter: brightness(1.05);
+      }
+
+      .suggestions {
+        display: none;
+        max-width: 630px;
+        margin-top: 30px;
+        color: var(--text);
+        animation: fadeIn 0.2s ease;
+      }
+
+      .suggestions.is-open {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .suggestion-header {
+        font-weight: 900;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        font-size: 1rem;
+        color: var(--text);
+      }
+
+      .suggestion-header:first-child {
+        margin-top: 0;
+      }
+
+      .suggestion-body {
+        margin-bottom: 15px;
+        color: var(--text-muted);
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 480px) {
+        .main-frame-error {
+          padding: 0 20px;
+        }
+
+        .error-container {
+          padding-top: 12vh;
+        }
+
+        .button-container {
+          flex-direction: column-reverse;
+          align-items: stretch;
+        }
+
+        .btn {
+          width: 100%;
+          text-align: center;
+          padding: 10px 16px;
+        }
+
+        .troubleshooting-list {
+          padding-left: 1.25rem;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .error-heading {
+          font-size: 1.15rem;
+        }
+
+        .error-message,
+        .troubleshooting-section {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-frame-error">
+      <div class="error-container">
+        <div class="icon-wrap">
+          <img
+            class="icon"
+            alt=""
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQAQMAAADdiHD7AAAABlBMVEUAAABTU1OoaSf/AAAAAXRSTlMAQObYZgAAAFJJREFUeF7t0cENgDAMQ9FwYgxG6WjpaIzCCAxQxVggFuDiCvlLOeRdHR9yzjncHVoq3npu+wQUrUuJHylSTmBaespJyJQoObUeyxDQb3bEm5Au81c0pSCD8HYAAAAASUVORK5CYII="
+          />
+        </div>
+
+        <div id="main-message">
+          <h1 class="error-heading">This site can't be reached</h1>
+
+          <p class="error-message">
+            <strong id="domain-name">example.com</strong>'s server IP address could not be found.
+          </p>
+
+          <div class="troubleshooting-section">
+            <p>Try:</p>
+            <ul class="troubleshooting-list">
+              <li>Checking the connection</li>
+              <li>
+                <a class="troubleshooting-link" href="#buttons" id="toggle-suggestions"
+                  >Checking the proxy, firewall, and DNS configuration</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <p class="error-code">ERR_NAME_NOT_RESOLVED</p>
+        </div>
+
+        <div class="button-container" id="buttons">
+          <button class="btn btn-reload" id="reload-btn" type="button">Reload</button>
+          <button class="btn btn-details" id="details-btn" type="button" aria-expanded="false" aria-controls="suggestions">
+            Details
+          </button>
+        </div>
+
+        <div class="suggestions" id="suggestions" role="region" aria-label="Troubleshooting details">
+          <div class="suggestion-header">Check your Internet connection</div>
+          <div class="suggestion-body">
+            Check any cables and reboot any routers, modems, or other network devices you may be using.
+          </div>
+
+          <div class="suggestion-header">Check your DNS settings</div>
+          <div class="suggestion-body">
+            Contact your network administrator if you're not sure what this means.
+          </div>
+
+          <div class="suggestion-header">Try disabling network prediction</div>
+          <div class="suggestion-body">
+            Go to the Chrome menu &gt; Settings &gt; Show advanced settings… and deselect "Use a prediction service to
+            load pages more quickly." If this does not resolve the issue, we recommend selecting this option again for
+            improved performance.
+          </div>
+
+          <div class="suggestion-header">Allow Chrome to access the network in your firewall or antivirus settings.</div>
+          <div class="suggestion-body">
+            If it is already listed as a program allowed to access the network, try removing it from the list and adding
+            it again.
+          </div>
+
+          <div class="suggestion-header">If you use a proxy server…</div>
+          <div class="suggestion-body">
+            Go to Applications &gt; System Settings &gt; Network, select the active network, click the Details… button,
+            and deselect any proxies that may have been selected.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var domainEl = document.getElementById("domain-name");
+        var host = window.location.hostname;
+        if (domainEl) {
+          domainEl.textContent = host || "This site";
+        }
+        if (host) {
+          document.title = host + " can't be reached";
+        }
+
+        var suggestions = document.getElementById("suggestions");
+        var detailsBtn = document.getElementById("details-btn");
+        var toggleLink = document.getElementById("toggle-suggestions");
+        var open = false;
+
+        function setOpen(next) {
+          open = !!next;
+          if (suggestions) {
+            suggestions.classList.toggle("is-open", open);
+          }
+          if (detailsBtn) {
+            detailsBtn.textContent = open ? "Hide details" : "Details";
+            detailsBtn.setAttribute("aria-expanded", open ? "true" : "false");
+          }
+        }
+
+        function toggle(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          setOpen(!open);
+        }
+
+        if (detailsBtn) detailsBtn.addEventListener("click", toggle);
+        if (toggleLink) toggleLink.addEventListener("click", toggle);
+
+        var reloadBtn = document.getElementById("reload-btn");
+        if (reloadBtn) {
+          reloadBtn.addEventListener("click", function () {
+            window.location.reload();
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

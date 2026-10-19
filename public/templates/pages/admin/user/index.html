@@ -1,0 +1,14 @@
+{{ define "admin-content" }}
+
+{{ template "admin-crud-list" . }}
+
+{{ template "admin-user-create" . }}
+{{ template "admin-user-edit" . }}
+{{ template "admin-user-delete" . }}
+
+<script defer src="/static/js/password-reveal.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/user.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

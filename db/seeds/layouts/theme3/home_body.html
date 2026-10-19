@@ -1,0 +1,184 @@
+{{ define "client-content" }}
+<main class="theme3-home">
+
+  <!-- Artikel pilihan: terbaru #2 dan seterusnya (tetap di atas) -->
+  <section class="theme3-more max-w-7xl mx-auto pt-6 sm:pt-8 pb-6" aria-labelledby="theme3-head-pilihan">
+    <div class="theme3-more-head px-4 sm:px-6">
+      <div class="theme3-section-head">
+        <h2 id="theme3-head-pilihan" class="theme3-section-title">Artikel pilihan</h2>
+        <a href="{{ .public_base }}/posts" class="theme3-section-link">
+          Lihat semua <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+    <div class="theme3-more-slider">
+      <button type="button" class="theme3-more-nav theme3-more-nav--prev" aria-label="Geser ke kiri" disabled>
+        <span aria-hidden="true">&larr;</span>
+      </button>
+      <div class="theme3-more-track" role="list" tabindex="0" aria-label="Daftar artikel pilihan">
+        {{ range .home_theme3_more }}
+        <article class="theme3-more-card group" role="listitem">
+          <a href="{{ .href }}" class="theme3-more-card-link">
+            <span class="theme3-more-media">
+              <img src="{{ resizeImg .thumb 480 270 }}" alt="" class="theme3-more-img" loading="lazy" decoding="async" />
+            </span>
+            <span class="theme3-more-body">
+              {{ if .has_cat }}
+              <span class="theme3-cat theme3-label text-accent">{{ .cat_name }}</span>
+              {{ end }}
+              <span class="theme3-more-title">{{ .title }}</span>
+              <span class="theme3-more-meta">{{ if .date_label }}{{ .date_label }}{{ else if .rel_time }}{{ .rel_time }}{{ end }}</span>
+            </span>
+          </a>
+        </article>
+        {{ end }}
+      </div>
+      <button type="button" class="theme3-more-nav theme3-more-nav--next" aria-label="Geser ke kanan">
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Berita hari ini: #1 lead + kartu samping + daftar wire (tanpa duplikasi) -->
+  <section class="theme3-desk max-w-7xl mx-auto px-4 sm:px-6 pt-2 sm:pt-4 pb-10" aria-labelledby="theme3-head-hari-ini">
+    <div class="theme3-section-head">
+      <h2 id="theme3-head-hari-ini" class="theme3-section-title">Berita hari ini</h2>
+      <a href="{{ .public_base }}/posts" class="theme3-section-link">
+        Arsip artikel <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+
+    <div class="theme3-desk-grid">
+      <div class="theme3-stack min-w-0 space-y-4">
+        {{ with .home_theme3_lead }}
+        <article class="theme3-lead relative overflow-hidden bg-slate-200 aspect-video group border border-slate-300">
+          <img
+            src="{{ resizeImg .thumb 1200 675 }}"
+            alt="{{ .title }}"
+            decoding="async"
+            loading="eager"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition duration-700"
+          />
+          <div class="theme3-lead-shade absolute inset-0" aria-hidden="true"></div>
+          <a href="{{ .href }}" class="absolute inset-0 z-10"><span class="sr-only">{{ .title }}</span></a>
+          <div class="absolute inset-x-0 bottom-0 p-5 sm:p-7 pointer-events-none z-20">
+            {{ if .has_cat }}
+            <span class="theme3-lead-cat theme3-cat inline-block bg-accent text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]">{{ .cat_name }}</span>
+            {{ end }}
+            <h3 class="theme3-lead-title">{{ .title }}</h3>
+          </div>
+        </article>
+        {{ end }}
+
+        {{ if .home_theme3_stack }}
+        <div class="grid sm:grid-cols-2 gap-4">
+          {{ range .home_theme3_stack }}
+          <a href="{{ .href }}" class="theme3-stack-card group block border border-slate-300 bg-white p-3 hover:border-accent transition">
+            <div class="relative aspect-video overflow-hidden bg-slate-200 mb-3">
+              <img src="{{ resizeImg .thumb 480 270 }}" alt="{{ .title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" />
+            </div>
+            {{ if .has_cat }}
+            <p class="theme3-cat theme3-label text-accent mb-1">{{ .cat_name }}</p>
+            {{ end }}
+            <h3 class="theme3-card-title">{{ .title }}</h3>
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+
+      <div class="theme3-wire min-w-0">
+        <ol class="theme3-wire-list m-0 p-0 list-none border-t border-slate-300">
+          {{ range .home_theme3_wire }}
+          <li class="theme3-wire-item border-b border-slate-200">
+            <a href="{{ .href }}" class="theme3-wire-link group flex items-center gap-3 sm:gap-4 py-4">
+              <span class="theme3-wire-num shrink-0 w-8 text-center text-sm font-bold tabular-nums text-slate-400 group-hover:text-accent transition" aria-hidden="true"></span>
+              <span class="min-w-0 flex-1">
+                {{ if .has_cat }}
+                <span class="theme3-cat theme3-label text-accent">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="theme3-card-title theme3-card-title--wire">{{ .title }}</span>
+                <span class="mt-1.5 block text-xs text-slate-500">
+                  {{ if .author_name }}{{ .author_name }}{{ end }}
+                  {{ if .date_label }}{{ if .author_name }} · {{ end }}{{ .date_label }}{{ else if .rel_time }}{{ if .author_name }} · {{ end }}{{ .rel_time }}{{ end }}
+                </span>
+              </span>
+            </a>
+          </li>
+          {{ end }}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artikel terbaru lanjutan + Sorotan -->
+  <section class="theme3-index max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+    <div class="theme3-index-grid">
+      <div class="theme3-index-main min-w-0" aria-labelledby="theme3-head-terbaru">
+        <div class="theme3-section-head">
+          <h2 id="theme3-head-terbaru" class="theme3-section-title">Artikel terbaru</h2>
+        </div>
+        {{ if .home_theme3_feed }}
+        <div class="theme3-feed border-t border-slate-300">
+          {{ range .home_theme3_feed }}
+          <a href="{{ .href }}" class="theme3-feed-item group flex gap-4 py-4 border-b border-slate-200">
+            <img src="{{ resizeImg .thumb 160 120 }}" alt="{{ .title }}" class="w-24 h-20 object-cover shrink-0 bg-slate-200 border border-slate-300" loading="lazy" decoding="async" />
+            <div class="min-w-0">
+              <p class="text-xs mb-1">
+                {{ if .cat_name }}
+                <span class="theme3-cat theme3-label text-accent">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="text-slate-500">{{ if .cat_name }} · {{ end }}{{ if .date_label }}{{ .date_label }}{{ else }}{{ .rel_time }}{{ end }}</span>
+              </p>
+              <h3 class="theme3-card-title">{{ .title }}</h3>
+            </div>
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+
+      <aside class="theme3-signal min-w-0" aria-labelledby="theme3-head-sorotan">
+        <div class="theme3-signal-box border border-slate-300 bg-white">
+          <div class="theme3-section-head theme3-section-head--compact">
+            <h2 id="theme3-head-sorotan" class="theme3-section-title">Sorotan</h2>
+          </div>
+          <ul class="theme3-signal-list m-0 p-0 list-none">
+            {{ range .home_selected_posts }}
+            <li class="theme3-signal-item">
+              <a href="{{ .href }}" class="block group">
+                {{ if .has_cat }}
+                <span class="theme3-cat theme3-label text-accent">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="theme3-card-title">{{ .title }}</span>
+                <span class="mt-1 block text-xs text-slate-500">{{ if .date_label }}{{ .date_label }}{{ else }}{{ .rel_time }}{{ end }}</span>
+              </a>
+            </li>
+            {{ end }}
+          </ul>
+        </div>
+
+        {{ if .home_theme3_aside }}
+        {{ range $i, $p := .home_theme3_aside }}
+        {{ if eq $i 0 }}
+        <a href="{{ $p.href }}" class="theme3-aside-card group block border border-slate-300 bg-white overflow-hidden hover:border-accent transition" aria-label="{{ $p.title }}">
+          <div class="theme3-aside-media relative aspect-[16/10] overflow-hidden bg-slate-200">
+            <img src="{{ resizeImg $p.thumb 640 400 }}" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition duration-500" loading="lazy" decoding="async" />
+            <div class="theme3-aside-shade absolute inset-0" aria-hidden="true"></div>
+            <div class="theme3-aside-copy absolute inset-x-0 bottom-0 z-10">
+              {{ if $p.has_cat }}
+              <span class="theme3-aside-cat theme3-cat inline-block bg-accent text-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">{{ $p.cat_name }}</span>
+              {{ end }}
+              <span class="theme3-aside-title">{{ $p.title }}</span>
+            </div>
+          </div>
+        </a>
+        {{ end }}
+        {{ end }}
+        {{ end }}
+      </aside>
+    </div>
+  </section>
+
+</main>
+{{ end }}

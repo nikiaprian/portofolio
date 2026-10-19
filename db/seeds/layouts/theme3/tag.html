@@ -1,0 +1,110 @@
+{{ define "client-content" }}
+<main class="theme3-page max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <div class="blog-feed-head">
+        <p class="theme3-label text-accent mb-1">Tag</p>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-6">{{ .tag_name }}</h1>
+      </div>
+
+      {{ if .posts }}
+      <div class="blog-posts-list space-y-0 border-t border-slate-300" data-lazy-list data-batch-size="8">
+        {{ range $i, $p := .posts }}
+        <a
+          class="blog-posts-item grid grid-cols-3 sm:grid-cols-4 gap-4 py-4 border-b border-slate-200 group{{ if ge $i 8 }} is-lazy-hidden{{ end }}"
+          href="{{ $p.href }}"
+          {{ if ge $i 8 }}hidden{{ end }}
+          data-lazy-item
+        >
+          <span class="blog-posts-thumb block overflow-hidden border border-slate-300 blog-posts-thumb--loading" aria-hidden="true" data-thumb-skeleton>
+            <img
+              src="{{ resizeImg $p.thumb 200 96 }}"
+              alt=""
+              width="88"
+              height="66"
+              loading="lazy"
+              decoding="async"
+              class="w-full h-20 sm:h-24 object-cover"
+            />
+          </span>
+          <span class="blog-posts-text col-span-2 sm:col-span-3 min-w-0">
+            <span class="blog-posts-title block text-sm sm:text-base font-bold leading-snug tracking-tight group-hover:text-accent transition">{{ $p.title }}</span>
+            {{ if $p.time }}
+            <span class="blog-posts-time mt-1 block text-xs text-slate-500">{{ $p.time }}</span>
+            {{ end }}
+          </span>
+        </a>
+        {{ if and (eq $i 4) $.ads_center }}
+        <div class="site-ad site-ad--center site-ad--inlist py-4" aria-label="Iklan">{{ $.ads_center }}</div>
+        {{ end }}
+        {{ end }}
+      </div>
+
+      {{ if gt (len .posts) 8 }}
+      <div class="blog-feed-loadmore flex justify-center mt-8">
+        <button
+          type="button"
+          class="btn btn-ghost blog-feed-loadmore-btn px-6 py-2 border border-slate-300 hover:border-accent hover:text-accent transition font-medium"
+          data-lazy-loadmore
+        >
+          Muat lagi
+        </button>
+      </div>
+      {{ end }}
+      {{ else }}
+      <p class="text-slate-600">Belum ada artikel dengan tag ini.</p>
+      {{ end }}
+
+      {{ template "client-pagination" . }}
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("[data-lazy-list]");
+    if (!list) return;
+    var btn = document.querySelector("[data-lazy-loadmore]");
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (!btn) return;
+    var batch = parseInt(list.getAttribute("data-batch-size") || "8", 10);
+    if (!batch || batch < 1) batch = 8;
+    var hiddenSelector = "[data-lazy-item][hidden]";
+    function applyBatch() {
+      var hidden = list.querySelectorAll(hiddenSelector);
+      if (!hidden.length) {
+        btn.remove();
+        return;
+      }
+      for (var i = 0; i < hidden.length && i < batch; i++) {
+        hidden[i].hidden = false;
+        bindThumbSkeleton(hidden[i]);
+      }
+      if (!list.querySelector(hiddenSelector)) {
+        btn.remove();
+      }
+    }
+    btn.addEventListener("click", applyBatch);
+  })();
+</script>
+{{ end }}

@@ -1,0 +1,13 @@
+{{ define "admin-content" }}
+
+{{ template "admin-crud-list" . }}
+
+{{ template "admin-category-create" . }}
+{{ template "admin-category-edit" . }}
+{{ template "admin-category-delete" . }}
+
+<script defer src="/static/js/admin/category.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

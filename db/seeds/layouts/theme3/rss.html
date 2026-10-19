@@ -1,0 +1,44 @@
+{{ define "client-content" }}
+<main class="theme3-page max-w-7xl mx-auto px-4 sm:px-6 py-8 animate-fadeUp">
+  <header class="mb-8">
+    <p class="theme3-label text-accent mb-1">RSS</p>
+    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">RSS Feeds</h1>
+    <p class="text-slate-600 text-sm sm:text-base max-w-2xl mt-3">
+      Daftar feed RSS yang tersedia berdasarkan kategori.
+    </p>
+  </header>
+
+  <div class="bg-white border border-slate-300 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[640px] text-sm border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-300">
+            <th scope="col" class="px-4 sm:px-6 py-3 text-left theme3-label text-slate-500 w-32">Type</th>
+            <th scope="col" class="px-4 sm:px-6 py-3 text-left theme3-label text-slate-500">Name</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          {{ range .rss_rows }}
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-4 sm:px-6 py-4 align-top">
+              {{ if eq .Type "Category" }}
+              <span class="inline-flex items-center px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide bg-accent/10 text-accent">{{ .Type }}</span>
+              {{ else }}
+              <span class="inline-flex items-center px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide bg-slate-100 text-slate-700">{{ .Type }}</span>
+              {{ end }}
+            </td>
+            <td class="px-4 sm:px-6 py-4 align-top">
+              <a href="{{ .URL }}" target="_blank" rel="noopener noreferrer" class="group inline text-inherit no-underline">
+                <span class="font-semibold text-slate-900 group-hover:text-accent transition-colors">{{ .Name }}</span>
+                <span class="text-slate-300 mx-1.5 select-none" aria-hidden="true">&middot;</span>
+                <span class="text-slate-500 text-xs sm:text-sm break-all group-hover:text-slate-700 transition-colors">{{ .URL }}</span>
+              </a>
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{{ end }}

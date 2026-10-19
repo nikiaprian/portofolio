@@ -1,0 +1,168 @@
+{{ define "client-content" }}
+<div class="theme3-article-page">
+  <div class="theme3-article-shell max-w-7xl mx-auto px-2.5 sm:px-6 pt-5 sm:pt-8 pb-14">
+    <div class="theme3-article-grid">
+      <div class="theme3-article-main min-w-0 space-y-10">
+        <div
+          id="public-root"
+          class="public-root min-w-0"
+          data-ssr-article="1"
+          data-slug="{{ .post_slug }}"
+          data-article-more-ssr="1"
+        >
+          <div class="blog-article-layout min-w-0 w-full">
+            <article class="blog-article-single theme3-article-single">
+              <section class="blog-article-head theme3-article-head">
+                <nav class="theme3-breadcrumb text-xs text-slate-500" aria-label="Breadcrumb">
+                  <ol class="theme3-breadcrumb-list">
+                    <li><a href="{{ .public_base }}/" class="hover:text-accent transition">Beranda</a></li>
+                    {{ if .category_parent_name }}
+                    <li class="theme3-breadcrumb-sep" aria-hidden="true">/</li>
+                    <li><a href="{{ .category_parent_href }}" class="hover:text-accent transition">{{ .category_parent_name }}</a></li>
+                    {{ end }}
+                    {{ if and .cat_name .cat_href }}
+                    <li class="theme3-breadcrumb-sep" aria-hidden="true">/</li>
+                    <li><a href="{{ .cat_href }}" class="hover:text-accent transition">{{ .cat_name }}</a></li>
+                    {{ else if and .cat_slug .cat_name }}
+                    <li class="theme3-breadcrumb-sep" aria-hidden="true">/</li>
+                    <li><a href="{{ $.public_base }}/{{ .cat_slug }}" class="hover:text-accent transition">{{ .cat_name }}</a></li>
+                    {{ else if .cat_name }}
+                    <li class="theme3-breadcrumb-sep" aria-hidden="true">/</li>
+                    <li>{{ .cat_name }}</li>
+                    {{ end }}
+                    <li class="theme3-breadcrumb-sep" aria-hidden="true">/</li>
+                    <li class="theme3-breadcrumb-current" aria-current="page">{{ if .post_title }}{{ .post_title }}{{ else }}{{ .title }}{{ end }}</li>
+                  </ol>
+                </nav>
+
+                {{ if .cat_name }}
+                <p class="theme3-article-kicker m-0">
+                  {{ if .cat_href }}
+                  <a href="{{ .cat_href }}" class="theme3-article-catpill">{{ .cat_name }}</a>
+                  {{ else if .cat_slug }}
+                  <a href="{{ $.public_base }}/{{ .cat_slug }}" class="theme3-article-catpill">{{ .cat_name }}</a>
+                  {{ else }}
+                  <span class="theme3-article-catpill">{{ .cat_name }}</span>
+                  {{ end }}
+                </p>
+                {{ end }}
+
+                <h1 class="blog-article-title theme3-article-title">{{ .post_title }}</h1>
+
+                <div class="blog-article-byline-meta-top theme3-meta-top">
+                  <div class="theme3-meta-chips">
+                    {{ if .post_time_label }}
+                    <span class="blog-article-meta-time theme3-meta-chip">
+                      <i class="bi bi-calendar3" aria-hidden="true"></i>
+                      {{ .post_time_label }}
+                    </span>
+                    {{ end }}
+                    {{ if .author_name }}
+                    <a href="{{ .author_path }}" class="theme3-meta-chip theme3-meta-chip--author">
+                      <i class="bi bi-person" aria-hidden="true"></i>
+                      {{ .author_name }}
+                    </a>
+                    {{ end }}
+                  </div>
+                  <div class="blog-share theme3-share" aria-label="Share">
+                    <button type="button" class="blog-share-btn blog-share-btn--more theme3-share-trigger" data-share="more" aria-label="Bagikan artikel" aria-expanded="false" aria-controls="theme3-share-panel" aria-haspopup="true" title="Bagikan">
+                      <i class="bi bi-share" aria-hidden="true"></i>
+                    </button>
+                    <div class="theme3-share-panel" id="theme3-share-panel" hidden>
+                      <p class="theme3-share-panel-label">Link artikel</p>
+                      <a class="theme3-share-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+                      <button type="button" class="theme3-share-copy" data-share="copy">Salin link</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {{ if .hero_url }}
+              <figure class="blog-article-hero theme3-article-hero m-0">
+                <div class="theme3-article-hero-frame">
+                  <img src="{{ resizeImg .hero_url 960 540 }}" alt="{{ .post_title }}" loading="eager" decoding="async" class="theme3-article-hero-img" />
+                </div>
+                {{ if .hero_caption_html }}
+                <figcaption class="blog-article-hero-caption theme3-article-hero-caption">{{ .hero_caption_html }}</figcaption>
+                {{ end }}
+              </figure>
+              {{ end }}
+
+              <div class="blog-article-toc theme3-article-toc" id="blog-article-toc" hidden></div>
+
+              <div class="blog-article-body post-body theme3-article-body min-w-0 w-full">
+                {{ .post_body }}
+              </div>
+
+              <div
+                class="blog-article-source theme3-article-source"
+                id="blog-article-source"
+                hidden
+                data-include-source="{{ if .post_include_source }}1{{ else }}0{{ end }}"
+                data-source="{{ js .post_source }}"
+              ></div>
+
+              <div class="blog-article-byline theme3-byline">
+                <div class="theme3-byline-card">
+                  <a href="{{ .author_path }}" class="blog-article-avatar theme3-byline-avatar relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden text-lg font-bold" aria-label="{{ .author_name }}">
+                    <span class="blog-article-avatar-letter" aria-hidden="true">{{ .avatar_letter }}</span>
+                    {{ if .author_img }}
+                      <img class="blog-article-avatar-img absolute inset-0 h-full w-full object-cover" src="{{ resizeImg .author_img 56 56 }}" alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+                    {{ end }}
+                  </a>
+                  <div class="theme3-byline-identity min-w-0 flex-1">
+                    <a href="{{ .author_path }}" class="theme3-byline-name">{{ .author_name }}</a>
+                    {{ if .author_bio }}
+                    <p class="theme3-author-bio">{{ .author_bio }}</p>
+                    {{ end }}
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        {{ if .article_related_posts }}
+        <section class="blog-otherlatest theme3-related" aria-label="Artikel terkait">
+          <div class="theme3-section-head">
+            <h2 class="theme3-section-title">Artikel terkait</h2>
+          </div>
+          <div class="theme3-related-grid blog-posts-list blog-otherlatest-list" data-lazy-list data-batch-size="{{ .article_related_batch_size }}">
+            {{ range $i, $p := .article_related_posts }}
+            <a
+              class="theme3-related-card blog-posts-item group{{ if ge $i $.article_related_batch_size }} is-lazy-hidden{{ end }}"
+              href="{{ $p.href }}"
+              {{ if ge $i $.article_related_batch_size }}hidden{{ end }}
+              data-lazy-item
+            >
+              <span class="theme3-related-thumb blog-posts-thumb" aria-hidden="true">
+                <img src="{{ resizeImg $p.thumb 480 270 }}" alt="" width="320" height="180" loading="lazy" decoding="async" />
+              </span>
+              <span class="theme3-related-body blog-posts-text">
+                <span class="blog-posts-title theme3-related-title">{{ $p.title }}</span>
+                {{ if $p.time }}<span class="blog-posts-time theme3-related-time">{{ $p.time }}</span>{{ end }}
+              </span>
+            </a>
+            {{ end }}
+          </div>
+          {{ if gt (len .article_related_posts) .article_related_batch_size }}
+          <div class="blog-feed-loadmore theme3-related-more">
+            <button type="button" class="btn btn-ghost blog-feed-loadmore-btn theme3-related-more-btn" data-lazy-loadmore>
+              <span class="blog-feed-loadmore-inner inline-flex items-center gap-2">
+                <span class="blog-feed-loadmore-label">Muat lagi</span>
+                <svg class="blog-feed-loadmore-arrow" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                  <path fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          {{ end }}
+        </section>
+        {{ end }}
+      </div>
+
+      {{ template "client-blog-sidebar-ssr" . }}
+    </div>
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,23 @@
+{{ define "pf-main" }}
+<p class="pf-kicker">Pembayaran</p>
+<h1>{{ .Subdomain }}.{{ .Root }}</h1>
+<p class="pf-lead">Selesaikan pembayaran {{ .PriceLabel }}. Jendela pembayaran terbuka otomatis.</p>
+<p id="pay-error" class="pf-error" hidden>Pembayaran gagal dibuka. Muat ulang halaman ini.</p>
+<button class="pf-btn" type="button" id="pay-again">Buka pembayaran</button>
+<script>
+  var doneURL = {{ .DoneURL }};
+  function openSnap() {
+    if (!window.snap) {
+      document.getElementById("pay-error").hidden = false;
+      return;
+    }
+    window.snap.pay({{ .SnapToken }}, {
+      onSuccess: function () { window.location.href = doneURL; },
+      onPending: function () { window.location.href = doneURL; },
+      onError: function () { document.getElementById("pay-error").hidden = false; }
+    });
+  }
+  document.getElementById("pay-again").addEventListener("click", openSnap);
+  openSnap();
+</script>
+{{ end }}

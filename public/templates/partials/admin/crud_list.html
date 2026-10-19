@@ -1,0 +1,336 @@
+{{/*
+  Reusable admin list + pagination shell (.admin-crud).
+
+  Pass .crud from the handler (gin.H), for example:
+
+    "crud": gin.H{
+      "error_id": "categories-error",
+      "page_info_id": "categories-page-info",
+      "page_size_id": "categories-page-size",
+      "prev_btn_id": "categories-prev-btn",
+      "next_btn_id": "categories-next-btn",
+      "tbody_id": "categories-tbody",
+      "card_title": "Categories",
+      "create_label": "Create category",
+      "create_icon": "bi-folder-plus",
+      "create_modal_target": "#modalCategoryCreate",  // or use create_href instead of modal
+      "create_href": "/admin/posts/create",               // optional: link instead of modal button
+      "column_headers": []gin.H{
+        {"label": "Name"},
+        {"label": "Slug"},
+        {"label": "Updated At"},
+        {"label": "Actions", "class": "text-end"},
+      },
+    },
+
+  Styling: /static/css/admin/crud.min.css
+  List logic: AdminCrud.bindPage in /static/js/admin/crud.min.js
+*/}}
+
+{{ define "admin-crud-list" }}
+{{- $c := .crud -}}
+<div class="admin-crud container-fluid">
+  <div id="{{ $c.error_id }}" class="alert alert-danger d-none" role="alert"></div>
+
+  <div class="card admin-crud-card shadow-sm">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="admin-crud-header">
+        <div
+          class="admin-crud-header__top d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-2"
+        >
+          <div class="min-w-0 flex-grow-1">
+            <h5 class="mb-0 fw-semibold lh-sm admin-crud-header__title">
+              {{ $c.card_title }}
+            </h5>
+            {{- if $c.card_subtitle }}
+            <p class="small text-secondary mb-0 lh-sm mt-1">{{ $c.card_subtitle }}</p>
+            {{- end }}
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            {{- if $c.refresh_btn_id }}
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              id="{{ $c.refresh_btn_id }}"
+            >
+              <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
+              Muat ulang
+            </button>
+            {{- end }}
+            {{- if $c.clear_logs_btn_id }}
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              id="{{ $c.clear_logs_btn_id }}"
+            >
+              <i class="bi bi-trash3 me-1" aria-hidden="true"></i>
+              {{ if $c.clear_logs_label }}{{ $c.clear_logs_label }}{{ else }}Bersihkan log{{ end }}
+            </button>
+            {{- end }}
+            {{- if $c.create_href }}
+            <a
+              href="{{ $c.create_href }}"
+              class="btn btn-primary btn-sm text-decoration-none"
+            >
+              <i class="bi {{ $c.create_icon }} me-1"></i> {{ $c.create_label }}
+            </a>
+            {{- else if $c.create_modal_target }}
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="{{ $c.create_modal_target }}"
+            >
+              <i class="bi {{ $c.create_icon }} me-1"></i> {{ $c.create_label }}
+            </button>
+            {{- end }}
+          </div>
+        </div>
+        <div class="admin-crud-header__bottom">
+          {{- if not $c.hide_row_select }}
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="dropdown">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary dropdown-toggle d-none"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Aksi terpilih"
+                data-admin-crud-selected-actions-toggle="{{ $c.tbody_id }}"
+              >
+                <i class="bi bi-three-dots" aria-hidden="true"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-none"
+                    data-admin-crud-bulk-publish="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-upload me-2" aria-hidden="true"></i>
+                    Publikasikan yang dipilih
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-none"
+                    data-admin-crud-bulk-draft="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-file-earmark me-2" aria-hidden="true"></i>
+                    Jadikan draf yang dipilih
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-none"
+                    data-admin-crud-bulk-enable="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-toggle-on me-2" aria-hidden="true"></i>
+                    Aktifkan yang dipilih
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-none"
+                    data-admin-crud-bulk-disable="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-toggle-off me-2" aria-hidden="true"></i>
+                    Nonaktifkan yang dipilih
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item d-none"
+                    data-admin-crud-bulk-index-gsc="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-google text-primary me-2" aria-hidden="true"></i>
+                    Index GSC yang dipilih
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <button
+                    type="button"
+                    class="dropdown-item text-danger d-none"
+                    data-admin-crud-bulk-delete="{{ $c.tbody_id }}"
+                    disabled
+                  >
+                    <i class="bi bi-trash me-2" aria-hidden="true"></i>
+                    Hapus yang dipilih
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <span
+              class="small text-secondary d-none"
+              data-admin-crud-selected-count="{{ $c.tbody_id }}"
+            ></span>
+          </div>
+          {{- end }}
+          <div class="input-group input-group-sm admin-crud-search" role="search">
+            <span
+              class="input-group-text"
+              id="{{ $c.search_input_id }}-label"
+            >
+              <i class="bi bi-search" aria-hidden="true"></i>
+            </span>
+            <input
+              type="search"
+              class="form-control"
+              id="{{ $c.search_input_id }}"
+              placeholder="Cari..."
+              aria-label="Cari"
+              aria-describedby="{{ $c.search_input_id }}-label"
+              autocomplete="off"
+            />
+          </div>
+          <div
+            class="d-flex align-items-center gap-2 flex-wrap flex-shrink-0 ms-lg-1"
+          >
+            {{- if $c.level_filter_id }}
+            <div class="d-flex align-items-center gap-1">
+              <label
+                class="small text-secondary text-nowrap mb-0"
+                for="{{ $c.level_filter_id }}"
+                >Level</label
+              >
+              <select
+                id="{{ $c.level_filter_id }}"
+                class="form-select form-select-sm"
+                style="min-width: 6.75rem"
+                aria-label="Filter berdasarkan level"
+              >
+                <option value="">Semua</option>
+                <option value="info">info</option>
+                <option value="warn">warn</option>
+                <option value="error">error</option>
+              </select>
+            </div>
+            {{- end }}
+            {{- if $c.success_filter_id }}
+            <div class="d-flex align-items-center gap-1">
+              <label
+                class="small text-secondary text-nowrap mb-0"
+                for="{{ $c.success_filter_id }}"
+                >Status</label
+              >
+              <select
+                id="{{ $c.success_filter_id }}"
+                class="form-select form-select-sm"
+                style="min-width: 7.5rem"
+                aria-label="Filter berdasarkan hasil login"
+              >
+                <option value="">Semua</option>
+                <option value="1">Berhasil</option>
+                <option value="0">Gagal</option>
+              </select>
+            </div>
+            {{- end }}
+            {{- if $c.event_filter_id }}
+            <div class="d-flex align-items-center gap-1">
+              <label
+                class="small text-secondary text-nowrap mb-0"
+                for="{{ $c.event_filter_id }}"
+                >Event</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="{{ $c.event_filter_id }}"
+                placeholder="Awalan..."
+                style="max-width: 11rem"
+                autocomplete="off"
+                aria-label="Filter berdasarkan awalan event"
+              />
+            </div>
+            {{- end }}
+          </div>
+          <div class="admin-crud-header__meta">
+            <div class="d-flex align-items-center gap-2">
+              <label
+                class="small text-secondary text-nowrap mb-0"
+                for="{{ $c.page_size_id }}"
+                >Per halaman</label
+              >
+              <select
+                id="{{ $c.page_size_id }}"
+                class="form-select form-select-sm w-auto"
+                aria-label="Baris per halaman"
+              >
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+          <div
+            class="btn-group btn-group-sm flex-shrink-0"
+            role="group"
+            aria-label="Paginasi"
+          >
+            <button
+              type="button"
+              id="{{ $c.prev_btn_id }}"
+              class="btn btn-outline-secondary rounded-start-pill"
+              aria-label="Halaman sebelumnya"
+            >
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button
+              type="button"
+              id="{{ $c.next_btn_id }}"
+              class="btn btn-outline-secondary rounded-end-pill"
+              aria-label="Halaman berikutnya"
+            >
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0 bg-body-tertiary bg-opacity-25">
+      <div
+        id="{{ $c.page_info_id }}"
+        class="px-4 py-2 small text-secondary border-bottom border-opacity-50 bg-body"
+      ></div>
+      <div class="table-responsive px-2 px-md-3 pb-3">
+        <table
+          class="table admin-crud-table table-borderless mb-0 bg-body rounded-3 overflow-hidden"
+        >
+          <thead>
+            <tr>
+              {{- if not $c.hide_row_select }}
+              <th scope="col" class="text-center" style="width: 2.75rem">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  data-admin-crud-select-all="{{ $c.tbody_id }}"
+                  aria-label="Select all rows"
+                />
+              </th>
+              {{- end }}
+              {{- range $c.column_headers }}
+              <th scope="col"{{ with .class }} class="{{ . }}"{{ end }}>
+                {{ .label }}
+              </th>
+              {{- end }}
+            </tr>
+          </thead>
+          <tbody id="{{ $c.tbody_id }}"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

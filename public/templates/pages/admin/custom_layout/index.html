@@ -1,0 +1,230 @@
+{{ define "admin-content" }}
+
+{{ template "admin-crud-list" . }}
+
+<template id="tpl-custom-layout-row">
+  <tr>
+    <td>
+      <div class="d-flex align-items-center gap-3">
+        <div class="admin-crud-avatar" data-field="avatar" aria-hidden="true"></div>
+        <div class="min-w-0 flex-grow-1">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <span
+              class="fw-semibold text-body font-monospace"
+              data-field="layout_name"
+            ></span>
+            <span
+              class="badge rounded-pill bg-body-secondary text-body-secondary border small fw-normal"
+              data-field="id_badge"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td class="admin-crud-meta">
+      <span data-field="status_badge" class="badge rounded-pill"></span>
+    </td>
+    <td class="admin-crud-meta">
+      <div class="d-flex align-items-center gap-2 text-nowrap">
+        <i class="bi bi-calendar3 opacity-50" aria-hidden="true"></i>
+        <span data-field="updated_at"></span>
+      </div>
+    </td>
+    <td class="text-end admin-crud-actions">
+      <a
+        data-field="edit_href"
+        class="btn btn-sm btn-light border me-1 text-decoration-none"
+        title="Edit"
+      >
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+      </a>
+      <button
+        type="button"
+        data-action="apply-layout"
+        class="btn btn-sm btn-outline-primary me-1"
+        title="Apply layout"
+      >
+        <i class="bi bi-check2-square" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        data-action="duplicate-layout"
+        class="btn btn-sm btn-light border me-1"
+        title="Duplikat"
+      >
+        <i class="bi bi-copy" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        data-action="delete-layout"
+        class="btn btn-sm btn-light border text-danger"
+        title="Hapus"
+      >
+        <i class="bi bi-trash" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="tpl-custom-layout-empty">
+  <tr>
+    <td colspan="4" class="text-secondary py-5 text-center">
+      <div class="d-flex flex-column align-items-center gap-2">
+        <i
+          class="bi bi-layout-text-window-reverse fs-2 opacity-25"
+          aria-hidden="true"
+        ></i>
+        <span>Belum ada custom layout.</span>
+      </div>
+    </td>
+  </tr>
+</template>
+
+<div
+  class="modal fade admin-crud-modal admin-crud-modal--danger"
+  id="modalCustomLayoutDelete"
+  tabindex="-1"
+  aria-labelledby="modalCustomLayoutDeleteLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--danger"
+            aria-hidden="true"
+          >
+            <i class="bi bi-trash3"></i>
+          </div>
+          <div>
+            <h5 class="modal-title text-danger" id="modalCustomLayoutDeleteLabel">
+              Hapus layout?
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Layout yang sedang dipakai tidak dapat dihapus.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div
+          id="custom-layout-delete-error"
+          class="alert alert-danger d-none py-2 small"
+          role="alert"
+        ></div>
+        <p class="small text-secondary mb-3">
+          Hapus layout <strong id="cld-name" class="font-monospace"></strong>
+          (<span id="cld-id"></span>)?
+        </p>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button
+          type="button"
+          class="btn btn-light border"
+          data-bs-dismiss="modal"
+          data-action="delete-cancel"
+        >
+          Tidak
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger px-4"
+          id="cld-confirm"
+          data-action="delete-confirm"
+        >
+          Ya, hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="modalCustomLayoutDuplicate"
+  tabindex="-1"
+  aria-labelledby="modalCustomLayoutDuplicateLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--info"
+            aria-hidden="true"
+          >
+            <i class="bi bi-copy"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="modalCustomLayoutDuplicateLabel">
+              Duplikat layout
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Salinan baru selalu berstatus tidak dipakai (<code>is_used = 0</code>).
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div
+          id="custom-layout-duplicate-error"
+          class="alert alert-danger d-none py-2 small"
+          role="alert"
+        ></div>
+        <p class="small text-secondary mb-3">
+          Salin dari
+          <strong id="cldup-source-name" class="font-monospace"></strong>
+          (<span id="cldup-source-id"></span>).
+        </p>
+        <label for="cldup-layout-name" class="form-label">
+          Nama layout baru <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          class="form-control font-monospace"
+          id="cldup-layout-name"
+          maxlength="255"
+          required
+          autocomplete="off"
+          placeholder="contoh: layout-salinan"
+        />
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button
+          type="button"
+          class="btn btn-light border"
+          data-bs-dismiss="modal"
+        >
+          Batal
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary px-4"
+          id="cldup-confirm"
+        >
+          Duplikat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/static/js/admin/custom_layout.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

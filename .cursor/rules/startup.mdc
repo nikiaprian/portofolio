@@ -1,0 +1,16 @@
+---
+description: Initial context loading
+alwaysApply: true
+---
+
+Before reading source code:
+
+Read:
+
+.cursor/project-architecture.md
+
+Do not scan repository before reading architecture document.
+
+Use architecture document to locate target files.
+
+Only load files relevant to requested feature.

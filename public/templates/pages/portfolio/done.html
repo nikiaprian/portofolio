@@ -1,0 +1,18 @@
+{{ define "pf-main" }}
+{{ if .Paid }}
+  <p class="pf-kicker">Lunas</p>
+  <h1>Portfolio Anda sudah aktif.</h1>
+  <p class="pf-lead">Situs bisa dibuka di <a href="{{ .SiteURL }}">{{ .HostLabel }}</a>.</p>
+  {{ if .PasswordSet }}
+    <div class="pf-actions"><a class="pf-btn" href="/kelola/masuk">Masuk untuk mengubah isi</a></div>
+  {{ else }}
+    <p>Atur password sekali, lalu isi foto, bio, keahlian, proyek, dan kontak.</p>
+    <div class="pf-actions"><a class="pf-btn" href="{{ .SetupURL }}">Atur password</a></div>
+  {{ end }}
+{{ else }}
+  <p class="pf-kicker">Menunggu</p>
+  <h1>Pembayaran belum tercatat lunas.</h1>
+  <p class="pf-lead">Halaman ini memuat ulang sendiri. Kalau jendela pembayaran masih terbuka, selesaikan dulu.</p>
+  <div class="pf-actions"><a class="pf-btn alt" href="{{ .PayURL }}">Kembali ke pembayaran</a></div>
+{{ end }}
+{{ end }}

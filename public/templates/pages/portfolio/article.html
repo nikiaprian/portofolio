@@ -1,0 +1,41 @@
+{{ define "pf-main" }}
+<div class="pf-article-grid pf-read">
+  <article class="pf-article-single">
+    {{ if .cat_name }}<p class="pf-kicker">{{ if .cat_href }}<a href="{{ .cat_href }}">{{ .cat_name }}</a>{{ else }}{{ .cat_name }}{{ end }}</p>{{ end }}
+    <h1>{{ .post_title }}</h1>
+    <p class="pf-meta">{{ if .author_name }}<a href="{{ .author_path }}">{{ .author_name }}</a>{{ end }}{{ if .post_time_label }} · {{ .post_time_label }}{{ end }}</p>
+    {{ if .hero_url }}
+    <figure class="pf-read-hero">
+      <img class="pf-hero-img" src="{{ .hero_url }}" alt="" width="960" height="540" />
+      {{ if .hero_caption_html }}<figcaption>{{ .hero_caption_html }}</figcaption>{{ end }}
+    </figure>
+    {{ end }}
+    <div class="pf-prose">{{ .post_body }}</div>
+    {{ if and .post_include_source .post_source }}<p class="pf-source">Sumber: {{ .post_source }}</p>{{ end }}
+    {{ if .article_related_posts }}
+    <section class="pf-related" aria-label="Artikel terkait">
+      <h2>Artikel terkait</h2>
+      <div class="pf-related-grid">
+        {{ range .article_related_posts }}
+        <a class="pf-related-card" href="{{ .href }}">
+          {{ if .thumb }}<img src="{{ .thumb }}" alt="" width="128" height="96" />{{ else }}<span class="pf-blog-thumb"></span>{{ end }}
+          <span>
+            <strong>{{ .title }}</strong>
+            {{ if .date_label }}<small>{{ .date_label }}</small>{{ end }}
+          </span>
+        </a>
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+  </article>
+  {{ if .latest_posts }}
+  <aside class="pf-side" aria-label="Artikel lain">
+    <h2>Terbaru</h2>
+    {{ range .latest_posts }}
+    <a href="{{ .href }}">{{ .title }}</a>
+    {{ end }}
+  </aside>
+  {{ end }}
+</div>
+{{ end }}

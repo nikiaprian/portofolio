@@ -1,0 +1,70 @@
+{{ define "admin-content" }}
+<div class="container-fluid pb-4">
+  <div class="mb-3">
+    <h1 class="h3 mb-1">Portfolio</h1>
+    <p class="text-secondary mb-0">Pesanan dan situs subdomain pembeli.</p>
+  </div>
+  {{ if .error }}<div class="alert alert-warning">{{ .error }}</div>{{ end }}
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header">Situs</div>
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr><th>Subdomain</th><th>Nama</th><th>Status</th><th>Dibuat</th><th></th></tr>
+        </thead>
+        <tbody>
+          {{ range .sites }}
+          <tr>
+            <td>{{ .Subdomain }}</td>
+            <td>{{ .DisplayName }}</td>
+            <td>{{ .Status }}</td>
+            <td>{{ .Created }}</td>
+            <td class="text-end">
+              {{ if eq .Status "active" }}
+              <form method="post" action="{{ $.public_base }}/admin/portfolios/{{ .ID }}/status">
+                <input type="hidden" name="status" value="suspended" />
+                <button class="btn btn-sm btn-outline-danger" type="submit">Nonaktifkan</button>
+              </form>
+              {{ else if eq .Status "suspended" }}
+              <form method="post" action="{{ $.public_base }}/admin/portfolios/{{ .ID }}/status">
+                <input type="hidden" name="status" value="active" />
+                <button class="btn btn-sm btn-outline-success" type="submit">Aktifkan</button>
+              </form>
+              {{ end }}
+            </td>
+          </tr>
+          {{ else }}
+          <tr><td colspan="5">Belum ada portfolio.</td></tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header">Pesanan</div>
+    <div class="table-responsive">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr><th>Subdomain</th><th>Pembeli</th><th>Email</th><th>Jumlah</th><th>Status</th><th>Dibuat</th></tr>
+        </thead>
+        <tbody>
+          {{ range .orders }}
+          <tr>
+            <td>{{ .Subdomain }}</td>
+            <td>{{ .BuyerName }}</td>
+            <td>{{ .Email }}</td>
+            <td>{{ .Amount }}</td>
+            <td>{{ .Status }}</td>
+            <td>{{ .Created }}</td>
+          </tr>
+          {{ else }}
+          <tr><td colspan="6">Belum ada pesanan.</td></tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,42 @@
+{{ define "pf-main" }}
+<div class="pf-list-grid">
+  <div>
+    <p class="pf-kicker">{{ if .list_kicker }}{{ .list_kicker }}{{ else }}Blog{{ end }}</p>
+    <h1 class="pf-list-title">{{ if .list_title }}{{ .list_title }}{{ else }}Artikel{{ end }}</h1>
+    <p class="pf-lead">{{ if .list_lead }}{{ .list_lead }}{{ else }}Kumpulan artikel yang sudah diterbitkan.{{ end }}</p>
+    {{ if .posts }}
+    <div class="pf-blog-list">
+      {{ range .posts }}
+      <a class="pf-blog-item" href="{{ .href }}">
+        {{ if .thumb }}<img src="{{ .thumb }}" alt="" width="128" height="96" />{{ else }}<span class="pf-blog-thumb"></span>{{ end }}
+        <span>
+          {{ if .has_cat }}<span class="pf-kicker">{{ .cat_name }}</span>{{ end }}
+          <h2>{{ .title }}</h2>
+          {{ if .date_label }}<p class="pf-meta">{{ .date_label }}</p>{{ end }}
+        </span>
+      </a>
+      {{ end }}
+    </div>
+    {{ if .pagination_links }}
+    <nav class="pf-pager" aria-label="Halaman artikel">
+      {{ range .pagination_links }}
+        {{ if eq .kind "ellipsis" }}<span>…</span>
+        {{ else if .disabled }}<span>{{ .label }}</span>
+        {{ else }}<a href="{{ .href }}" {{ if .active }}class="is-active" aria-current="page"{{ end }}>{{ .label }}</a>{{ end }}
+      {{ end }}
+    </nav>
+    {{ end }}
+    {{ else }}
+    <p>Belum ada artikel yang terbit. Artikel baru bisa ditulis dari admin, lalu diterbitkan satu per satu.</p>
+    {{ end }}
+  </div>
+  {{ if .latest_posts }}
+  <aside class="pf-side" aria-label="Artikel terbaru">
+    <h2>Terbaru</h2>
+    {{ range .latest_posts }}
+    <a href="{{ .href }}">{{ .title }}</a>
+    {{ end }}
+  </aside>
+  {{ end }}
+</div>
+{{ end }}

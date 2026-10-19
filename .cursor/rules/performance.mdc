@@ -1,0 +1,27 @@
+---
+description: Performance and caching rules
+alwaysApply: true
+---
+
+# Performance
+
+Before creating queries:
+
+1. Check existing repository query.
+2. Check existing cache implementation.
+3. Check site_setting_cache.go.
+4. Check internal/cache package.
+
+Avoid:
+
+- N+1 queries
+- Loading entire table
+- SELECT *
+
+Prefer:
+
+- Pagination
+- Projection
+- Cache reuse
+
+Never remove caching without explicit request.

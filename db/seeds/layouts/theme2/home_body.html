@@ -1,0 +1,230 @@
+{{ define "client-content" }}
+<main class="theme2-home bg-white">
+
+  <!-- Lead: first slide, full width editorial -->
+  <section class="theme2-lead max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+    {{ if .home_slides }}
+      {{ range $i, $s := .home_slides }}
+      {{ if eq $i 0 }}
+      <article class="relative overflow-hidden bg-gray-200 aspect-video md:aspect-[21/9] group">
+        <img
+          src="{{ resizeImg $s.thumb 1200 540 }}"
+          alt="{{ $s.title }}"
+          decoding="async"
+          loading="eager"
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition duration-700"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent" aria-hidden="true"></div>
+        <a href="{{ $s.href }}" class="absolute inset-0 z-10"><span class="sr-only">{{ $s.title }}</span></a>
+        <div class="absolute inset-y-0 left-0 flex items-end p-5 sm:p-8 md:p-10 max-w-2xl pointer-events-none z-20">
+          <div>
+            {{ if $s.has_cat }}
+            <span class="theme2-cat inline-block bg-accent text-white px-2.5 py-0.5 text-[10px] font-bold uppercase font-sans tracking-widest">
+              {{ $s.cat_upper }}
+            </span>
+            {{ end }}
+            <h2 class="mt-3 text-2xl sm:text-3xl md:text-4xl font-serif font-bold leading-tight text-white">
+              {{ $s.title }}
+            </h2>
+            <p class="mt-3 text-xs sm:text-sm text-white/85 font-sans">
+              {{ if $s.author_name }}{{ $s.author_name }}{{ end }}
+              {{ if $s.date_label }} - {{ $s.date_label }}{{ else if $s.rel_time }} - {{ $s.rel_time }}{{ end }}
+            </p>
+          </div>
+        </div>
+      </article>
+      {{ end }}
+      {{ end }}
+    {{ end }}
+  </section>
+
+  <!-- Strip: remaining slides + hero side as 4 cards -->
+  <section class="theme2-strip max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {{ range $i, $s := .home_slides }}
+      {{ if and (gt $i 0) (lt $i 3) }}
+      <a href="{{ $s.href }}" class="group block border-t-2 border-accent pt-3">
+        <div class="relative aspect-video overflow-hidden bg-gray-200 mb-2">
+          <img src="{{ resizeImg $s.thumb 480 270 }}" alt="{{ $s.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" />
+        </div>
+        {{ if $s.has_cat }}
+        <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $s.cat_name }}</p>
+        {{ end }}
+        <h3 class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition line-clamp-2">{{ $s.title }}</h3>
+      </a>
+      {{ end }}
+      {{ end }}
+      {{ range $i, $p := .home_hero_side }}
+      {{ if lt $i 2 }}
+      <a href="{{ $p.href }}" class="group block border-t-2 border-accent pt-3">
+        <div class="relative aspect-video overflow-hidden bg-gray-200 mb-2">
+          <img src="{{ resizeImg $p.thumb 480 270 }}" alt="{{ $p.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" />
+        </div>
+        {{ if $p.has_cat }}
+        <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $p.cat_name }}</p>
+        {{ end }}
+        <h3 class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition line-clamp-2">{{ $p.title }}</h3>
+      </a>
+      {{ end }}
+      {{ end }}
+    </div>
+  </section>
+
+  <!-- Hari Ini + Sorotan -->
+  <section class="theme2-desk max-w-7xl mx-auto px-4 sm:px-6 pt-10 sm:pt-12 pb-10">
+    <div class="grid lg:grid-cols-3 gap-10 lg:gap-12">
+      <div class="lg:col-span-2 min-w-0">
+        <h2 class="text-xs font-sans font-bold uppercase tracking-widest text-gray-900 pl-3 border-l-4 border-accent mb-6">
+          {{ if .site_name }}{{ .site_name }}{{ else }}Desk{{ end }} Hari Ini
+        </h2>
+
+        {{ if .home_sub_featured }}
+        <div class="space-y-6 mb-8">
+          {{ range $p := .home_sub_featured }}
+          <a href="{{ $p.href }}" class="flex gap-4 sm:gap-5 group border-b border-gray-100 pb-6 pl-3 border-l-2 border-l-transparent hover:border-l-accent transition">
+            <div class="min-w-0 flex-1">
+              {{ if $p.has_cat }}
+              <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $p.cat_name }}</p>
+              {{ end }}
+              <h3 class="theme2-card-title text-lg sm:text-xl font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition">{{ $p.title }}</h3>
+              <p class="mt-2 text-xs text-gray-500 font-sans">
+                {{ if $p.date_label }}{{ $p.date_label }}{{ else if $p.rel_time }}{{ $p.rel_time }}{{ end }}
+              </p>
+            </div>
+            <img src="{{ resizeImg $p.thumb 200 140 }}" alt="" class="hidden sm:block w-28 h-20 object-cover shrink-0 bg-gray-200" loading="lazy" decoding="async" />
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+
+        {{ if .home_informasi_posts }}
+        <div class="theme2-desk-rail mb-8" aria-label="Pilihan singkat">
+          <div class="flex gap-3 sm:gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scrollbar-none snap-x snap-mandatory -mx-1 px-1">
+            {{ range $p := .home_informasi_posts }}
+            <a href="{{ $p.href }}" class="group block shrink-0 w-44 sm:w-48 snap-start border-t-2 border-accent pt-3">
+              <div class="relative aspect-video overflow-hidden bg-gray-200 mb-2">
+                <img src="{{ resizeImg $p.thumb 360 200 }}" alt="{{ $p.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" />
+              </div>
+              {{ if $p.cat_name }}
+              <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $p.cat_name }}</p>
+              {{ end }}
+              <h3 class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-accent transition">{{ $p.title }}</h3>
+            </a>
+            {{ end }}
+          </div>
+        </div>
+        {{ end }}
+
+        {{ if .home_feed }}
+        <div class="space-y-4">
+          {{ range $i, $p := .home_feed }}
+          <a href="{{ $p.href }}" class="flex gap-4 group py-2 border-b border-gray-50">
+            <img src="{{ resizeImg $p.thumb 120 90 }}" alt="{{ $p.title }}" class="w-20 h-16 sm:w-24 sm:h-20 object-cover shrink-0 bg-gray-200" loading="lazy" decoding="async" />
+            <div class="min-w-0">
+              <p class="text-xs font-sans mb-1">
+                {{ if $p.cat_name }}
+                <span class="theme2-cat text-accent font-semibold">{{ $p.cat_name }}</span>
+                {{ end }}
+                <span class="text-gray-500">{{ if $p.cat_name }} - {{ end }}{{ if $p.date_label }}{{ $p.date_label }}{{ else }}{{ $p.rel_time }}{{ end }}</span>
+              </p>
+              <h3 class="theme2-card-title text-sm sm:text-base font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition">{{ $p.title }}</h3>
+            </div>
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+
+      <aside class="theme2-sorotan min-w-0" aria-label="Sorotan">
+        <h2 class="text-xs font-sans font-bold uppercase tracking-widest text-gray-900 pl-3 border-l-4 border-accent mb-6">Sorotan</h2>
+        <ul class="space-y-5">
+          {{ if .home_selected_posts }}
+            {{ range .home_selected_posts }}
+            <li>
+              <a href="{{ .href }}" class="block group">
+                {{ if .has_cat }}
+                <span class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="theme2-card-title mt-1.5 block text-base font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition">{{ .title }}</span>
+                <span class="mt-1 block text-xs text-gray-500 font-sans">{{ if .date_label }}{{ .date_label }}{{ else }}{{ .rel_time }}{{ end }}</span>
+              </a>
+            </li>
+            {{ end }}
+          {{ else }}
+            {{ range .home_informasi_posts }}
+            <li>
+              <a href="{{ .href }}" class="block group">
+                {{ if .cat_name }}
+                <span class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="theme2-card-title mt-1.5 block text-base font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition">{{ .title }}</span>
+                <span class="mt-1 block text-xs text-gray-500 font-sans">{{ if .date_label }}{{ .date_label }}{{ else }}{{ .rel_time }}{{ end }}</span>
+              </a>
+            </li>
+            {{ end }}
+          {{ end }}
+        </ul>
+
+        {{ if .popular_posts }}
+        <h2 class="text-xs font-sans font-bold uppercase tracking-widest text-gray-900 pl-3 border-l-4 border-accent mt-10 mb-6">Sedang Dibaca</h2>
+        <ol class="space-y-4">
+          {{ range .popular_posts }}
+          <li>
+            <a href="{{ .href }}" class="flex gap-3 group">
+              <span class="font-serif text-2xl font-bold text-gray-300 group-hover:text-accent transition leading-none shrink-0 w-7 text-right">{{ .rank }}</span>
+              <span class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug group-hover:text-accent transition">{{ .title }}</span>
+            </a>
+          </li>
+          {{ end }}
+        </ol>
+        {{ end }}
+      </aside>
+    </div>
+  </section>
+
+  <!-- Bacaan Lainnya -->
+  <section class="theme2-more max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-14">
+    <div class="flex items-end justify-between gap-4 mb-6">
+      <h2 class="text-xs font-sans font-bold uppercase tracking-widest text-gray-900 pl-3 border-l-4 border-accent">Bacaan Lainnya</h2>
+      <a href="{{ .public_base }}/posts" class="text-sm font-sans font-semibold text-accent hover:underline underline-offset-4">
+        Lihat Artikel Lainnya &rarr;
+      </a>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {{ if .home_category_strip_posts }}
+        {{ range $i, $p := .home_category_strip_posts }}
+        {{ if lt $i 6 }}
+        <article class="group flex gap-3 border-b border-gray-100 pb-4">
+          <a href="{{ $p.href }}" class="shrink-0 w-28 h-20 overflow-hidden bg-gray-200">
+            <img src="{{ resizeImg $p.thumb 240 160 }}" alt="{{ $p.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async" />
+          </a>
+          <div class="min-w-0">
+            {{ if $p.cat_name }}
+            <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $p.cat_name }}</p>
+            {{ end }}
+            <h3 class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug">
+              <a href="{{ $p.href }}" class="hover:text-accent transition">{{ $p.title }}</a>
+            </h3>
+            <p class="mt-1 text-xs text-gray-500 font-sans">{{ if $p.date_label }}{{ $p.date_label }}{{ else if $p.rel_time }}{{ $p.rel_time }}{{ end }}</p>
+          </div>
+        </article>
+        {{ end }}
+        {{ end }}
+      {{ else }}
+        {{ range $i, $p := .home_informasi_posts }}
+        <article class="group border-b border-gray-100 pb-4">
+          {{ if $p.cat_name }}
+          <p class="theme2-cat text-[10px] font-bold uppercase tracking-widest text-accent font-sans mb-1">{{ $p.cat_name }}</p>
+          {{ end }}
+          <h3 class="theme2-card-title text-sm font-serif font-bold text-gray-900 leading-snug">
+            <a href="{{ $p.href }}" class="hover:text-accent transition">{{ $p.title }}</a>
+          </h3>
+          <p class="mt-1 text-xs text-gray-500 font-sans">{{ if $p.date_label }}{{ $p.date_label }}{{ else }}{{ $p.rel_time }}{{ end }}</p>
+        </article>
+        {{ end }}
+      {{ end }}
+    </div>
+  </section>
+
+</main>
+{{ end }}

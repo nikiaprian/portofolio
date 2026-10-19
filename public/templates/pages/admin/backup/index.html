@@ -1,0 +1,58 @@
+{{ define "admin-content" }}
+<div class="container-fluid">
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-semibold">Restore &amp; Backup Database</h5>
+      <small class="text-secondary">Format: <code>.sql</code></small>
+    </div>
+    <div class="card-body">
+      <div id="db-backup-error" class="alert alert-danger d-none" role="alert"></div>
+      <div id="db-backup-info" class="alert alert-success d-none" role="alert"></div>
+
+      <div class="row g-4">
+        <div class="col-12 col-lg-6">
+          <div class="border rounded-3 p-3 h-100">
+            <h6 class="fw-semibold mb-2">Export Database</h6>
+            <p class="text-secondary small mb-3" data-admin-info-note>
+              Download a current database snapshot using DB connection settings from the server environment.
+            </p>
+            <button type="button" class="btn btn-primary" id="db-export-btn">
+              <i class="bi bi-download me-1"></i>
+              Export .sql
+            </button>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="border rounded-3 p-3 h-100">
+            <h6 class="fw-semibold mb-2">Import Database</h6>
+            <p class="text-secondary small mb-3" data-admin-info-note>
+              Upload a <code>.sql</code> file to restore the database. This operation may overwrite existing data.
+            </p>
+            <form id="db-import-form">
+              <label for="db-import-file" class="form-label">SQL file</label>
+              <input
+                type="file"
+                class="form-control"
+                id="db-import-file"
+                name="file"
+                accept=".sql,.gz,.sql.gz,text/sql,application/sql,application/gzip"
+                required
+              />
+              <div class="form-text mb-3">Maximum 128MB. Supports <code>.sql</code> and <code>.sql.gz</code>.</div>
+              <button type="submit" class="btn btn-danger" id="db-import-btn">
+                <i class="bi bi-upload me-1"></i>
+                Import .sql
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/static/js/admin/backup.min.js?v={{ .asset_version }}"></script>
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

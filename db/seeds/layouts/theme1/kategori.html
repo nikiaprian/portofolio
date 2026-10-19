@@ -1,0 +1,64 @@
+{{ define "client-content" }}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <div class="blog-feed-head">
+        {{ if .category_parent_name }}
+        <nav class="blog-topic-breadcrumb text-sm text-gray-500 font-sans mb-4" aria-label="Breadcrumb">
+          <ol class="flex items-center gap-2 m-0 p-0 list-none">
+            <li><a href="{{ .public_base }}/" class="hover:text-yellow-600 transition">Home</a></li>
+            <li><span aria-hidden="true" class="mx-1">/</span></li>
+            <li><a href="{{ .category_parent_href }}" class="hover:text-yellow-600 transition">{{ .category_parent_name }}</a></li>
+            <li><span aria-hidden="true" class="mx-1">/</span></li>
+            <li><span aria-current="page" class="text-gray-900 font-medium">{{ .category_name }}</span></li>
+          </ol>
+        </nav>
+        {{ end }}
+        <div class="flex items-center gap-4 mb-6">
+          <h1 class="blog-section-title blog-section-title--feed text-2xl sm:text-3xl font-bold">{{ .category_name }}</h1>
+          <div class="blog-section-title-bar h-px bg-yellow-400 flex-1" aria-hidden="true"></div>
+        </div>
+      </div>
+      {{ if .posts }}
+        {{ template "client-topic-posts-list" . }}
+        {{ template "client-pagination" . }}
+      {{ else }}
+        <p class="text-gray-600 font-sans">Belum ada artikel pada kategori ini.</p>
+      {{ end }}
+    </div>
+    
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.ClientBindPageImg) {
+      window.ClientBindPageImg(list);
+    }
+  })();
+</script>
+{{ end }}

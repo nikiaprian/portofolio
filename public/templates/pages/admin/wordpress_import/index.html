@@ -1,0 +1,119 @@
+{{ define "admin-content" }}
+<div class="container-fluid">
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-semibold">Import dari WordPress</h5>
+      <small class="text-secondary">Format: <code>.sql</code> atau <code>.sql.gz</code></small>
+    </div>
+    <div class="card-body">
+      <div id="wp-error" class="alert alert-danger d-none" role="alert"></div>
+      <div id="wp-info" class="alert alert-success d-none" role="alert"></div>
+
+      <div class="row g-4">
+        <div class="col-12">
+          <div class="border rounded-3 p-4">
+            <h6 class="fw-semibold mb-2">Upload Database WordPress</h6>
+            <p class="text-secondary small mb-3">
+              Upload file <code>.sql</code> hasil export dari phpMyAdmin, WP Migrate, atau tools export database WordPress lainnya.
+              File harus berisi table <code>wp_posts</code>, <code>wp_postmeta</code>, <code>wp_terms</code>, <code>wp_term_taxonomy</code>, <code>wp_term_relationships</code>, <code>wp_users</code>, dan <code>wp_usermeta</code>.
+            </p>
+
+            <form id="wp-import-form">
+              <div class="mb-3">
+                <label for="wp-import-file" class="form-label">SQL file</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="wp-import-file"
+                  name="file"
+                  accept=".sql,.gz,.sql.gz,text/sql,application/sql,application/gzip"
+                  required
+                />
+                <div class="form-text">Maximum 256MB. Mendukung <code>.sql</code>, <code>.gz</code>, dan <code>.sql.gz</code>.</div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="wp-download-images" name="download_images" value="true">
+                  <label class="form-check-label" for="wp-download-images">
+                    <strong>Download &amp; simpan gambar ke server</strong>
+                  </label>
+                </div>
+                <div class="form-text">
+                  Gambar featured (thumbnail) dan gambar di dalam konten akan diunduh dari URL asli WordPress, dikonversi ke WebP, dan disimpan ke storage server (lokal atau Cloudflare R2 jika dikonfigurasi).
+                  Nonaktifkan jika ingin import tanpa gambar atau jika server tidak bisa mengakses URL gambar WordPress.
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 mb-3">
+                <button type="button" class="btn btn-outline-primary" id="wp-preview-btn">
+                  <i class="bi bi-eye me-1"></i>
+                  Preview
+                </button>
+                <button type="submit" class="btn btn-danger" id="wp-import-btn" disabled>
+                  <i class="bi bi-upload me-1"></i>
+                  Import WordPress
+                </button>
+              </div>
+            </form>
+
+            <div id="wp-preview" class="d-none">
+              <hr/>
+              <h6 class="fw-semibold mb-3">Preview Data</h6>
+              <div class="row g-3" id="wp-preview-grid">
+                <div class="col-6 col-md-4 col-lg-2">
+                  <div class="text-center p-3 border rounded-3">
+                    <div class="fs-3 fw-bold text-primary" id="wp-prev-authors">0</div>
+                    <div class="text-secondary small">Author</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                  <div class="text-center p-3 border rounded-3">
+                    <div class="fs-3 fw-bold text-success" id="wp-prev-categories">0</div>
+                    <div class="text-secondary small">Category</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                  <div class="text-center p-3 border rounded-3">
+                    <div class="fs-3 fw-bold text-info" id="wp-prev-tags">0</div>
+                    <div class="text-secondary small">Tag</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                  <div class="text-center p-3 border rounded-3">
+                    <div class="fs-3 fw-bold text-warning" id="wp-prev-posts">0</div>
+                    <div class="text-secondary small">Post</div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2">
+                  <div class="text-center p-3 border rounded-3">
+                    <div class="fs-3 fw-bold text-secondary" id="wp-prev-pages">0</div>
+                    <div class="text-secondary small">Page</div>
+                  </div>
+                </div>
+              </div>
+              <div class="alert alert-warning mt-3 mb-0 small">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Import akan menambahkan data baru. Data yang sudah ada (berdasarkan email author dan slug) akan dilewati.
+                Password author dari WordPress tidak diimpor — author akan mendapatkan password random yang perlu di-reset.
+              </div>
+            </div>
+
+            <div id="wp-logs" class="d-none mt-3">
+              <hr/>
+              <h6 class="fw-semibold mb-2">
+                <i class="bi bi-terminal me-1"></i> Log Parser
+              </h6>
+              <pre id="wp-logs-content" class="bg-dark text-light p-3 rounded-3" style="max-height:400px;overflow:auto;font-size:12px;white-space:pre-wrap;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/static/js/admin/wordpress_import.min.js?v={{ .asset_version }}"></script>
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

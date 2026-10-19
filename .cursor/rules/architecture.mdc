@@ -1,0 +1,64 @@
+---
+description: Architecture and code navigation rules
+alwaysApply: true
+---
+
+# Architecture
+
+This repository follows strict layering.
+
+Layer order:
+
+Handler -> Service -> Repository -> Entity
+
+Rules:
+
+- Handlers must not contain business logic.
+- Handlers must not query database directly.
+- Services contain business logic.
+- Repositories contain database access.
+- Entities contain models only.
+
+# Context Rules
+
+Before reading files:
+
+1. Determine feature domain.
+2. Read only related files.
+3. Never scan entire repository.
+
+Maximum files to read:
+
+- Small feature: 3 files
+- Medium feature: 5 files
+- Complex feature: 10 files
+
+Never exceed 10 files unless explicitly requested.
+
+# Forbidden Paths
+
+Never read these folders unless user explicitly asks:
+
+public/vendor/**
+public/uploads/**
+data/cache/**
+db/seeds/**
+db/migrations/**
+
+# File Selection Strategy
+
+For post-related features:
+
+internal/routes/handler/post_handler.go
+internal/services/post_service.go
+internal/repositories/post_repository.go
+internal/entity/post.go
+
+For category-related features:
+
+internal/routes/handler/category_handler.go
+internal/services/category_service.go
+internal/repositories/category_repository.go
+internal/entity/category.go
+
+Always prefer targeted file reading.

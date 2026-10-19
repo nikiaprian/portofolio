@@ -1,0 +1,162 @@
+{{ define "admin-category-create" }}
+
+<div
+  class="modal fade admin-crud-modal"
+  id="modalCategoryCreate"
+  tabindex="-1"
+  aria-labelledby="modalCategoryCreateLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-folder-plus"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="modalCategoryCreateLabel">
+              Tambah Category
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Tambahkan kategori untuk mengelompokkan artikel.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <form id="form-category-create">
+        <div class="modal-body pt-0">
+          <div
+            id="category-create-error"
+            class="alert alert-danger d-none py-2 small"
+            role="alert"
+          ></div>
+          <div class="mb-3">
+            <label for="cc-parent" class="form-label">Kategori induk (opsional)</label>
+            <select class="form-select" id="cc-parent" name="parent_id">
+              <option value="">— Kategori utama (tanpa induk) —</option>
+            </select>
+            <div class="form-text">
+              Kosongkan untuk kategori tingkat atas. Pilih induk hanya jika ini subkategori.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="cc-name" class="form-label">
+              Nama <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-tag"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                id="cc-name"
+                name="name"
+                placeholder="Technology"
+                required
+                minlength="3"
+                maxlength="100"
+              />
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="cc-slug" class="form-label">
+              Slug <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-link-45deg"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0 font-monospace"
+                id="cc-slug"
+                name="slug"
+                placeholder="technology"
+                required
+                minlength="3"
+                maxlength="150"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+              />
+            </div>
+            <div class="form-text">
+              Otomatis diisi dari nama; bisa diedit kapan saja. Gunakan huruf
+              kecil, angka, dan tanda hubung saja.
+            </div>
+          </div>
+          <div class="mt-3">
+            <label for="cc-title" class="form-label">Judul (opsional)</label>
+            <input
+              type="text"
+              class="form-control"
+              id="cc-title"
+              name="title"
+              maxlength="255"
+              placeholder="Judul browser khusus untuk halaman kategori"
+            />
+          </div>
+          <div class="mt-3">
+            <label for="cc-keyword" class="form-label">Meta kata kunci</label>
+            <input
+              type="text"
+              class="form-control"
+              id="cc-keyword"
+              name="keyword"
+              maxlength="500"
+              placeholder="keyword1, keyword2, keyword3"
+            />
+          </div>
+          <div class="mt-3">
+            <label for="cc-description" class="form-label">Meta deskripsi</label>
+            <textarea
+              class="form-control"
+              id="cc-description"
+              name="description"
+              rows="3"
+              maxlength="500"
+              placeholder="Teks deskripsi meta untuk halaman kategori"
+            ></textarea>
+          </div>
+          <div class="mt-3">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="cc-enabled"
+                checked
+              />
+              <label class="form-check-label" for="cc-enabled">Aktif</label>
+              <div class="form-text">Kategori nonaktif tidak muncul di blog.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button
+            type="button"
+            class="btn btn-light border"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary text-white px-4">
+            <i class="bi bi-check-lg me-1"></i> Simpan Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{ end }}

@@ -1,0 +1,75 @@
+{{ define "admin-content" }}
+<div class="container-fluid py-2">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Edit profile</h3>
+        </div>
+        <form id="admin-profile-form" class="card-body">
+          <div id="profile-error" class="alert alert-danger d-none" role="alert"></div>
+          <div id="profile-success" class="alert alert-success d-none" role="status"></div>
+
+          <div class="mb-3 text-center">
+            <img
+              id="profile-image-preview"
+              src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23e9ecef'/%3E%3Ccircle cx='32' cy='24' r='12' fill='%2399a1aa'/%3E%3Cpath d='M12 54c3-10 12-16 20-16s17 6 20 16' fill='%2399a1aa'/%3E%3C/svg%3E"
+              alt="Profile image"
+              style="width:96px;height:96px;object-fit:cover;border-radius:50%;border:1px solid #dee2e6;"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="profile-image-file">Photo</label>
+            <input class="form-control" type="file" id="profile-image-file" accept="image/jpeg,image/png,image/webp,image/gif" />
+            <input type="hidden" id="profile-image-url" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="profile-name">Name</label>
+            <input class="form-control" type="text" id="profile-name" required minlength="3" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="profile-email">Email</label>
+            <input class="form-control" type="email" id="profile-email" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="profile-bio">Profile</label>
+            <textarea class="form-control" id="profile-bio" rows="4" placeholder="Short bio"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="profile-password">New password (optional)</label>
+            <div class="input-group">
+              <input
+                class="form-control"
+                type="password"
+                id="profile-password"
+                minlength="6"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                client-login-pw-toggle="profile-password"
+                aria-label="Show password"
+              >
+                <i class="bi bi-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Save profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/static/js/password-reveal.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/profile.min.js?v={{ .asset_version }}"></script>
+{{ end }}

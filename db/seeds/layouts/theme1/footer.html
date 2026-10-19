@@ -1,0 +1,103 @@
+{{ define "client-footer" }}
+  <footer class="theme1-footer bg-accent text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <!-- Col 1: Brand & Logo (Spans 4 Columns on Desktop) -->
+        <div class="space-y-4 md:col-span-4">
+          <a href="{{ .public_base }}/" class="inline-block group">
+            <h2 class="text-3xl font-extrabold font-sans tracking-tight text-white group-hover:text-yellow-300 transition">
+              {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}
+            </h2>
+          </a>
+          {{ if .site_description }}
+          <p class="text-sm text-blue-200/70 leading-relaxed font-sans mt-3">
+            {{ .site_description }}
+          </p>
+          {{ else if .tagline }}
+          <p class="text-sm text-blue-200/70 leading-relaxed font-sans mt-3">
+            {{ .tagline }}
+          </p>
+          {{ end }}
+        </div>
+
+        <!-- Col 2: Kategori -->
+        <div class="md:col-span-2">
+          <div class="border-b-2 border-yellow-400 pb-2 mb-4 inline-block">
+            <h3 class="text-sm font-semibold uppercase font-sans tracking-wider text-white">Kategori</h3>
+          </div>
+          <ul class="space-y-3 text-sm text-blue-100/90 font-sans">
+            {{ range $i, $cat := .nav_categories }}
+              {{ if lt $i 5 }}
+                <li>
+                  <a href="{{ $.public_base }}/{{ $cat.Slug }}" class="inline-flex items-center gap-1.5 hover:text-yellow-400 hover:translate-x-1 transition duration-300">
+                    <span class="text-yellow-400/50">›</span> {{ $cat.Name }}
+                  </a>
+                </li>
+              {{ end }}
+            {{ end }}
+          </ul>
+        </div>
+
+        <!-- Col 3 & 4: Halaman (Spans 4 Columns on Desktop to layout links side-by-side) -->
+        <div class="md:col-span-4">
+          <div class="border-b-2 border-yellow-400 pb-2 mb-4 inline-block">
+            <h3 class="text-sm font-semibold uppercase font-sans tracking-wider text-white">Halaman</h3>
+          </div>
+          <ul class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm text-blue-100/90 font-sans">
+            {{ range .client_pages }}
+              <li>
+                <a href="{{ $.public_base }}/{{ .Slug }}" class="inline-flex items-center gap-1.5 hover:text-yellow-400 hover:translate-x-1 transition duration-300">
+                  <span class="text-yellow-400/50">›</span> {{ .Title }}
+                </a>
+              </li>
+            {{ else }}
+              <li class="col-span-2"><span class="text-blue-200/50">Belum ada halaman</span></li>
+            {{ end }}
+          </ul>
+        </div>
+
+        <!-- Col 5: Media Sosial -->
+        <div class="md:col-span-2">
+          <div class="border-b-2 border-yellow-400 pb-2 mb-4 inline-block">
+            <h3 class="text-sm font-semibold uppercase font-sans tracking-wider text-white">Media Sosial</h3>
+          </div>
+          <p class="text-sm text-blue-200/70 font-sans leading-relaxed">Ikuti media sosial resmi kami untuk mendapatkan pembaruan berita setiap hari.</p>
+          <div class="mt-4 flex flex-wrap gap-2.5" aria-label="Media sosial">
+            {{ if .social_facebook_url }}
+              <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .social_facebook_url }}" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook">
+                <i class="bi bi-facebook" aria-hidden="true"></i>
+              </a>
+            {{ end }}
+            {{ if .social_x_url }}
+              <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .social_x_url }}" target="_blank" rel="noopener noreferrer" title="X" aria-label="X">
+                <i class="bi bi-twitter-x" aria-hidden="true"></i>
+              </a>
+            {{ end }}
+            {{ if .social_instagram_url }}
+              <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .social_instagram_url }}" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram">
+                <i class="bi bi-instagram" aria-hidden="true"></i>
+              </a>
+            {{ end }}
+            {{ if .social_youtube_url }}
+              <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .social_youtube_url }}" target="_blank" rel="noopener noreferrer" title="YouTube" aria-label="YouTube">
+                <i class="bi bi-youtube" aria-hidden="true"></i>
+              </a>
+            {{ end }}
+            {{ if .social_tiktok_url }}
+              <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .social_tiktok_url }}" target="_blank" rel="noopener noreferrer" title="TikTok" aria-label="TikTok">
+                <i class="bi bi-tiktok" aria-hidden="true"></i>
+              </a>
+            {{ end }}
+            <a class="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 font-sans text-white hover:scale-105 shadow-sm" href="{{ .public_base }}/rss-feeds" title="RSS" aria-label="RSS Feeds">
+              <i class="bi bi-rss-fill" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-6 border-t border-white/20 text-center text-sm text-blue-200/60 font-sans">
+        {{ if .footer_copy }}{{ .footer_copy }}{{ else }}© {{ .current_year }} {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}{{ end }}
+      </div>
+    </div>
+  </footer>
+{{ end }}

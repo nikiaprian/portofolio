@@ -1,0 +1,11 @@
+{{ define "pf-main" }}
+<h1>Masuk</h1>
+<p class="pf-lead">Gunakan email yang dipakai saat membeli.</p>
+{{ if .Notice }}<p class="pf-ok">{{ .Notice }}</p>{{ end }}
+{{ if .Error }}<p class="pf-error">{{ .Error }}</p>{{ end }}
+<form class="pf-form" method="post" action="/kelola/masuk">
+  <label>Email<input name="email" type="email" required value="{{ .Email }}" /></label>
+  <label>Password<input name="password" type="password" required /></label>
+  <button class="pf-btn" type="submit">Masuk</button>
+</form>
+{{ end }}

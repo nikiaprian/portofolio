@@ -1,0 +1,50 @@
+{{ define "client-footer" }}
+  <footer class="theme3-footer">
+    <div class="theme3-footer-inner">
+      <div class="theme3-footer-top">
+        <a href="{{ .public_base }}/" class="theme3-footer-brand">
+          {{ if .logo_url }}
+          <img src="{{ .logo_url }}" alt="{{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}" class="theme3-footer-logo" width="140" height="36" loading="lazy" decoding="async" />
+          {{ else }}
+          <span class="theme3-footer-brand-text">{{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}</span>
+          {{ end }}
+        </a>
+
+        <nav class="theme3-footer-nav" aria-label="Halaman">
+          {{ range .client_pages }}
+            <a href="{{ $.public_base }}/{{ .Slug }}">{{ .Title }}</a>
+          {{ end }}
+          <a href="{{ .public_base }}/posts">Artikel</a>
+          <a href="{{ .public_base }}/rss-feeds">RSS</a>
+        </nav>
+
+        <div class="theme3-footer-social" aria-label="Media sosial">
+          {{ if .social_facebook_url }}
+            <a href="{{ .social_facebook_url }}" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_x_url }}
+            <a href="{{ .social_x_url }}" target="_blank" rel="noopener noreferrer" title="X" aria-label="X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_instagram_url }}
+            <a href="{{ .social_instagram_url }}" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_youtube_url }}
+            <a href="{{ .social_youtube_url }}" target="_blank" rel="noopener noreferrer" title="YouTube" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_tiktok_url }}
+            <a href="{{ .social_tiktok_url }}" target="_blank" rel="noopener noreferrer" title="TikTok" aria-label="TikTok"><i class="bi bi-tiktok" aria-hidden="true"></i></a>
+          {{ end }}
+          <a href="{{ .public_base }}/rss-feeds" title="RSS" aria-label="RSS Feeds"><i class="bi bi-rss-fill" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      {{ if .tagline }}
+      <p class="theme3-footer-tagline">{{ .tagline }}</p>
+      {{ end }}
+
+      <div class="theme3-footer-bottom">
+        {{ if .footer_copy }}{{ .footer_copy }}{{ else }}&copy; {{ .current_year }} {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}{{ end }}
+      </div>
+    </div>
+  </footer>
+{{ end }}

@@ -1,0 +1,25 @@
+{
+  "name": "bebii-blog",
+  "private": true,
+  "version": "8.0.6",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:css && node minify.js",
+    "build:css": "tailwindcss -i ./assets/css/tailwind.css -o ./public/static/css/tailwind.min.css --minify",
+    "build:js": "node minify.js",
+    "watch:css": "tailwindcss -i ./assets/css/tailwind.css -o ./public/static/css/tailwind.min.css --watch",
+    "watch:js": "node minify.js --watch"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "terser": "^5.48.0"
+  }
+}

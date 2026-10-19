@@ -1,0 +1,76 @@
+{{ define "admin-user-delete" }}
+
+<div
+  class="modal fade admin-crud-modal admin-crud-modal--danger"
+  id="modalUserDelete"
+  tabindex="-1"
+  aria-labelledby="modalUserDeleteLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--danger"
+            aria-hidden="true"
+          >
+            <i class="bi bi-trash3"></i>
+          </div>
+          <div>
+            <h5 class="modal-title text-danger" id="modalUserDeleteLabel">
+              Hapus User
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Tindakan ini tidak bisa dibatalkan.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div
+          id="user-delete-error"
+          class="alert alert-danger d-none py-2 small"
+          role="alert"
+        ></div>
+        <p class="small text-secondary mb-3">
+          Anda akan menghapus akun berikut:
+        </p>
+        <dl class="admin-crud-delete-summary mb-0">
+          <div>
+            <dt>ID User</dt>
+            <dd id="ud-id"></dd>
+          </div>
+          <div>
+            <dt>Nama</dt>
+            <dd id="ud-name"></dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd id="ud-email"></dd>
+          </div>
+        </dl>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button
+          type="button"
+          class="btn btn-light border"
+          data-bs-dismiss="modal"
+        >
+          Batal
+        </button>
+        <button type="button" class="btn btn-danger px-4" id="ud-confirm">
+          <i class="bi bi-trash3 me-1"></i> Hapus permanen
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ end }}

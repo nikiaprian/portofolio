@@ -1,0 +1,1092 @@
+{{ define "admin-content" }}
+<link
+  rel="stylesheet"
+  href="/static/vendor/tom-select/css/tom-select.bootstrap5.min.css?v={{ .asset_version }}"
+/>
+<style>
+  .admin-bulk-field-head {
+    min-height: 31px;
+  }
+  .bulk-category-info-table-wrap {
+    border-color: var(--admin-border) !important;
+  }
+  .bulk-category-info-table {
+    --bs-table-bg: var(--admin-bg-primary);
+    --bs-table-color: var(--admin-text-primary);
+    --bs-table-border-color: var(--admin-border);
+    --bs-table-striped-bg: var(--admin-bg-secondary);
+    color: var(--admin-text-primary);
+  }
+  .bulk-category-info-table thead th {
+    background: var(--admin-bg-secondary);
+    color: var(--admin-text-primary);
+    border-color: var(--admin-border);
+  }
+  .bulk-category-info-table tbody td {
+    background: var(--admin-bg-primary);
+    color: var(--admin-text-primary);
+    border-color: var(--admin-border);
+  }
+  .bulk-category-info-table .text-secondary {
+    color: var(--admin-text-secondary) !important;
+  }
+</style>
+<div
+  class="container-fluid pb-4"
+  id="admin-bulk-post-root"
+  data-tom-select-js="/static/vendor/tom-select/js/tom-select.complete.min.js?v={{ .asset_version }}"
+>
+  <div class="mb-3">
+    <a
+      href="/admin/posts"
+      class="btn btn-sm border text-decoration-none admin-back-to-list"
+    >
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+      Semua post
+    </a>
+  </div>
+
+  {{ if not .ai_configured }}
+  <div class="alert alert-warning" role="status">
+    AI belum dikonfigurasi. Tambahkan API key di
+    <a href="/admin/ai-setting" class="alert-link">Pengaturan → AI</a>
+    sebelum menggunakan bulk post.
+  </div>
+  {{ end }}
+
+  <div
+    id="bulk-post-error"
+    class="alert alert-danger d-none py-2 small"
+    role="alert"
+  ></div>
+  <div
+    id="bulk-post-info"
+    class="alert alert-success d-none py-2 small"
+    role="status"
+  ></div>
+
+  <div class="card admin-crud-card shadow-sm">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex flex-column gap-1">
+        <h5 class="mb-0 fw-semibold lh-sm">Bulk post</h5>
+        <p
+          class="small text-secondary mb-0 lh-sm"
+          data-admin-info-note
+          data-admin-info-title="Bulk post"
+        >
+          Pilih <strong>Sumber judul</strong> terlebih dulu (AI atau
+          XML/sitemap), lalu isi <strong>Judul artikel</strong> dan buat post.
+          Prompt dan penyedia default berasal dari
+          <a href="/admin/ai-setting" class="text-decoration-none"
+            >Pengaturan AI</a
+          >
+          (buka tab <strong>Prompt Generate</strong> untuk daftar placeholder
+          seperti <code>{{"{{title}}"}}</code>, <code>{{"{{keywords}}"}}</code>,
+          <code>{{"{{content}}"}}</code>, dan
+          <code>{{"{{meta_description}}"}}</code>) kecuali provider dioverride
+          di halaman ini.
+        </p>
+      </div>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <div class="post-form-section">
+        <h6 class="post-form-section__title">Buat judul</h6>
+        <p
+          class="small text-secondary mb-3 mb-md-2 lh-sm"
+          data-admin-info-note
+          data-admin-info-title="Buat judul"
+        >
+          Pilih <strong>Sumber judul</strong> terlebih dulu untuk menampilkan
+          opsi. Hasilnya masuk ke <strong>Judul artikel</strong> di bawah
+          (daftar yang sama dipakai untuk <strong>Buat artikel</strong>).
+        </p>
+        <div class="row g-3 mb-1">
+          <div class="col-md-6 col-lg-5">
+            <label for="bulk-title-source-mode" class="form-label"
+              >Sumber judul</label
+            >
+            <select class="form-select" id="bulk-title-source-mode">
+              <option value="" selected>— Pilih —</option>
+              <option value="ai">Buat judul (AI)</option>
+              <option value="scrape">Ambil judul (XML / sitemap)</option>
+              <option value="google_trends">Ambil judul (Google Trends)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="bulk-title-panel-ai" class="bulk-title-source-panel d-none">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5 col-lg-4">
+              <label for="bulk-keyword" class="form-label">Kata kunci</label>
+              <input
+                type="text"
+                class="form-control"
+                id="bulk-keyword"
+                autocomplete="off"
+                placeholder="contoh: teknologi hijau"
+              />
+            </div>
+            <div class="col-md-2 col-lg-2">
+              <label for="bulk-count" class="form-label">Jumlah</label>
+              <input
+                type="number"
+                class="form-control"
+                id="bulk-count"
+                min="1"
+                max="50"
+                value="5"
+              />
+            </div>
+            <div class="col-md-3 col-lg-3">
+              <label for="bulk-provider" class="form-label">Penyedia AI</label>
+              <select class="form-select" id="bulk-provider">
+                <option value="auto" selected>Auto</option>
+                <option value="gemini">Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="groq">Groq</option>
+                <option value="claude">Claude</option>
+                <option value="opencode">OpenCode Zen</option>
+                <option value="opencode_local">OpenCode Zen (local)</option>
+              </select>
+            </div>
+            <div class="col-md-2 col-lg-3 d-grid">
+              <button
+                type="button"
+                class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+                id="bulk-suggest-btn"
+                {{
+                if
+                not
+                .ai_configured
+                }}disabled{{
+                end
+                }}
+              >
+                <i class="bi bi-lightbulb" aria-hidden="true"></i>
+                Buat judul (AI)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="bulk-title-panel-scrape"
+          class="bulk-title-source-panel d-none"
+        >
+          <div class="row g-3 align-items-end">
+            <div class="col-md-10 col-lg-9">
+              <label for="bulk-xml-url" class="form-label"
+                >URL feed / export</label
+              >
+              <input
+                type="url"
+                class="form-control font-monospace small"
+                id="bulk-xml-url"
+                autocomplete="off"
+                inputmode="url"
+                placeholder="https://example.com/feed.xml — RSS, Atom, WXR, atau Yoast post-sitemap.xml"
+              />
+            </div>
+            <div class="col-md-2 col-lg-3 d-grid">
+              <label class="form-label d-none d-md-block">&nbsp;</label>
+              <button
+                type="button"
+                class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+                id="bulk-xml-scrape-btn"
+              >
+                <span
+                  class="spinner-border spinner-border-sm d-none"
+                  id="bulk-xml-scrape-spinner"
+                  aria-hidden="true"
+                ></span>
+                <i
+                  class="bi bi-download"
+                  id="bulk-xml-scrape-icon"
+                  aria-hidden="true"
+                ></i>
+                <span>Jalankan scrape</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="bulk-title-panel-google-trends"
+          class="bulk-title-source-panel d-none"
+        >
+          <div class="row g-3 align-items-end">
+            <div class="col-md-10 col-lg-9">
+              <label for="bulk-google-trends-url" class="form-label"
+                >URL Google Trends</label
+              >
+              <input
+                type="url"
+                class="form-control font-monospace small"
+                id="bulk-google-trends-url"
+                autocomplete="off"
+                inputmode="url"
+                value="https://trends.google.co.id/trending?geo=ID&hours=4"
+                placeholder="https://trends.google.co.id/trending?geo=ID&hours=4"
+              />
+            </div>
+            <div class="col-md-2 col-lg-3 d-grid">
+              <label class="form-label d-none d-md-block">&nbsp;</label>
+              <button
+                type="button"
+                class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+                id="bulk-google-trends-btn"
+              >
+                <span
+                  class="spinner-border spinner-border-sm d-none"
+                  id="bulk-google-trends-spinner"
+                  aria-hidden="true"
+                ></span>
+                <i
+                  class="bi bi-graph-up-arrow"
+                  id="bulk-google-trends-icon"
+                  aria-hidden="true"
+                ></i>
+                <span>Cek list keyword</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-md-5">
+            <div
+              class="admin-bulk-field-head d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
+            >
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="bulk-titles" class="form-label mb-0"
+                  >Judul artikel</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bulk-titles-info-modal"
+                  aria-label="Tampilkan catatan judul artikel"
+                  title="Tampilkan catatan judul artikel"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div
+                class="d-flex flex-wrap align-items-center justify-content-end gap-2"
+              >
+                <span
+                  id="bulk-titles-line-count"
+                  class="small text-secondary text-nowrap"
+                  aria-live="polite"
+                  >0 baris</span
+                >
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 flex-shrink-0"
+                  id="bulk-check-titles-btn"
+                  title="Bandingkan dengan post di database dan duplikat dalam list (kemiripan ≥90%)"
+                >
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                  Cek list judul
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 flex-shrink-0"
+                  id="bulk-regen-titles-btn"
+                  title="Jumlah baris sama; AI menulis ulang judul dan slug ikut diperbarui"
+                  {{
+                  if
+                  not
+                  .ai_configured
+                  }}disabled{{
+                  end
+                  }}
+                >
+                  <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                  Buat ulang
+                </button>
+              </div>
+            </div>
+            <textarea
+              class="form-control font-monospace small admin-bulk-titles-area"
+              id="bulk-titles"
+              rows="10"
+              spellcheck="false"
+              placeholder="Satu judul per baris"
+            ></textarea>
+            <div id="bulk-adaptive-delay-notice" class="alert alert-info py-2 px-3 small mt-2 mb-0 d-none" role="alert">
+              <i class="bi bi-shield-check me-1"></i>
+              <strong>Sistem Proteksi Jeda Adaptif:</strong>
+              <span id="bulk-adaptive-delay-text"></span>
+            </div>
+          </div>
+          <div class="col-12 col-md-5">
+            <div
+              class="admin-bulk-field-head d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
+            >
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="bulk-slugs" class="form-label mb-0">Slug</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bulk-slugs-info-modal"
+                  aria-label="Tampilkan catatan slug"
+                  title="Tampilkan catatan slug"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <span
+                id="bulk-slugs-line-count"
+                class="small text-secondary text-nowrap"
+                aria-live="polite"
+                >0 baris</span
+              >
+            </div>
+            <textarea
+              class="form-control font-monospace small"
+              id="bulk-slugs"
+              rows="10"
+              spellcheck="false"
+              placeholder="Opsional"
+            ></textarea>
+          </div>
+          <div class="col-12 col-md-2">
+            <div
+              class="admin-bulk-field-head d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
+            >
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="bulk-category-refs" class="form-label mb-0"
+                  >Kategori</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bulk-category-info-modal"
+                  aria-label="Tampilkan ID dan slug kategori yang tersedia"
+                  title="Tampilkan ID dan slug kategori yang tersedia"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <span
+                id="bulk-category-refs-line-count"
+                class="small text-secondary text-nowrap"
+                aria-live="polite"
+                >0 baris</span
+              >
+            </div>
+            <textarea
+              class="form-control font-monospace small"
+              id="bulk-category-refs"
+              rows="10"
+              spellcheck="false"
+              placeholder="Opsional"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-form-section">
+        <h6 class="post-form-section__title">Buat &amp; publikasi</h6>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4 col-lg-3" id="bulk-category-wrap">
+            <label for="bulk-category" class="form-label">Kategori</label>
+            <select class="form-select" id="bulk-category" required>
+              <option value="">— Pilih —</option>
+              {{ range .categories }}
+              <option value="{{ .ID }}" data-slug="{{ .Slug }}">
+                {{ .Name }}
+              </option>
+              {{ end }}
+            </select>
+          </div>
+          <div class="col-md-4 col-lg-3 admin-only">
+            <label for="bulk-author" class="form-label">Penulis</label>
+            <select class="form-select" id="bulk-author">
+              {{ range .authors }}
+              <option value="{{ .ID }}">{{ .Name }} ({{ .Role }})</option>
+              {{ end }}
+            </select>
+          </div>
+          <div class="col-md-3 col-lg-2">
+            <label for="bulk-status" class="form-label">Status</label>
+            <select class="form-select" id="bulk-status">
+              <option value="scheduled" selected>Terjadwal</option>
+              <option value="draft">Draf</option>
+              <option value="published">Terbit</option>
+            </select>
+          </div>
+          <div class="col-md-3 col-lg-2">
+            <label for="bulk-prompt-variant" class="form-label"
+              >Prompt konten</label
+            >
+            <select class="form-select" id="bulk-prompt-variant">
+              <option value="1" selected>{{ .prompt_content_name_1 }}</option>
+              <option value="2">{{ .prompt_content_name_2 }}</option>
+              <option value="3">{{ .prompt_content_name_3 }}</option>
+            </select>
+          </div>
+          <div class="col-md-6 col-lg-2 d-none" id="bulk-schedule-wrap">
+            <label for="bulk-interval" class="form-label"
+              >Interval (menit)</label
+            >
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                id="bulk-interval"
+                min="0"
+                max="10080"
+                value="60"
+                aria-describedby="bulk-interval-suffix"
+              />
+              <span class="input-group-text" id="bulk-interval-suffix"
+                >menit</span
+              >
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label d-block mb-2">Mode gambar cover</label>
+            <div
+              class="btn-group btn-group-sm"
+              role="group"
+              aria-label="Mode cover bulk"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="bulk-cover-mode"
+                id="bulk-cover-mode-template"
+                value="template"
+                autocomplete="off"
+                checked
+              />
+              <label
+                class="btn btn-outline-secondary"
+                for="bulk-cover-mode-template"
+                >Pakai template</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="bulk-cover-mode"
+                id="bulk-cover-mode-web-search"
+                value="web_search"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-secondary"
+                for="bulk-cover-mode-web-search"
+                >Cari di web</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="bulk-cover-mode"
+                id="bulk-cover-mode-generate"
+                value="generate_image"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-secondary"
+                for="bulk-cover-mode-generate"
+                >Buat dengan AI</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="bulk-cover-mode"
+                id="bulk-cover-mode-none"
+                value="none"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-secondary"
+                for="bulk-cover-mode-none"
+                >Tanpa gambar</label
+              >
+            </div>
+          </div>
+          <div class="col-12 col-md-6 d-none" id="bulk-cover-web-search-wrap">
+            <div class="d-inline-flex align-items-center gap-1 mb-2">
+              <label for="bulk-cover-web-search-source" class="form-label mb-0"
+                >Sumber gambar web</label
+              >
+              <button
+                type="button"
+                class="btn btn-sm btn-link text-secondary p-0 lh-1"
+                data-bs-toggle="modal"
+                data-bs-target="#bulk-cover-web-source-info-modal"
+                aria-label="Tampilkan catatan sumber gambar web"
+                title="Tampilkan catatan sumber gambar web"
+              >
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+              </button>
+            </div>
+            <select
+              class="form-select"
+              id="bulk-cover-web-search-source"
+              aria-label="Sumber gambar web untuk cover bulk"
+            >
+              <option value="auto" selected>Auto</option>
+              <option value="pexels">Pexels</option>
+              <option value="unsplash">Unsplash</option>
+              <option value="bing_net">Bing.net</option>
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+            </select>
+          </div>
+          <div class="col-12 d-none" id="bulk-image-to-content-wrap">
+            <div class="d-inline-flex align-items-center gap-1 mb-2">
+              <label class="form-label mb-0">Gambar ke konten</label>
+              <button
+                type="button"
+                class="btn btn-sm btn-link text-secondary p-0 lh-1"
+                data-bs-toggle="modal"
+                data-bs-target="#bulk-image-to-content-info-modal"
+                aria-label="Tampilkan catatan gambar ke konten"
+                title="Tampilkan catatan gambar ke konten"
+              >
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="bulk-image-to-content-enabled"
+              />
+              <label
+                class="form-check-label"
+                for="bulk-image-to-content-enabled"
+                >Aktif</label
+              >
+            </div>
+          </div>
+          <div class="col-12 d-none" id="bulk-image-prompt-wrap">
+            <label for="bulk-image-prompt" class="form-label"
+              >Prompt gambar (opsional)</label
+            >
+            <textarea
+              class="form-control"
+              id="bulk-image-prompt"
+              rows="2"
+              placeholder="Kosong: sampul memakai prompt AI “Generate image (cover)”; gambar kedua dalam konten memakai “Generate image (in-content)”. Satu prompt kustom di sini akan mengganti keduanya jika diisi."
+            ></textarea>
+          </div>
+          <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+              id="bulk-generate-btn"
+              {{
+              if
+              not
+              .ai_configured
+              }}disabled{{
+              end
+              }}
+            >
+              <i class="bi bi-magic" aria-hidden="true"></i>
+              Buat artikel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger d-inline-flex align-items-center justify-content-center gap-2"
+              id="bulk-force-stop-btn"
+            >
+              <span
+                class="spinner-border spinner-border-sm d-none"
+                id="bulk-force-stop-spinner"
+                aria-hidden="true"
+              ></span>
+              <i
+                class="bi bi-stop-circle"
+                id="bulk-force-stop-icon"
+                aria-hidden="true"
+              ></i>
+              Paksa stop bulk berjalan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-check-titles-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-check-titles-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--danger"
+            aria-hidden="true"
+          >
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-check-titles-modal-label">
+              Judul mirip ditemukan
+            </h5>
+            <p
+              class="small text-secondary mb-0 mt-1 lh-sm"
+              id="bulk-check-titles-modal-sub"
+            >
+              Kemiripan ≥90% dengan post di database atau baris sebelumnya dalam
+              list.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div class="table-responsive">
+          <table
+            class="table table-sm table-striped bulk-category-info-table mb-0"
+          >
+            <thead>
+              <tr>
+                <th scope="col" class="text-nowrap">#</th>
+                <th scope="col">Judul lama</th>
+                <th scope="col">Judul baru</th>
+                <th scope="col" class="text-nowrap">Sumber</th>
+                <th scope="col" class="text-nowrap">Mirip</th>
+              </tr>
+            </thead>
+            <tbody id="bulk-check-titles-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Tutup
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="bulk-check-titles-remove-btn"
+        >
+          Hapus judul baru dari list
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-titles-info-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-titles-info-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-titles-info-modal-label">
+              Catatan judul artikel
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Hitungan memakai baris yang dipisah enter.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <ul class="small text-secondary mb-0 ps-3">
+          <li>Baris kosong atau hanya spasi tidak dihitung.</li>
+          <li>Setiap baris dipasangkan dengan <strong>Slug</strong>.</li>
+          <li>
+            Jika baris slug di bagian bawah kosong, slug akan dibuat otomatis.
+          </li>
+          <li>
+            <strong>Buat ulang</strong> menulis ulang semua baris judul (jumlah
+            baris sama) dan membuat ulang slug dari judul baru.
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-slugs-info-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-slugs-info-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-slugs-info-modal-label">
+              Catatan slug
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Aturan hitungan sama seperti judul.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <ul class="small text-secondary mb-0 ps-3">
+          <li>
+            Jumlah baris boleh sama atau lebih sedikit dari judul; baris akhir
+            yang tidak diisi dianggap kosong dan slug dibuat otomatis.
+          </li>
+          <li>
+            Slug tidak boleh punya baris <strong>lebih banyak</strong> dari
+            judul.
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-category-info-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-category-info-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-category-info-modal-label">
+              Kategori yang tersedia
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Gunakan satu nilai per baris di <strong>Kategori</strong>. Nilai
+              yang diterima adalah ID kategori, slug, atau nama. Huruf besar dan
+              kecil diabaikan. Jika diisi, jumlah baris harus sama persis dengan
+              <strong>Judul artikel</strong> dan dropdown kategori di bawah akan
+              disembunyikan.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div
+          class="bulk-category-info-table-wrap table-responsive border rounded"
+        >
+          <table
+            class="bulk-category-info-table table table-sm align-middle mb-0"
+          >
+            <thead>
+              <tr>
+                <th scope="col" class="text-nowrap">ID</th>
+                <th scope="col">Slug</th>
+                <th scope="col">Nama</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .categories }}
+              <tr>
+                <td class="font-monospace small text-nowrap">{{ .ID }}</td>
+                <td class="font-monospace small text-break">{{ .Slug }}</td>
+                <td>{{ .Name }}</td>
+              </tr>
+              {{ else }}
+              <tr>
+                <td colspan="3" class="text-center text-secondary py-3">
+                  Belum ada kategori.
+                </td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-cover-web-source-info-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-cover-web-source-info-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-cover-web-source-info-modal-label">
+              Catatan sumber gambar web
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Aktifkan provider dan API key di Pengaturan situs → API gambar
+              web.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-image-to-content-info-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-image-to-content-info-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-image-to-content-info-modal-label">
+              Catatan gambar ke konten
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Jika aktif, gambar cover hasil generate juga dimasukkan ke konten
+              artikel (setelah H2 kedua, atau tengah konten jika tidak ada H2).
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="bulk-tag-modal"
+  tabindex="-1"
+  aria-labelledby="bulk-tag-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-tag-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="bulk-tag-modal-label">Tag baru</h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Buat tag, lalu tag akan ditambahkan ke pilihan bulk.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <form id="bulk-tag-modal-form" novalidate>
+        <div class="modal-body pt-0">
+          <div
+            id="bulk-tag-modal-error"
+            class="alert alert-danger d-none py-2 small"
+            role="alert"
+          ></div>
+          <div class="mb-3">
+            <label for="bulk-tag-modal-name" class="form-label">
+              Nama <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-tag"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                id="bulk-tag-modal-name"
+                autocomplete="off"
+                required
+                minlength="3"
+                maxlength="100"
+                placeholder="contoh: Berita teknologi"
+              />
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="bulk-tag-modal-slug" class="form-label">
+              Slug <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-link-45deg"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0 font-monospace"
+                id="bulk-tag-modal-slug"
+                autocomplete="off"
+                required
+                minlength="3"
+                maxlength="150"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+                placeholder="tech-news"
+              />
+            </div>
+            <div class="form-text">
+              Terisi dari nama; ubah jika perlu. Hanya huruf kecil, angka, dan
+              tanda hubung.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button
+            type="button"
+            class="btn btn-light border"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            id="bulk-tag-modal-submit"
+          >
+            <span
+              class="spinner-border spinner-border-sm d-none"
+              id="bulk-tag-modal-spinner"
+              aria-hidden="true"
+            ></span>
+            <i
+              class="bi bi-check-lg"
+              id="bulk-tag-modal-check"
+              aria-hidden="true"
+            ></i>
+            <span>Buat &amp; pilih</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/tom-select/js/tom-select.complete.min.js?v={{ .asset_version }}"></script>
+<script src="/static/js/admin/bulk_post.min.js?v={{ .asset_version }}"></script>
+
+{{ end }} {{ template "layouts-admin-app" . }}

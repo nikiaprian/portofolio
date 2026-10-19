@@ -1,0 +1,47 @@
+{{ define "pf-main" }}
+<header class="pf-site-hero">
+  <div class="pf-avatar">
+    {{ if .PhotoURL }}<img src="{{ .PhotoURL }}" alt="" />{{ else }}<span>{{ .Initials }}</span>{{ end }}
+  </div>
+  <div>
+    <p class="pf-kicker">Portfolio</p>
+    <h1>{{ .DisplayName }}</h1>
+    {{ if .Headline }}<p class="pf-lead">{{ .Headline }}</p>{{ end }}
+  </div>
+</header>
+{{ if .Bio }}
+<section class="pf-section"><h2>Tentang</h2><p>{{ .Bio }}</p></section>
+{{ end }}
+{{ if .Skills }}
+<section class="pf-section">
+  <h2>Keahlian</h2>
+  <div class="pf-chip-row">{{ range .Skills }}<span class="pf-chip">{{ .Name }}</span>{{ end }}</div>
+</section>
+{{ end }}
+{{ if .Projects }}
+<section class="pf-section">
+  <h2>Proyek</h2>
+  <div class="pf-projects">
+    {{ range .Projects }}
+    <article class="pf-card pf-project">
+      <h3>{{ .Title }}</h3>
+      {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+      {{ if .URL }}<a href="{{ .URL }}">Lihat</a>{{ end }}
+    </article>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
+<footer class="pf-footer">
+  <div>
+    {{ if .Email }}<div><a href="mailto:{{ .Email }}">{{ .Email }}</a></div>{{ end }}
+    {{ if .WhatsAppURL }}<div><a href="{{ .WhatsAppURL }}">WhatsApp</a></div>{{ end }}
+  </div>
+  <div>
+    {{ if .Website }}<div><a href="{{ .Website }}">Situs</a></div>{{ end }}
+    {{ if .Instagram }}<div><a href="{{ .Instagram }}">Instagram</a></div>{{ end }}
+    {{ if .LinkedIn }}<div><a href="{{ .LinkedIn }}">LinkedIn</a></div>{{ end }}
+    {{ if .GitHub }}<div><a href="{{ .GitHub }}">GitHub</a></div>{{ end }}
+  </div>
+</footer>
+{{ end }}

@@ -1,0 +1,19 @@
+{{ define "pf-main" }}
+<section class="pf-band">
+  <div class="pf-wrap">
+    <p class="pf-kicker">Contoh</p>
+    <h1 class="pf-list-title">Testimoni</h1>
+    <p class="pf-lead">Ulasan di halaman ini adalah contoh untuk melihat tata letak. Bukan pengalaman pembeli sungguhan.</p>
+    <div class="pf-quotes pf-quotes-page">
+      {{ range .Quotes }}
+      <article class="pf-quote">
+        <p>{{ .Quote }}</p>
+        <strong>{{ .Name }}</strong>
+        <span>{{ .Role }} · Contoh</span>
+      </article>
+      {{ end }}
+    </div>
+    <div class="pf-actions"><a class="pf-btn" href="/beli">Ambil subdomain</a></div>
+  </div>
+</section>
+{{ end }}

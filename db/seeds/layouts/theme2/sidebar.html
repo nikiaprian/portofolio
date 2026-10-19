@@ -1,0 +1,35 @@
+{{ define "client-blog-sidebar-ssr" }}
+<aside
+  class="theme2-sidebar blog-popular-wrap blog-popular-wrap-sticky lg:pl-1 self-start"
+  id="blog-popular-wrap"
+  aria-label="Sidebar artikel"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  <div class="theme2-sidebar-inner flex flex-col gap-8">
+    {{ if .ads_sidebar }}
+    <div class="border border-gray-200 overflow-hidden site-ad site-ad--sidebar shrink-0">{{ .ads_sidebar }}</div>
+    {{ end }}
+
+    <section class="theme2-editor-picks shrink-0 border border-gray-200 bg-white" aria-label="Pilihan Editor">
+      <div class="theme2-editor-picks-head px-4 sm:px-5 pt-5 pb-4 border-b border-gray-100">
+        <h2 class="m-0 text-xl font-bold text-gray-900">Populer</h2>
+      </div>
+      <ol class="blog-popular-list theme2-editor-picks-list m-0 px-2 sm:px-3 py-2 space-y-0 list-none" id="blog-popular-list" data-sidebar-source="latest">
+        {{ range .latest_posts }}
+        <li class="blog-popular-item">
+          <a class="blog-popular-link flex items-start gap-3 px-2.5 py-3.5 border-b border-gray-100 last:border-b-0 group" href="{{ .href }}">
+            <span class="theme2-editor-bullet mt-2 shrink-0 w-1.5 h-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+            <div class="flex-1 min-w-0">
+              <span class="blog-popular-title block text-sm font-bold leading-snug text-gray-900 group-hover:text-accent transition">{{ .title }}</span>
+              {{ if .time }}<span class="blog-popular-meta mt-1.5 block text-xs text-gray-500">{{ .time }}</span>{{ end }}
+            </div>
+          </a>
+        </li>
+        {{ end }}
+      </ol>
+    </section>
+  </div>
+</aside>
+{{ end }}

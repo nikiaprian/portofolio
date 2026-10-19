@@ -1,0 +1,171 @@
+{{ define "client-content" }}
+<div class="theme2-article-page max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-12">
+  <div class="grid lg:grid-cols-3 gap-10 lg:gap-14">
+    <div class="theme2-article-main lg:col-span-2 min-w-0 space-y-12">
+    <div
+      id="public-root"
+      class="public-root min-w-0"
+      data-ssr-article="1"
+      data-slug="{{ .post_slug }}"
+      data-article-more-ssr="1"
+    >
+      <div class="blog-article-layout min-w-0 w-full">
+        <article class="blog-article-single theme2-article-single space-y-6">
+          <section class="blog-article-head theme2-article-head space-y-4">
+            <nav class="theme2-breadcrumb text-xs text-gray-500" aria-label="Breadcrumb">
+              <ol class="theme2-breadcrumb-list">
+                <li><a href="{{ .public_base }}/" class="hover:text-accent transition">Beranda</a></li>
+                {{ if .category_parent_name }}
+                <li class="text-gray-300 px-1.5" aria-hidden="true">/</li>
+                <li><a href="{{ .category_parent_href }}" class="hover:text-accent transition">{{ .category_parent_name }}</a></li>
+                {{ end }}
+                {{ if and .cat_name .cat_href }}
+                <li class="text-gray-300 px-1.5" aria-hidden="true">/</li>
+                <li><a href="{{ .cat_href }}" class="hover:text-accent transition">{{ .cat_name }}</a></li>
+                {{ else if and .cat_slug .cat_name }}
+                <li class="text-gray-300 px-1.5" aria-hidden="true">/</li>
+                <li><a href="{{ $.public_base }}/{{ .cat_slug }}" class="hover:text-accent transition">{{ .cat_name }}</a></li>
+                {{ else if .cat_name }}
+                <li class="text-gray-300 px-1.5" aria-hidden="true">/</li>
+                <li>{{ .cat_name }}</li>
+                {{ end }}
+                <li class="text-gray-300 px-1.5" aria-hidden="true">/</li>
+                <li class="theme2-breadcrumb-current" aria-current="page">{{ if .post_title }}{{ .post_title }}{{ else }}{{ .title }}{{ end }}</li>
+              </ol>
+            </nav>
+
+            {{ if .cat_name }}
+            <p class="theme2-article-kicker m-0">
+              {{ if .cat_href }}
+              <a href="{{ .cat_href }}" class="inline-flex items-center text-[11px] font-bold uppercase tracking-[0.16em] text-accent hover:opacity-80 transition">
+                <span class="w-5 h-px bg-accent" aria-hidden="true"></span>
+                {{ .cat_name }}
+              </a>
+              {{ else if .cat_slug }}
+              <a href="{{ $.public_base }}/{{ .cat_slug }}" class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-accent hover:opacity-80 transition">
+                <span class="w-5 h-px bg-accent" aria-hidden="true"></span>
+                {{ .cat_name }}
+              </a>
+              {{ else }}
+              <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
+                <span class="w-5 h-px bg-accent" aria-hidden="true"></span>
+                {{ .cat_name }}
+              </span>
+              {{ end }}
+            </p>
+            {{ end }}
+
+            <h1 class="blog-article-title theme2-article-title text-3xl sm:text-[2.65rem] font-bold leading-[1.15] text-gray-900 mt-0">{{ .post_title }}</h1>
+
+            <div class="blog-article-byline-meta-top theme2-meta-top flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-gray-100">
+              {{ if .post_time_label }}
+              <span class="blog-article-meta-time theme2-meta-time inline-flex items-center gap-2 text-sm text-gray-600">
+                <i class="bi bi-calendar3 text-accent/80" aria-hidden="true"></i>
+                {{ .post_time_label }}
+              </span>
+              {{ end }}
+              <div class="blog-share theme2-share" aria-label="Share">
+                <button type="button" class="blog-share-btn blog-share-btn--more theme2-share-trigger" data-share="more" aria-label="Bagikan artikel" aria-expanded="false" aria-controls="theme2-share-panel" aria-haspopup="true">
+                  <i class="bi bi-share-fill" aria-hidden="true"></i>
+                  <span class="theme2-share-trigger-label">Bagikan</span>
+                </button>
+                <div class="theme2-share-panel" id="theme2-share-panel" hidden>
+                  <p class="theme2-share-panel-label">Link artikel</p>
+                  <a class="theme2-share-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+                  <button type="button" class="theme2-share-copy" data-share="copy">Salin link</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {{ if .hero_url }}
+          <figure class="blog-article-hero theme2-article-hero m-0">
+            <div class="relative w-full aspect-video overflow-hidden bg-gray-100 border border-gray-200">
+              <img src="{{ resizeImg .hero_url 800 450 }}" alt="{{ .post_title }}" loading="eager" decoding="async" class="absolute inset-0 w-full h-full object-cover" />
+            </div>
+            {{ if .hero_caption_html }}
+            <figcaption class="blog-article-hero-caption px-0.5 pt-2.5 text-xs text-gray-500 font-sans leading-relaxed italic">{{ .hero_caption_html }}</figcaption>
+            {{ end }}
+          </figure>
+          {{ end }}
+
+          <div class="blog-article-toc theme2-article-toc" id="blog-article-toc" hidden></div>
+
+          <div class="blog-article-body post-body theme2-article-body text-gray-800 leading-relaxed min-w-0 w-full">
+            {{ .post_body }}
+          </div>
+
+          <div
+            class="blog-article-source theme2-article-source mt-8 p-4 sm:p-5 border border-gray-200 border-l-4 border-l-accent bg-white text-xs sm:text-sm text-gray-600 leading-relaxed font-sans"
+            id="blog-article-source"
+            hidden
+            data-include-source="{{ if .post_include_source }}1{{ else }}0{{ end }}"
+            data-source="{{ js .post_source }}"
+          ></div>
+
+          <div class="blog-article-byline theme2-byline mt-10 pt-8 border-t border-gray-200">
+            <div class="theme2-byline-head flex items-center gap-4 min-w-0">
+              <a href="{{ .author_path }}" class="blog-article-avatar theme2-byline-avatar relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-lg font-bold text-gray-700 ring-1 ring-gray-200 hover:ring-accent/40 transition" aria-label="{{ .author_name }}">
+                <span class="blog-article-avatar-letter" aria-hidden="true">{{ .avatar_letter }}</span>
+                {{ if .author_img }}
+                  <img class="blog-article-avatar-img absolute inset-0 h-full w-full object-cover" src="{{ resizeImg .author_img 56 56 }}" alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+                {{ end }}
+              </a>
+              <div class="theme2-byline-identity min-w-0 flex-1">
+                <p class="theme2-byline-label m-0 text-[11px] uppercase tracking-[0.14em] text-gray-400 font-semibold">Penulis</p>
+                <a href="{{ .author_path }}" class="theme2-byline-name mt-0.5 inline-block text-lg font-bold text-gray-900 hover:text-accent transition leading-snug">{{ .author_name }}</a>
+              </div>
+            </div>
+            {{ if .author_bio }}
+            <p class="theme2-author-bio">{{ .author_bio }}</p>
+            {{ end }}
+          </div>
+        </article>
+      </div>
+    </div>
+
+      {{ if .article_related_posts }}
+        <section class="blog-otherlatest theme2-related" aria-label="Artikel terkait">
+          <div class="blog-otherlatest-head mb-6 flex items-end justify-between gap-4">
+            <h2 class="m-0 font-serif text-2xl font-bold text-gray-900">Artikel terkait</h2>
+            <span class="hidden sm:block flex-1 h-px bg-gray-200 mb-2" aria-hidden="true"></span>
+          </div>
+          <div class="blog-posts-list blog-otherlatest-list grid md:grid-cols-2 md:gap-x-8 gap-y-0 space-y-0" data-lazy-list data-batch-size="{{ .article_related_batch_size }}">
+            {{ range $i, $p := .article_related_posts }}
+            <a
+              class="blog-posts-item grid grid-cols-3 sm:grid-cols-4 gap-4 py-4 border-b border-gray-200 group{{ if ge $i $.article_related_batch_size }} is-lazy-hidden{{ end }}"
+              href="{{ $p.href }}"
+              {{ if ge $i $.article_related_batch_size }}hidden{{ end }}
+              data-lazy-item
+            >
+              <span class="blog-posts-thumb block overflow-hidden border border-gray-200" aria-hidden="true">
+                <img src="{{ resizeImg $p.thumb 200 80 }}" alt="" width="88" height="66" loading="lazy" decoding="async" class="w-full h-20 object-cover" />
+              </span>
+              <span class="blog-posts-text col-span-2 sm:col-span-3 min-w-0">
+                <span class="blog-posts-title block text-sm font-serif font-bold leading-snug group-hover:text-accent transition">{{ $p.title }}</span>
+                {{ if $p.time }}<span class="blog-posts-time mt-1 block text-xs text-gray-500 font-sans">{{ $p.time }}</span>{{ end }}
+              </span>
+            </a>
+            {{ end }}
+          </div>
+          {{ if gt (len .article_related_posts) .article_related_batch_size }}
+          <div class="blog-feed-loadmore pt-6 text-center">
+            <button type="button" class="btn btn-ghost blog-feed-loadmore-btn inline-flex border border-gray-300 px-6 py-3 text-sm font-bold font-sans hover:border-accent hover:text-accent transition" data-lazy-loadmore>
+              <span class="blog-feed-loadmore-inner inline-flex items-center gap-2">
+                <span class="blog-feed-loadmore-label">Muat lagi</span>
+                <svg class="blog-feed-loadmore-arrow" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                  <path fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          {{ end }}
+        </section>
+      {{ end }}
+
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</div>
+{{ end }}

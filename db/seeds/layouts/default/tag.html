@@ -1,0 +1,210 @@
+{{ define "client-content" }}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <div class="blog-feed-head">
+        <div class="flex items-center gap-4 mb-6">
+          <h1 class="blog-section-title blog-section-title--feed text-2xl sm:text-3xl font-bold">Tag: {{ .tag_name }}</h1>
+          <div class="blog-section-title-bar h-px bg-yellow-400 flex-1" aria-hidden="true"></div>
+        </div>
+      </div>
+      
+      {{ if .posts }}
+      <div class="blog-posts-list space-y-0" data-lazy-list data-batch-size="8">
+        {{ range $i, $p := .posts }}
+        <a
+          class="blog-posts-item grid grid-cols-3 sm:grid-cols-4 gap-4 py-4 border-b border-gray-300 group{{ if ge $i 8 }} is-lazy-hidden{{ end }}"
+          href="{{ $p.href }}"
+          {{ if ge $i 8 }}hidden{{ end }}
+          data-lazy-item
+        >
+          <span class="blog-posts-thumb block overflow-hidden blog-posts-thumb--loading" aria-hidden="true" data-thumb-skeleton>
+            <img
+              src="{{ resizeImg $p.thumb 200 96 }}"
+              alt=""
+              width="88"
+              height="66"
+              loading="lazy"
+              decoding="async"
+              class="w-full h-20 sm:h-24 object-cover"
+            />
+          </span>
+          <span class="blog-posts-text col-span-2 sm:col-span-3 min-w-0">
+            <span class="blog-posts-title block text-sm sm:text-base font-bold leading-snug group-hover:text-yellow-700 transition">{{ $p.title }}</span>
+            {{ if $p.time }}
+            <span class="blog-posts-time mt-1 block text-xs text-gray-500 font-sans">{{ $p.time }}</span>
+            {{ end }}
+          </span>
+        </a>
+        {{ if and (eq $i 4) $.ads_center }}
+        <div class="site-ad site-ad--center site-ad--inlist py-4" aria-label="Iklan">{{ $.ads_center }}</div>
+        {{ end }}
+        {{ end }}
+      </div>
+      
+      {{ if gt (len .posts) 8 }}
+      <div class="blog-feed-loadmore flex justify-center mt-8">
+        <button
+          type="button"
+          class="btn btn-ghost blog-feed-loadmore-btn px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+          data-lazy-loadmore
+        >
+          Muat lagi
+        </button>
+      </div>
+      {{ end }} 
+      {{ else }}
+      <p class="text-gray-600 font-sans">Belum ada artikel dengan tag ini.</p>
+      {{ end }}
+      
+      {{ template "client-pagination" . }}
+    </div>
+    
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("[data-lazy-list]");
+    if (!list) return;
+    var btn = document.querySelector("[data-lazy-loadmore]");
+    function stripResizePrefix(raw) {
+      var s = String(raw || "").trim();
+      if (!s) return s;
+      var marker = "/cdn-cgi/image/";
+      var low = s.toLowerCase();
+      var idx = low.indexOf(marker);
+      if (idx < 0) return s;
+      var rest = s.slice(idx + marker.length);
+      var slash = rest.indexOf("/");
+      if (slash < 0) return s;
+      return s.slice(0, idx) + rest.slice(slash);
+    }
+    function readResizeOpt(raw, key) {
+      var s = String(raw || "").trim();
+      if (!s) return "";
+      var marker = "/cdn-cgi/image/";
+      var low = s.toLowerCase();
+      var idx = low.indexOf(marker);
+      if (idx < 0) return "";
+      var rest = s.slice(idx + marker.length);
+      var slash = rest.indexOf("/");
+      if (slash < 0) return "";
+      var opts = rest.slice(0, slash).split(",");
+      var want = String(key || "").toLowerCase().trim();
+      for (var i = 0; i < opts.length; i++) {
+        var pair = String(opts[i] || "").split("=");
+        if (pair.length < 2) continue;
+        if (String(pair[0] || "").toLowerCase().trim() !== want) continue;
+        var val = String(pair.slice(1).join("=") || "").trim();
+        if (val) return val;
+      }
+      return "";
+    }
+    function rewriteThumbCDN(thumb, img) {
+      if (!thumb || !img) return;
+      var currentSrc = img.getAttribute("src") || "";
+      if (!currentSrc) return;
+      try {
+        if (window.__CLIENT_PUB_CONF__ && window.__CLIENT_PUB_CONF__.imageResizeEnabled === false) {
+          var plain = stripResizePrefix(currentSrc);
+          if (plain !== currentSrc) img.setAttribute("src", plain);
+          return;
+        }
+      } catch (e) {}
+      // If the server already returned a direct image URL (not cdn-cgi),
+      // don't force a rewrite to cdn-cgi because it can break local/offline setups.
+      if (String(currentSrc).toLowerCase().indexOf("/cdn-cgi/image/") < 0) return;
+      var raw = img.__cdnOriginalSrc || "";
+      if (!raw) {
+        raw = stripResizePrefix(currentSrc);
+        img.__cdnOriginalSrc = raw;
+      }
+      var width = Math.ceil(
+        (thumb.getBoundingClientRect && thumb.getBoundingClientRect().width) ||
+          thumb.clientWidth ||
+          0
+      );
+      if (width < 1) width = parseInt(img.getAttribute("width") || "88", 10) || 88;
+      width = Math.max(1, Math.ceil(width * 2));
+      var quality = "";
+      try {
+        quality = String(
+          (window.__CLIENT_PUB_CONF__ &&
+            window.__CLIENT_PUB_CONF__.cloudflareImageResizeQuality) ||
+            ""
+        ).trim();
+      } catch (e) {}
+      if (!quality) quality = readResizeOpt(currentSrc, "quality");
+      var opts = ["width=" + String(width)];
+      if (/^\d+$/.test(quality) && Number(quality) > 0) opts.push("quality=" + quality);
+      var next = "";
+      if (/^https?:\/\//i.test(raw)) {
+        try {
+          var u = new URL(raw);
+          if (u.pathname) {
+            u.pathname = "/cdn-cgi/image/" + opts.join(",") + u.pathname;
+            next = u.toString();
+          } else {
+            next = raw;
+          }
+        } catch (e) {
+          next = raw;
+        }
+      } else {
+        var path = raw.charAt(0) === "/" ? raw : "/" + raw;
+        next = "/cdn-cgi/image/" + opts.join(",") + path;
+      }
+      if (next !== currentSrc) img.setAttribute("src", next);
+    }
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      var thumbs = root.querySelectorAll("[data-thumb-skeleton]");
+      thumbs.forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+        }
+        rewriteThumbCDN(thumb, img);
+        if (typeof requestAnimationFrame !== "undefined") {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              rewriteThumbCDN(thumb, img);
+            });
+          });
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (!btn) return;
+    var batch = parseInt(list.getAttribute("data-batch-size") || "8", 10);
+    if (!batch || batch < 1) batch = 8;
+    var hiddenSelector = "[data-lazy-item][hidden]";
+    function applyBatch() {
+      var hidden = list.querySelectorAll(hiddenSelector);
+      if (!hidden.length) {
+        btn.remove();
+        return;
+      }
+      for (var i = 0; i < hidden.length && i < batch; i++) {
+        hidden[i].hidden = false;
+        bindThumbSkeleton(hidden[i]);
+      }
+      if (!list.querySelector(hiddenSelector)) {
+        btn.remove();
+      }
+    }
+    btn.addEventListener("click", applyBatch);
+  })();
+</script>
+{{ end }}

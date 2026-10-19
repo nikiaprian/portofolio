@@ -1,0 +1,168 @@
+{{ define "client-content" }}
+<div class="blog-article-page max-w-7xl mx-auto px-4 sm:px-6 pt-3 sm:pt-4 pb-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div class="theme1-article-main lg:col-span-2 min-w-0 space-y-14">
+    <div
+      id="public-root"
+      class="public-root min-w-0"
+      data-ssr-article="1"
+      data-slug="{{ .post_slug }}"
+      data-article-more-ssr="1"
+    >
+      <div class="blog-article-layout min-w-0 w-full">
+        <article class="blog-article-single space-y-6">
+          <section class="blog-article-head space-y-2 sm:space-y-3">
+            <nav class="blog-article-breadcrumb" aria-label="Breadcrumb">
+              <ol class="blog-article-breadcrumb-list">
+                <li class="blog-article-breadcrumb-item">
+                  <a href="{{ .public_base }}/" class="blog-article-breadcrumb-link">Beranda</a>
+                </li>
+                {{ if .category_parent_name }}
+                <li class="blog-article-breadcrumb-item">
+                  <a href="{{ .category_parent_href }}" class="blog-article-breadcrumb-link">{{ .category_parent_name }}</a>
+                </li>
+                {{ end }}
+                {{ if and .cat_name .cat_href }}
+                <li class="blog-article-breadcrumb-item">
+                  <a href="{{ .cat_href }}" class="blog-article-breadcrumb-link">{{ .cat_name }}</a>
+                </li>
+                {{ else if and .cat_slug .cat_name }}
+                <li class="blog-article-breadcrumb-item">
+                  <a href="{{ $.public_base }}/{{ .cat_slug }}" class="blog-article-breadcrumb-link">{{ .cat_name }}</a>
+                </li>
+                {{ else if .cat_name }}
+                <li class="blog-article-breadcrumb-item">{{ .cat_name }}</li>
+                {{ end }}
+                <li class="blog-article-breadcrumb-item blog-article-breadcrumb-item--current" aria-current="page">{{ .post_title }}</li>
+              </ol>
+            </nav>
+
+            <h1 class="blog-article-title text-3xl sm:text-4xl font-bold leading-tight mt-0">{{ .post_title }}</h1>
+
+            <div class="blog-article-byline-meta-top">
+              {{ if .post_time_label }}
+              <span class="blog-article-meta-time">{{ .post_time_label }}</span>
+              {{ end }}
+              <div class="blog-share" aria-label="Share">
+                <button type="button" class="blog-share-btn blog-share-btn--wa" data-share="wa" aria-label="Share WhatsApp">
+                  <i class="bi bi-whatsapp"></i>
+                </button>
+                <button type="button" class="blog-share-btn blog-share-btn--fb" data-share="fb" aria-label="Share Facebook">
+                  <i class="bi bi-facebook"></i>
+                </button>
+                <button type="button" class="blog-share-btn blog-share-btn--copy" data-share="copy" aria-label="Copy link">
+                  <i class="bi bi-copy"></i>
+                </button>
+                <button type="button" class="blog-share-btn blog-share-btn--more" data-share="more" aria-label="Menu share lainnya">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {{ if .hero_url }}
+          <figure class="blog-article-hero">
+            <div class="blog-article-hero-frame relative w-full aspect-video overflow-hidden rounded-sm bg-gray-200">
+              <img src="{{ resizeImg .hero_url 800 450 }}" alt="{{ .post_title }}" loading="eager" decoding="async" class="absolute inset-0 w-full h-full object-cover" />
+              <div class="blog-article-byline blog-article-byline--on-hero">
+                <div class="blog-article-byline-info">
+                  <span class="blog-article-avatar" aria-hidden="true">
+                    <span class="blog-article-avatar-letter">{{ .avatar_letter }}</span>
+                    {{ if .author_img }}
+                      <img class="blog-article-avatar-img" src="{{ resizeImg .author_img 44 44 }}" alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+                    {{ end }}
+                  </span>
+                  <ul class="blog-article-byline-list">
+                    <li>
+                      <span>by</span>
+                      <a href="{{ .author_path }}">{{ .author_name }}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {{ if .hero_caption_html }}
+            <figcaption class="blog-article-hero-caption px-1 pt-2 text-xs text-gray-500 font-sans leading-relaxed">{{ .hero_caption_html }}</figcaption>
+            {{ end }}
+          </figure>
+          {{ else }}
+          <div class="blog-article-byline">
+            <div class="blog-article-byline-info">
+              <span class="blog-article-avatar" aria-hidden="true">
+                <span class="blog-article-avatar-letter">{{ .avatar_letter }}</span>
+                {{ if .author_img }}
+                  <img class="blog-article-avatar-img" src="{{ resizeImg .author_img 44 44 }}" alt="" loading="lazy" decoding="async" onerror="this.remove()" />
+                {{ end }}
+              </span>
+              <ul class="blog-article-byline-list">
+                <li>
+                  <span>by</span>
+                  <a href="{{ .author_path }}">{{ .author_name }}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          {{ end }}
+
+          <div class="blog-article-toc rounded-xl border border-gray-200 bg-white shadow-sm" id="blog-article-toc" hidden></div>
+
+          <div class="blog-article-body post-body text-gray-800 leading-relaxed min-w-0 w-full">
+            {{ .post_body }}
+          </div>
+
+          <div
+            class="blog-article-source mt-8 p-4 sm:p-5 rounded-xl border border-gray-200 border-l-4 border-l-yellow-400 bg-gray-50/50 text-xs sm:text-sm text-gray-600 leading-relaxed font-sans"
+            id="blog-article-source"
+            hidden
+            data-include-source="{{ if .post_include_source }}1{{ else }}0{{ end }}"
+            data-source="{{ js .post_source }}"
+          ></div>
+        </article>
+      </div>
+    </div>
+
+      {{ if .article_related_posts }}
+        <section class="blog-otherlatest" aria-label="Artikel terkait">
+          <div class="blog-otherlatest-head flex items-center gap-4 mb-6">
+            <h2 class="blog-section-title blog-section-title--feed text-2xl font-bold">Artikel terkait</h2>
+            <div class="blog-section-title-bar h-px bg-yellow-400 flex-1" aria-hidden="true"></div>
+          </div>
+          <div class="blog-posts-list blog-otherlatest-list grid md:grid-cols-2 md:gap-x-8 gap-y-0 space-y-0" data-lazy-list data-batch-size="{{ .article_related_batch_size }}">
+            {{ range $i, $p := .article_related_posts }}
+            <a
+              class="blog-posts-item grid grid-cols-3 sm:grid-cols-4 gap-4 py-4 border-b border-gray-300 group{{ if ge $i $.article_related_batch_size }} is-lazy-hidden{{ end }}"
+              href="{{ $p.href }}"
+              {{ if ge $i $.article_related_batch_size }}hidden{{ end }}
+              data-lazy-item
+            >
+              <span class="blog-posts-thumb block overflow-hidden" aria-hidden="true">
+                <img src="{{ resizeImg $p.thumb 200 80 }}" alt="" width="88" height="66" loading="lazy" decoding="async" class="w-full h-20 object-cover" />
+              </span>
+              <span class="blog-posts-text col-span-2 sm:col-span-3 min-w-0">
+                <span class="blog-posts-title block text-sm font-bold leading-snug group-hover:text-yellow-700 transition">{{ $p.title }}</span>
+                {{ if $p.time }}<span class="blog-posts-time mt-1 block text-xs text-gray-500 font-sans">{{ $p.time }}</span>{{ end }}
+              </span>
+            </a>
+            {{ end }}
+          </div>
+          {{ if gt (len .article_related_posts) .article_related_batch_size }}
+          <div class="blog-feed-loadmore pt-6 text-center">
+            <button type="button" class="btn btn-ghost blog-feed-loadmore-btn inline-flex bg-yellow-400 px-6 py-3 rounded-md text-sm font-bold font-sans hover:bg-yellow-500 transition" data-lazy-loadmore>
+              <span class="blog-feed-loadmore-inner inline-flex items-center gap-2">
+                <span class="blog-feed-loadmore-label">Muat lagi</span>
+                <svg class="blog-feed-loadmore-arrow" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                  <path fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+          {{ end }}
+        </section>
+      {{ end }}
+
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</div>
+{{ end }}

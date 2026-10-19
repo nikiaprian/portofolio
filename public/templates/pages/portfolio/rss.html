@@ -1,0 +1,20 @@
+{{ define "pf-main" }}
+<p class="pf-kicker">RSS</p>
+<h1 class="pf-list-title">RSS Feeds</h1>
+<p class="pf-lead">Daftar feed yang tersedia, termasuk feed per kategori.</p>
+<div class="pf-prose">
+  <table>
+    <thead>
+      <tr><th>Jenis</th><th>Nama</th></tr>
+    </thead>
+    <tbody>
+      {{ range .rss_rows }}
+      <tr>
+        <td>{{ .Type }}</td>
+        <td><a href="{{ .URL }}">{{ .Name }}</a><br /><span class="pf-meta">{{ .URL }}</span></td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
+{{ end }}

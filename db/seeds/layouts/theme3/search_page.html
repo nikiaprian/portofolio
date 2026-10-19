@@ -1,0 +1,50 @@
+{{ define "client-content" }}
+<main class="theme3-page max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <div class="blog-feed-head">
+        <p class="theme3-label text-accent mb-1">Arsip</p>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Semua postingan</h1>
+      </div>
+      {{ if .posts }}
+        {{ template "client-topic-posts-list" . }}
+        {{ template "client-pagination" . }}
+      {{ else }}
+        <p class="text-slate-600">Belum ada artikel yang dipublikasikan.</p>
+      {{ end }}
+    </div>
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.ClientBindPageImg) {
+      window.ClientBindPageImg(list);
+    }
+  })();
+</script>
+{{ end }}

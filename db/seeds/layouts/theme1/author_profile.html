@@ -1,0 +1,91 @@
+{{ define "client-content" }}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <section class="blog-author-card overflow-hidden rounded-xl border border-gray-300 bg-white" aria-label="Profil author">
+        <div class="blog-author-card-banner h-32 bg-gray-100" aria-hidden="true"></div>
+        <div class="blog-author-card-body px-6 pb-6 relative">
+          <div class="blog-author-card-avatar absolute -top-16 left-6 border-4 border-white rounded-full bg-white overflow-hidden w-28 h-28">
+            <span class="blog-author-card-img blog-author-card-img--fallback flex items-center justify-center w-full h-full rounded-full bg-gray-200 text-3xl font-bold text-gray-500" aria-hidden="true"
+              >{{ .author_avatar_letter }}</span
+            >
+            {{ if .author_img }}
+            <img
+              class="blog-author-card-img absolute inset-0 rounded-full object-cover w-full h-full"
+              src="{{ resizeImg .author_img 112 112 }}"
+              alt="{{ .author_name }}"
+              loading="lazy"
+              decoding="async"
+              width="112"
+              height="112"
+              onerror="this.remove()"
+            />
+            {{ end }}
+          </div>
+          <div class="blog-author-card-main pt-16">
+            <h1 class="blog-author-card-name text-2xl font-bold text-gray-900">{{ .author_name }}</h1>
+            <p class="blog-author-card-headline text-sm font-medium text-gray-600 mt-1">{{ .author_role_label }}</p>
+            {{ if .author_bio }}
+            <p class="blog-author-card-bio text-gray-700 mt-4 leading-relaxed">{{ .author_bio }}</p>
+            {{ else }}
+            <p class="blog-author-card-bio blog-author-card-bio--empty text-gray-500 italic mt-4">
+              Belum ada deskripsi profil.
+            </p>
+            {{ end }}
+            <p class="blog-author-card-metric text-sm text-gray-600 mt-4">
+              <strong class="text-gray-900">{{ .author_posts_count }}</strong> artikel dipublikasikan
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div class="blog-feed-head mt-8">
+        <div class="flex items-center gap-4 mb-6">
+          <h2 class="blog-section-title blog-section-title--feed text-2xl sm:text-3xl font-bold">Artikel</h2>
+          <div class="blog-section-title-bar h-px bg-yellow-400 flex-1" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      {{ if .posts }}
+        {{ template "client-topic-posts-list" . }}
+        {{ template "client-pagination" . }}
+      {{ else }}
+        <p id="author-posts" class="text-gray-600 font-sans" tabindex="-1">Belum ada artikel dari author ini.</p>
+      {{ end }}
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.ClientBindPageImg) {
+      window.ClientBindPageImg(list);
+    }
+  })();
+</script>
+{{ end }}

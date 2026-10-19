@@ -1,0 +1,40 @@
+# Binaries
+/bin/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+*.test
+*.out
+
+# IDE / editor
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*.DS_Store
+
+# Logs
+*.log
+
+# Environment / config (local only)
+.env
+.env.local
+
+# Dependency / cache
+/vendor/
+/coverage/
+/data/
+
+# Pipeline
+/public/static/js/*.min.js
+/public/static/js/admin/*.min.js
+/node_modules/
+
+# Test artifacts
+/internal/scraper/public/

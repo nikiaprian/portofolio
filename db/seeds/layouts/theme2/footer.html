@@ -1,0 +1,41 @@
+{{ define "client-footer" }}
+  <footer class="theme2-footer">
+    <div class="theme2-footer-inner">
+      <div class="theme2-footer-top">
+        <a href="{{ .public_base }}/" class="theme2-footer-brand">
+          {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}
+        </a>
+        <div class="theme2-footer-social" aria-label="Media sosial">
+          {{ if .social_facebook_url }}
+            <a href="{{ .social_facebook_url }}" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_x_url }}
+            <a href="{{ .social_x_url }}" target="_blank" rel="noopener noreferrer" title="X" aria-label="X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_instagram_url }}
+            <a href="{{ .social_instagram_url }}" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_youtube_url }}
+            <a href="{{ .social_youtube_url }}" target="_blank" rel="noopener noreferrer" title="YouTube" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
+          {{ end }}
+          {{ if .social_tiktok_url }}
+            <a href="{{ .social_tiktok_url }}" target="_blank" rel="noopener noreferrer" title="TikTok" aria-label="TikTok"><i class="bi bi-tiktok" aria-hidden="true"></i></a>
+          {{ end }}
+          <a href="{{ .public_base }}/rss-feeds" title="RSS" aria-label="RSS Feeds"><i class="bi bi-rss-fill" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <nav class="theme2-footer-pages" aria-label="Halaman">
+        {{ range .client_pages }}
+          <a href="{{ $.public_base }}/{{ .Slug }}">{{ .Title }}</a>
+        {{ else }}
+          <span class="theme2-footer-pages-empty">Belum ada halaman</span>
+        {{ end }}
+      </nav>
+
+      <div class="theme2-footer-bottom">
+        {{ if .footer_copy }}{{ .footer_copy }}{{ else }}&copy; {{ .current_year }} {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}{{ end }}
+      </div>
+    </div>
+  </footer>
+{{ end }}

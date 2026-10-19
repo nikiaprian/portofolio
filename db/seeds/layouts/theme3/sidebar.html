@@ -1,0 +1,37 @@
+{{ define "client-blog-sidebar-ssr" }}
+<aside
+  class="theme3-sidebar blog-popular-wrap blog-popular-wrap-sticky self-start"
+  id="blog-popular-wrap"
+  aria-label="Sidebar artikel"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  <div class="theme3-sidebar-inner">
+    {{ if .ads_sidebar }}
+    <div class="theme3-sidebar-ad site-ad site-ad--sidebar shrink-0">{{ .ads_sidebar }}</div>
+    {{ end }}
+
+    <section class="theme3-side-panel" aria-label="Artikel terbaru">
+      <div class="theme3-section-head theme3-section-head--compact">
+        <h2 class="theme3-section-title">Terbaru</h2>
+      </div>
+      <div class="blog-popular-list theme3-side-cards" id="blog-popular-list" data-sidebar-source="latest">
+        {{ range .latest_posts }}
+        <a class="theme3-side-card blog-popular-item blog-popular-link group" href="{{ .href }}">
+          {{ if .thumb }}
+          <span class="theme3-side-card-media" aria-hidden="true">
+            <img src="{{ resizeImg .thumb 160 120 }}" alt="" width="72" height="54" loading="lazy" decoding="async" />
+          </span>
+          {{ end }}
+          <span class="theme3-side-card-body">
+            <span class="blog-popular-title theme3-side-card-title">{{ .title }}</span>
+            {{ if .time }}<span class="blog-popular-meta theme3-side-card-meta">{{ .time }}</span>{{ end }}
+          </span>
+        </a>
+        {{ end }}
+      </div>
+    </section>
+  </div>
+</aside>
+{{ end }}

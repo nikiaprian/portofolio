@@ -1,0 +1,350 @@
+{{ define "client-content" }}
+<main class="theme1-home bg-white">
+
+  <!-- Pengumuman ticker -->
+  {{ if .neo_ticker_posts }}
+  <section class="theme1-pengumuman border-b border-gray-200 bg-white" aria-label="Pengumuman">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex items-stretch gap-0 overflow-hidden rounded-sm border border-gray-200">
+        <div class="shrink-0 flex items-center gap-2 bg-accent text-white px-3 sm:px-4 text-xs sm:text-sm font-bold uppercase font-sans tracking-wide">
+          <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
+          <span>Pengumuman</span>
+        </div>
+        <div class="theme1-pengumuman-track relative flex-1 min-w-0 bg-white overflow-hidden" data-theme1-pengumuman>
+          <div class="theme1-pengumuman-slides flex transition-transform duration-500 ease-out h-full">
+            {{ range $i, $t := .neo_ticker_posts }}
+            <div class="theme1-pengumuman-slide w-full flex-shrink-0 flex items-center px-3 sm:px-4 py-2" {{ if ne $i 0 }}aria-hidden="true"{{ end }}>
+              <a href="{{ $t.href }}" class="text-sm sm:text-base font-medium text-amber-700 hover:text-amber-800 truncate">
+                {{ $t.title }}
+              </a>
+            </div>
+            {{ end }}
+          </div>
+        </div>
+        <div class="shrink-0 flex items-center border-l border-gray-200 bg-gray-50">
+          <button type="button" class="theme1-pengumuman-prev w-9 h-full text-gray-500 hover:text-gray-800 hover:bg-gray-100" aria-label="Pengumuman sebelumnya">‹</button>
+          <button type="button" class="theme1-pengumuman-next w-9 h-full text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-l border-gray-200" aria-label="Pengumuman berikutnya">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function initTheme1PengumumanTicker() {
+      var root = document.querySelector("[data-theme1-pengumuman]");
+      if (!root) return;
+      var wrap = root.querySelector(".theme1-pengumuman-slides");
+      var slides = root.querySelectorAll(".theme1-pengumuman-slide");
+      var section = root.closest(".theme1-pengumuman");
+      var prev = section && section.querySelector(".theme1-pengumuman-prev");
+      var next = section && section.querySelector(".theme1-pengumuman-next");
+      if (!wrap || slides.length === 0) return;
+      var idx = 0;
+      function show() {
+        if (idx >= slides.length) idx = 0;
+        if (idx < 0) idx = slides.length - 1;
+        wrap.style.transform = "translateX(-" + idx * 100 + "%)";
+        slides.forEach(function (s, j) {
+          s.setAttribute("aria-hidden", j !== idx ? "true" : "false");
+        });
+      }
+      if (prev) prev.addEventListener("click", function () { idx--; show(); });
+      if (next) next.addEventListener("click", function () { idx++; show(); });
+      if (slides.length > 1) {
+        setInterval(function () { idx++; show(); }, 4500);
+      }
+      show();
+    })();
+  </script>
+  {{ end }}
+
+  <!-- Hero: carousel 2/3 + side cards 1/3 -->
+  <section class="theme1-hero max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+    <div class="grid lg:grid-cols-3 gap-1.5 lg:gap-2">
+      <div class="lg:col-span-2 min-w-0">
+        {{ if .home_slides }}
+        <div
+          class="theme1-hero-carousel relative overflow-hidden bg-gray-300"
+          role="region"
+          aria-label="Artikel unggulan"
+          data-theme1-hero-carousel
+        >
+          <div class="overflow-hidden w-full h-full">
+            <div class="theme1-hero-track flex h-full transition-transform duration-700 ease-out">
+              {{ range $i, $s := .home_slides }}
+              <article
+                class="theme1-hero-slide relative w-full flex-shrink-0 h-full overflow-hidden group"
+                aria-hidden="{{ if eq $i 0 }}false{{ else }}true{{ end }}"
+              >
+                <img
+                  src="{{ resizeImg $s.thumb 960 540 }}"
+                  alt="{{ $s.title }}"
+                  decoding="async"
+                  loading="{{ if eq $i 0 }}eager{{ else }}lazy{{ end }}"
+                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" aria-hidden="true"></div>
+                <a href="{{ $s.href }}" class="absolute inset-0 z-10"><span class="sr-only">{{ $s.title }}</span></a>
+                <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 pointer-events-none z-20">
+                  {{ if $s.has_cat }}
+                  <span class="inline-block bg-accent text-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold uppercase font-sans tracking-wide">
+                    {{ $s.cat_upper }}
+                  </span>
+                  {{ end }}
+                  <h2 class="mt-2 text-lg sm:text-2xl lg:text-3xl font-bold leading-snug text-white">
+                    {{ $s.title }}
+                  </h2>
+                  <p class="mt-2 text-xs text-white/85 font-sans">
+                    {{ if $s.author_name }}By {{ $s.author_name }}{{ end }}
+                    {{ if $s.date_label }} {{ $s.date_label }}{{ else if $s.rel_time }} {{ $s.rel_time }}{{ end }}
+                  </p>
+                </div>
+              </article>
+              {{ end }}
+            </div>
+          </div>
+          <button type="button" class="theme1-hero-prev absolute left-2 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 text-white text-xl leading-none hover:bg-black/60" aria-label="Slide sebelumnya">‹</button>
+          <button type="button" class="theme1-hero-next absolute right-2 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 text-white text-xl leading-none hover:bg-black/60" aria-label="Slide berikutnya">›</button>
+        </div>
+        <script>
+          (function initTheme1HeroCarousel() {
+            var root = document.querySelector("[data-theme1-hero-carousel]");
+            if (!root) return;
+            var prev = root.querySelector(".theme1-hero-prev");
+            var next = root.querySelector(".theme1-hero-next");
+            var wrap = root.querySelector(".theme1-hero-track");
+            var slides = root.querySelectorAll(".theme1-hero-slide");
+            if (!wrap || slides.length === 0) return;
+            var idx = 0;
+            function show() {
+              if (idx >= slides.length) idx = 0;
+              if (idx < 0) idx = slides.length - 1;
+              wrap.style.transform = "translateX(-" + idx * 100 + "%)";
+              slides.forEach(function (slide, j) {
+                var hidden = j !== idx;
+                slide.setAttribute("aria-hidden", hidden ? "true" : "false");
+                slide.style.pointerEvents = hidden ? "none" : "";
+                slide.querySelectorAll("a[href]").forEach(function (a) {
+                  if (hidden) a.setAttribute("tabindex", "-1");
+                  else a.removeAttribute("tabindex");
+                });
+              });
+            }
+            if (slides.length <= 1) {
+              if (prev) prev.hidden = true;
+              if (next) next.hidden = true;
+              show();
+              return;
+            }
+            if (prev) prev.addEventListener("click", function () { idx--; show(); });
+            if (next) next.addEventListener("click", function () { idx++; show(); });
+            setInterval(function () { idx++; show(); }, 4000);
+            show();
+          })();
+        </script>
+        {{ end }}
+      </div>
+
+      <div class="theme1-hero-side">
+        {{ range $i, $p := .home_hero_side }}
+        {{ if lt $i 2 }}
+        <a href="{{ $p.href }}" class="theme1-hero-side-card relative flex-1 min-h-0 overflow-hidden group block bg-gray-800">
+          <img src="{{ resizeImg $p.thumb 640 360 }}" alt="{{ $p.title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" aria-hidden="true"></div>
+          <div class="theme1-hero-side-content absolute bottom-0 left-0 right-0 z-10">
+            {{ if $p.has_cat }}
+            <span class="theme1-hero-side-cat">{{ $p.cat_name }}</span>
+            {{ end }}
+            <h3 class="theme1-hero-side-title">{{ $p.title }}</h3>
+            {{ if or $p.date_label $p.rel_time }}
+            <p class="theme1-hero-side-meta">
+              {{ if $p.date_label }}{{ $p.date_label }}{{ else }}{{ $p.rel_time }}{{ end }}
+            </p>
+            {{ end }}
+          </div>
+        </a>
+        {{ end }}
+        {{ end }}
+        {{ if not .home_hero_side }}
+        <div class="theme1-hero-side-card relative flex-1 min-h-0 bg-gray-800 flex items-end">
+          <div class="theme1-hero-side-content">
+            <span class="theme1-hero-side-cat">Agenda</span>
+            <h3 class="theme1-hero-side-title">Kegiatan</h3>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </section>
+
+  <!-- Hari Ini + Popular -->
+  <section class="theme1-hari-ini max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-6 pb-10">
+    <div class="grid lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-2 min-w-0">
+        <h2 class="theme1-section-title text-2xl font-bold text-gray-900 mb-6 pb-1 border-b-4 border-amber-500 inline-block">
+          {{ if .site_name }}{{ .site_name }}{{ else }}Berita{{ end }} Hari Ini
+        </h2>
+
+        {{ if .home_sub_featured }}
+        <div class="grid sm:grid-cols-2 gap-5 mb-6">
+          {{ range .home_sub_featured }}
+          <a href="{{ .href }}" class="theme1-hari-featured relative block overflow-hidden group aspect-[16/10] bg-gray-300">
+            <img src="{{ resizeImg .thumb 480 300 }}" alt="{{ .title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 z-10">
+              {{ if .has_cat }}
+              <span class="inline-block bg-accent text-white px-2 py-0.5 text-[10px] font-bold uppercase font-sans">{{ .cat_name }}</span>
+              {{ end }}
+              <h3 class="mt-2 text-base sm:text-lg font-bold text-white leading-snug">{{ .title }}</h3>
+              <p class="mt-1 text-[11px] text-white/80 font-sans">
+                {{ if .cat_name }}{{ .cat_name }}{{ end }}
+                {{ if .date_label }} {{ .date_label }}{{ else if .rel_time }} {{ .rel_time }}{{ end }}
+              </p>
+            </div>
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+
+        {{ if .home_feed }}
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+          {{ range $i, $p := .home_feed }}
+          <a href="{{ $p.href }}" class="theme1-hari-list flex gap-3 group py-1">
+            <img src="{{ resizeImg $p.thumb 120 90 }}" alt="{{ $p.title }}" class="w-24 h-20 object-cover shrink-0 bg-gray-200" />
+            <div class="min-w-0">
+              <p class="text-xs font-sans mb-1">
+                {{ if $p.has_cat }}
+                <span class="text-amber-600 font-semibold">{{ $p.cat_name }}</span>
+                {{ end }}
+                <span class="text-gray-700">{{ if $p.has_cat }} {{ end }}{{ if $p.date_label }}{{ $p.date_label }}{{ else }}{{ $p.rel_time }}{{ end }}</span>
+              </p>
+              <h3 class="text-sm font-bold text-gray-900 leading-snug group-hover:text-amber-700 transition">{{ $p.title }}</h3>
+            </div>
+          </a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+
+      <aside class="theme1-popular min-w-0" aria-label="Popular">
+        <h2 class="theme1-section-title text-2xl font-bold text-gray-900 mb-6 pb-1 border-b-4 border-amber-500 inline-block">Popular</h2>
+        <ol class="space-y-5">
+          {{ range .popular_posts }}
+          <li>
+            <a href="{{ .href }}" class="flex gap-3 group">
+              <span class="theme1-popular-rank shrink-0 w-8 h-8 rounded-full bg-gray-200 text-gray-700 text-sm font-bold flex items-center justify-center">{{ .rank }}</span>
+              <div class="min-w-0">
+                {{ if .has_cat }}
+                <span class="inline-block bg-accent text-white px-2 py-0.5 text-[10px] font-bold uppercase font-sans mb-1.5">{{ .cat_name }}</span>
+                {{ end }}
+                <span class="block text-sm font-bold text-gray-900 leading-snug group-hover:text-amber-600 transition">{{ .title }}</span>
+              </div>
+            </a>
+          </li>
+          {{ end }}
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Artikel Kegiatan + Informasi / Berita Lainnya -->
+  <section class="theme1-artikel-kegiatan max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12">
+    <div class="grid lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-2 min-w-0 pt-1">
+        <h2 class="theme1-section-title text-2xl font-bold text-gray-900 mb-6 pb-1 border-b-4 border-amber-500 inline-block">Artikel Kegiatan</h2>
+        <div class="grid sm:grid-cols-2 gap-6">
+          {{ if .home_category_strip_posts }}
+            {{ range $i, $p := .home_category_strip_posts }}
+            {{ if lt $i 4 }}
+            <article class="theme1-kegiatan-card group">
+              <a href="{{ $p.href }}" class="block overflow-hidden bg-gray-200 aspect-video mb-3">
+                <img src="{{ resizeImg $p.thumb 480 270 }}" alt="{{ $p.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+              </a>
+              <p class="text-xs font-sans mb-1.5">
+                {{ if $p.cat_name }}
+                <span class="text-amber-600 font-semibold">{{ $p.cat_name }}</span>
+                {{ end }}
+                <span class="text-gray-800">{{ if $p.cat_name }} {{ end }}{{ if $p.date_label }}{{ $p.date_label }}{{ else if $p.rel_time }}{{ $p.rel_time }}{{ end }}</span>
+              </p>
+              <h3 class="text-base font-bold text-gray-900 leading-snug">
+                <a href="{{ $p.href }}" class="hover:text-amber-700 transition">{{ $p.title }}</a>
+              </h3>
+            </article>
+            {{ end }}
+            {{ end }}
+          {{ else }}
+            {{ range $i, $p := .home_selected_posts }}
+            {{ if lt $i 4 }}
+            <article class="theme1-kegiatan-card group">
+              <a href="{{ $p.href }}" class="block overflow-hidden bg-gray-200 aspect-video mb-3">
+                <img src="{{ resizeImg $p.thumb 480 270 }}" alt="{{ $p.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+              </a>
+              <p class="text-xs font-sans mb-1.5">
+                {{ if $p.cat_name }}
+                <span class="text-amber-600 font-semibold">{{ $p.cat_name }}</span>
+                {{ end }}
+                <span class="text-gray-800">{{ if $p.cat_name }} {{ end }}{{ if $p.date_label }}{{ $p.date_label }}{{ else if $p.rel_time }}{{ $p.rel_time }}{{ end }}</span>
+              </p>
+              <h3 class="text-base font-bold text-gray-900 leading-snug">
+                <a href="{{ $p.href }}" class="hover:text-amber-700 transition">{{ $p.title }}</a>
+              </h3>
+            </article>
+            {{ end }}
+            {{ end }}
+          {{ end }}
+        </div>
+        <div class="theme1-lihat-semua-wrap mt-8">
+          <a href="{{ .public_base }}/posts" class="theme1-lihat-semua">
+            Lihat Artikel Lainnya
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-8 min-w-0">
+        <aside class="theme1-informasi" aria-label="Informasi">
+          <h2 class="theme1-section-title text-2xl font-bold text-gray-900 mb-4 pb-1 border-b-4 border-amber-500 inline-block">Informasi</h2>
+          <ul class="space-y-3">
+            {{ range .home_informasi_posts }}
+            <li class="border border-gray-200 p-3">
+              <a href="{{ .href }}" class="block group">
+                <p class="text-xs font-sans mb-1.5">
+                  {{ if .cat_name }}
+                  <span class="text-amber-600 font-semibold">{{ .cat_name }}</span>
+                  {{ end }}
+                  <span class="text-gray-800">{{ if .cat_name }} {{ end }}{{ if .date_label }}{{ .date_label }}{{ else }}{{ .rel_time }}{{ end }}</span>
+                </p>
+                <span class="text-sm font-bold text-gray-900 leading-snug group-hover:text-amber-700 transition">{{ .title }}</span>
+              </a>
+            </li>
+            {{ else }}
+            <li class="text-sm text-gray-500 font-sans">Belum ada artikel.</li>
+            {{ end }}
+          </ul>
+        </aside>
+
+        <aside class="theme1-berita-lainnya" aria-label="Berita Lainnya">
+          <h2 class="theme1-section-title text-2xl font-bold text-gray-900 mb-4 pb-1 border-b-4 border-amber-500 inline-block">Berita Lainnya</h2>
+          <ul class="space-y-3">
+            {{ range $i, $p := .latest_posts }}
+            {{ if lt $i 4 }}
+            <li class="border border-gray-200 p-3">
+              <a href="{{ $p.href }}" class="block group">
+                <p class="text-xs font-sans mb-1.5">
+                  {{ if $p.cat_name }}
+                  <span class="text-amber-600 font-semibold">{{ $p.cat_name }}</span>
+                  {{ end }}
+                  <span class="text-gray-800">{{ if $p.cat_name }} {{ end }}{{ if $p.date_label }}{{ $p.date_label }}{{ else }}{{ $p.time }}{{ end }}</span>
+                </p>
+                <span class="text-sm font-bold text-gray-900 leading-snug group-hover:text-amber-700 transition">{{ $p.title }}</span>
+              </a>
+            </li>
+            {{ end }}
+            {{ end }}
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+</main>
+{{ end }}

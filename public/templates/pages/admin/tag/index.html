@@ -1,0 +1,13 @@
+{{ define "admin-content" }}
+
+{{ template "admin-crud-list" . }}
+
+{{ template "admin-tag-create" . }}
+{{ template "admin-tag-edit" . }}
+{{ template "admin-tag-delete" . }}
+
+<script defer src="/static/js/admin/tag.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

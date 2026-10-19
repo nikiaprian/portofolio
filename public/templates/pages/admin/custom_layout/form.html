@@ -1,0 +1,501 @@
+﻿{{ define "admin-content" }}
+
+<div
+  class="container-fluid pb-4"
+  id="admin-custom-layout-form-root"
+  data-mode="{{ .layout_form_mode }}"
+  data-asset-version="{{ .asset_version }}"
+  {{- if eq .layout_form_mode "edit" }} data-layout-id="{{ .layout_id }}"{{ end }}
+>
+  <div class="mb-3 d-flex justify-content-between">
+    <a
+      href="/admin/custom-layout"
+      class="btn btn-sm border text-decoration-none admin-back-to-list"
+    >
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+      Semua custom layout
+    </a>
+    <!-- <button type="button" class="btn btn-sm btn-light border" id="cl-generate-all-btn">
+      Generate all
+    </button> -->
+  </div>
+
+  <div id="cl-ai-jobs-panel" class="mb-3 d-none" aria-live="polite"></div>
+
+  <div class="card admin-crud-card shadow-sm">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex justify-content-between">
+        <div class="d-flex flex-column gap-1">
+          <h5 class="mb-0 fw-semibold lh-sm">{{ .title }}</h5>
+          <p class="small text-secondary mb-0 lh-sm">
+            {{- if eq .layout_form_mode "create" }}
+            Buat template fragment untuk header, footer, halaman, sidebar, CSS, dan JS.
+            {{- else }}
+            Perbarui fragment layout. Gunakan <strong>Apply layout</strong> untuk menerapkan seluruh layout ke file template dan mengaktifkannya.
+            {{- end }}
+          </p>
+        </div>
+        <div>
+          <select class="form-select" id="cl-ai-provider">
+            <option value="auto" selected>Auto</option>
+            <option value="gemini">Gemini</option>
+            <option value="openai">OpenAI</option>
+            <option value="groq">Groq</option>
+            <option value="claude">Claude</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <div
+        id="custom-layout-form-error"
+        class="alert alert-danger d-none py-2 small"
+        role="alert"
+      ></div>
+
+      <form id="form-custom-layout-admin" novalidate>
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-lg-6">
+            <label for="cl-current-prompt" class="form-label">Current prompt</label>
+            <textarea class="form-control font-monospace small" id="cl-current-prompt" name="current_prompt" rows="6"></textarea>
+          </div>
+          <div class="col-12 col-lg-6">
+            <label for="cl-latest-prompt" class="form-label">Latest prompt</label>
+            <textarea class="form-control font-monospace small" id="cl-latest-prompt" name="latest_prompt" rows="6"></textarea>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="cl-layout-name" class="form-label">
+            Nama layout <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control font-monospace"
+            id="cl-layout-name"
+            name="layout_name"
+            required
+            minlength="1"
+            maxlength="255"
+            placeholder="contoh: brand-magazine"
+            autocomplete="off"
+          />
+          <div class="form-text">
+            Identifier unik. Gunakan huruf kecil, angka, dan tanda hubung.
+          </div>
+        </div>
+
+        <div class="mb-4" id="cl-image-ref-section">
+          <label class="form-label">Image ref</label>
+          <input type="hidden" id="cl-image-ref" name="image_ref" value="[]" />
+          <div
+            id="cl-image-ref-drop"
+            class="border border-2 border-dashed rounded-3 p-4 text-center bg-body-tertiary bg-opacity-25"
+            tabindex="0"
+            role="button"
+            aria-label="Unggah gambar referensi layout. Klik kanan atau double-click untuk tempel gambar."
+          >
+            <i class="bi bi-images fs-3 text-secondary opacity-50" aria-hidden="true"></i>
+            <p class="small text-secondary mb-2 mt-2">
+              Klik untuk memilih, seret file, tempel (Ctrl+V / Cmd+V), atau klik kanan / double-click untuk menu tempel.
+            </p>
+            <button type="button" class="btn btn-sm btn-light border" id="cl-image-ref-pick">
+              Pilih gambar
+            </button>
+            <input
+              type="file"
+              id="cl-image-ref-input"
+              class="d-none"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+            />
+          </div>
+          <div
+            id="cl-image-ref-upload-error"
+            class="alert alert-danger d-none py-2 small mt-2"
+            role="alert"
+          ></div>
+          <div id="cl-image-ref-grid" class="d-flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+        <template id="tpl-layoutref-thumb">
+          <div
+            class="layoutref-thumb position-relative border rounded overflow-hidden flex-shrink-0"
+            style="width: 96px; height: 96px"
+            data-url=""
+          >
+            <img
+              data-field="img"
+              class="w-100 h-100 object-fit-cover d-block"
+              alt=""
+              loading="lazy"
+            />
+            <button
+              type="button"
+              data-action="remove-layoutref"
+              class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 m-1 d-inline-flex align-items-center justify-content-center p-0"
+              style="width: 1.5rem; height: 1.5rem"
+              title="Hapus"
+              aria-label="Hapus gambar"
+            >
+              <i class="bi bi-x-lg" style="font-size: 0.65rem" aria-hidden="true"></i>
+            </button>
+          </div>
+        </template>
+
+        <div class="row g-3">
+          <!-- Header -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-header" class="form-label mb-0">Header</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="header"
+                  aria-label="Tampilkan variabel template header"
+                  title="Variabel template header"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="header">
+                  Generate header
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-header" name="header" rows="6"></textarea>
+          </div>
+          
+          <!-- Footer -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-footer" class="form-label mb-0">Footer</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="footer"
+                  aria-label="Tampilkan variabel template footer"
+                  title="Variabel template footer"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="footer">
+                  Generate footer
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-footer" name="footer" rows="6"></textarea>
+          </div>
+
+          <!-- Home body -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-home-body" class="form-label mb-0">Home body</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="home_body"
+                  aria-label="Tampilkan variabel template home body"
+                  title="Variabel template home body"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="home_body">
+                  Generate home body
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-home-body" name="home_body" rows="6"></textarea>
+          </div>
+
+          <!-- Article body -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-article-body" class="form-label mb-0">Article body</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="article_body"
+                  aria-label="Tampilkan variabel template article body"
+                  title="Variabel template article body"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="article_body">
+                  Generate article body
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-article-body" name="article_body" rows="6"></textarea>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-sidebar" class="form-label mb-0">Sidebar</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="sidebar"
+                  aria-label="Tampilkan variabel template sidebar"
+                  title="Variabel template sidebar"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="sidebar">
+                  Generate sidebar
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-sidebar" name="sidebar" rows="6"></textarea>
+          </div>
+
+          <!-- RSS -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-rss" class="form-label mb-0">RSS</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="rss"
+                  aria-label="Tampilkan variabel template RSS"
+                  title="Variabel template RSS"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="rss">
+                  Generate RSS
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-rss" name="rss" rows="6"></textarea>
+          </div>
+
+          <!-- Author profile -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-author-profile" class="form-label mb-0">Author profile</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="author_profile"
+                  aria-label="Tampilkan variabel template author profile"
+                  title="Variabel template author profile"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="author_profile">
+                  Generate author profile
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-author-profile" name="author_profile" rows="6"></textarea>
+          </div>
+
+          <!-- Tag -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-tag" class="form-label mb-0">Tag</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="tag"
+                  aria-label="Tampilkan variabel template tag"
+                  title="Variabel template tag"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="tag">
+                  Generate tag
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-tag" name="tag" rows="6"></textarea>
+          </div>
+
+          <!-- Kategori -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-kategori" class="form-label mb-0">Kategori</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="kategori"
+                  aria-label="Tampilkan variabel template kategori"
+                  title="Variabel template kategori"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="kategori">
+                  Generate kategori
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-kategori" name="kategori" rows="6"></textarea>
+          </div>
+
+          <!-- Search page -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <div class="d-inline-flex align-items-center gap-1">
+                <label for="cl-search-page" class="form-label mb-0">Search page</label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link text-secondary p-0 lh-1 cl-fragment-vars-info"
+                  data-fragment="search_page"
+                  aria-label="Tampilkan variabel template search page"
+                  title="Variabel template search page"
+                >
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border cl-generate-fragment-btn" data-fragment="search_page">
+                  Generate search page
+                </button>
+              </div>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-search-page" name="search_page" rows="6"></textarea>
+          </div>
+
+          <!-- Misc -->
+          <div class="col-12">
+            <label for="cl-misc" class="form-label">Misc (JSON)</label>
+            <textarea class="form-control font-monospace small" id="cl-misc" name="misc" rows="4" placeholder="{}"></textarea>
+          </div>
+
+          <!-- CSS data -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <label for="cl-css-data" class="form-label">CSS data</label>
+              <button type="button" class="btn btn-sm btn-light border">
+                Merge CSS
+              </button>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-css-data" name="css_data" rows="8"></textarea>
+          </div>
+
+          <!-- JS data -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-between pb-2">
+              <label for="cl-js-data" class="form-label">JS data</label>
+              <button type="button" class="btn btn-sm btn-light border">
+                Merge JS
+              </button>
+            </div>
+            <textarea class="form-control font-monospace small" id="cl-js-data" name="js_data" rows="8"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+          <a href="/admin/custom-layout" class="btn btn-light border">Batal</a>
+          {{- if eq .layout_form_mode "edit" }}
+          <button
+            type="button"
+            class="btn btn-outline-primary px-4"
+            id="cl-apply-layout"
+            title="Terapkan semua fragment tersimpan ke file template dan aktifkan layout ini"
+          >
+            <i class="bi bi-check2-square me-1" aria-hidden="true"></i>
+            Apply layout
+          </button>
+          {{- end }}
+          <button
+            type="submit"
+            class="btn btn-primary px-4"
+            id="cl-submit"
+            data-label-default="Simpan layout"
+            data-label-busy="Menyimpan…"
+          >
+            <span class="spinner-border spinner-border-sm me-1 d-none" id="cl-submit-spinner" role="status" aria-hidden="true"></span>
+            <i class="bi bi-check-lg me-1" id="cl-submit-icon" aria-hidden="true"></i>
+            <span id="cl-submit-label">Simpan layout</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="cl-fragment-vars-modal"
+  tabindex="-1"
+  aria-labelledby="cl-fragment-vars-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="cl-fragment-vars-modal-label">
+              Variabel Template
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm" id="cl-fragment-vars-modal-subtitle"></p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <div class="modal-body pt-0 small" id="cl-fragment-vars-modal-body"></div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          id="cl-fragment-vars-copy-btn"
+        >
+          <i class="bi bi-clipboard me-1" aria-hidden="true"></i>
+          <span id="cl-fragment-vars-copy-label">Salin prompt &amp; fragment</span>
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script defer src="/static/js/admin/custom_layout_form.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/custom_layout_vars.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/custom_layout_ai.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

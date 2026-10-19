@@ -1,0 +1,12 @@
+{{ define "admin-content" }}
+{{ template "admin-crud-list" . }}
+<script
+  defer
+  src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/log_timestamp.min.js?v={{ .asset_version }}"
+></script>
+<script
+  defer
+  src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/manual_post_ai_logs.min.js?v={{ .asset_version }}"
+></script>
+{{ end }}
+{{ template "layouts-admin-app" . }}

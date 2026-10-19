@@ -1,0 +1,41 @@
+{{ define "pf-main" }}
+<header class="pf-nav">
+  <a class="pf-brand" href="{{ .SiteURL }}">{{ .HostLabel }}</a>
+  <form method="post" action="/kelola/keluar"><button class="pf-btn alt" type="submit">Keluar</button></form>
+</header>
+{{ if .Saved }}<p class="pf-ok">Perubahan tersimpan.</p>{{ end }}
+{{ if .Error }}<p class="pf-error">{{ .Error }}</p>{{ end }}
+{{ if eq .Status "suspended" }}<p class="pf-error">Situs ini sedang dinonaktifkan, jadi pengunjung tidak bisa melihatnya.</p>{{ end }}
+
+<section class="pf-section">
+  <h2>Foto</h2>
+  {{ if .PhotoURL }}<img src="{{ .PhotoURL }}" alt="" style="width:6rem;height:6rem;object-fit:cover;border-radius:50%" />{{ end }}
+  <form class="pf-form" method="post" action="/kelola/foto" enctype="multipart/form-data">
+    <label>Unggah foto<input name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required /></label>
+    <button class="pf-btn alt" type="submit">Simpan foto</button>
+  </form>
+</section>
+
+<form class="pf-form" method="post" action="/kelola">
+  <h2>Isi</h2>
+  <label>Nama<input name="display_name" required maxlength="100" value="{{ .DisplayName }}" /></label>
+  <label>Kalimat pembuka<input name="headline" maxlength="160" value="{{ .Headline }}" /></label>
+  <label>Bio<textarea name="bio" maxlength="2000">{{ .Bio }}</textarea></label>
+  <label>Keahlian, satu baris satu keahlian<textarea name="skills">{{ .SkillsText }}</textarea></label>
+  <label>Email kontak<input name="email" type="email" value="{{ .Email }}" /></label>
+  <label>WhatsApp<input name="whatsapp" value="{{ .WhatsApp }}" /></label>
+  <label>Situs<input name="website" value="{{ .Website }}" placeholder="https://" /></label>
+  <label>Instagram<input name="instagram" value="{{ .Instagram }}" placeholder="https://" /></label>
+  <label>LinkedIn<input name="linkedin" value="{{ .LinkedIn }}" placeholder="https://" /></label>
+  <label>GitHub<input name="github" value="{{ .GitHub }}" placeholder="https://" /></label>
+  <h2>Proyek</h2>
+  {{ range .ProjectSlots }}
+  <fieldset class="pf-card">
+    <label>Judul<input name="project_title_{{ .Index }}" value="{{ .Title }}" maxlength="120" /></label>
+    <label>Ringkasan<input name="project_summary_{{ .Index }}" value="{{ .Summary }}" maxlength="300" /></label>
+    <label>Tautan<input name="project_url_{{ .Index }}" value="{{ .URL }}" /></label>
+  </fieldset>
+  {{ end }}
+  <button class="pf-btn" type="submit">Simpan isi</button>
+</form>
+{{ end }}

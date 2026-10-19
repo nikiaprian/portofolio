@@ -1,0 +1,89 @@
+{{ define "pf-app" }}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ or .Title .meta_title .page_title .post_title .DisplayName "Portfolio" }}</title>
+  {{ $desc := or .Description .meta_description .Bio "" }}
+  {{ if $desc }}<meta name="description" content="{{ $desc }}" />{{ end }}
+  {{ if .current_url }}<link rel="canonical" href="{{ .current_url }}" />{{ end }}
+  {{ if .NoIndex }}<meta name="robots" content="noindex" />{{ end }}
+  {{ if .Refresh }}<meta http-equiv="refresh" content="5" />{{ end }}
+  {{ $icon := or .Favicon .favicon_url "" }}
+  {{ if $icon }}<link rel="icon" href="{{ $icon }}" />{{ end }}
+  {{ if .SnapJS }}<script src="{{ .SnapJS }}" data-client-key="{{ .ClientKey }}"></script>{{ end }}
+  <link rel="stylesheet" href="/static/css/portfolio.css?v=18" />
+  {{ if .font_stylesheet }}<link rel="stylesheet" href="{{ .font_stylesheet }}" />{{ end }}
+  {{ if .font_family }}
+  <style>
+    .pf-sheet {
+      --pf-font: {{ .font_css }};
+      --pf-read: {{ or .content_font_size "17px" }};
+      --pf-side: {{ or .sidebar_font_size "14px" }};
+      {{ if .text_primary }}--pf-ink: {{ .text_primary }};{{ end }}
+      {{ if .text_secondary }}--pf-muted: {{ .text_secondary }};{{ end }}
+      {{ if .accent_color }}--pf-accent: {{ .accent_color }};{{ end }}
+      {{ if .border_color }}--pf-line: {{ .border_color }};{{ end }}
+      {{ if .background_primary }}background: {{ .background_primary }};{{ end }}
+    }
+  </style>
+  {{ end }}
+</head>
+<body class="{{ if and (ne .Nav "none") (ne .Nav "bare") }}pf-home{{ end }}">
+  {{ if and (ne .Nav "none") (ne .Nav "bare") }}
+  <header class="pf-top">
+    <div class="pf-wrap pf-top-inner">
+      <a class="pf-brand" href="/">{{ or .SiteName .site_name "Portfolio" }}</a>
+      <nav class="pf-nav-links" aria-label="Utama">
+        <a href="/#cara">Cara kerja</a>
+        <a href="/#harga">Harga</a>
+        <a href="/testimoni">Testimoni</a>
+        <a href="/posts">Artikel</a>
+      </nav>
+      <a class="pf-btn" href="/beli">Beli</a>
+    </div>
+  </header>
+  <main{{ if ne .layout "home" }} class="pf-sheet"{{ end }}>
+    {{ if eq .layout "home" }}
+    {{ template "pf-main" . }}
+    {{ else }}
+    <div class="pf-wrap pf-subpage{{ if eq .layout "article" }} pf-wrap--article{{ end }}">
+      {{ template "pf-main" . }}
+    </div>
+    {{ end }}
+  </main>
+  <footer class="pf-sitefoot">
+    <div class="pf-wrap pf-sitefoot-grid">
+      <div>
+        <strong>{{ or .SiteName .site_name "Portfolio" }}</strong>
+        <p>Portfolio online dengan subdomain sendiri. Sekali bayar, lalu isi sendiri.</p>
+      </div>
+      <nav aria-label="Bawah">
+        <a href="/posts">Artikel</a>
+        <a href="/testimoni">Testimoni</a>
+        <a href="/tentang-kami">Tentang</a>
+        <a href="/kontak">Kontak</a>
+        <a href="/kebijakan-privasi">Privasi</a>
+      </nav>
+    </div>
+  </footer>
+  {{ else }}
+  <div class="pf-wrap">
+    <main>
+      {{ template "pf-main" . }}
+    </main>
+  </div>
+  {{ end }}
+  <script>
+    document.querySelectorAll(".pf-prose table").forEach(function (table) {
+      if (table.parentElement && table.parentElement.classList.contains("pf-table-scroll")) return;
+      var wrap = document.createElement("div");
+      wrap.className = "pf-table-scroll";
+      table.parentNode.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    });
+  </script>
+</body>
+</html>
+{{ end }}

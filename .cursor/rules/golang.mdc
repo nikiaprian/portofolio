@@ -1,0 +1,38 @@
+---
+description: Golang coding standards
+alwaysApply: true
+---
+
+# Go Standards
+
+Use existing project patterns.
+
+Do not introduce new architectures.
+
+Follow:
+
+Handler -> Service -> Repository
+
+Use existing repository methods before creating new ones.
+
+Use existing entities before creating new structs.
+
+Prefer extending existing services over creating new services.
+
+Avoid duplicate helpers.
+
+Search for existing implementation before creating new implementation.
+
+# Imports
+
+Keep imports minimal.
+
+Remove unused imports.
+
+# Database
+
+Repositories are the only layer allowed to access GORM directly.
+
+Services must not execute raw SQL.
+
+Handlers must not execute database queries.

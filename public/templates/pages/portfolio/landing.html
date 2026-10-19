@@ -1,0 +1,126 @@
+{{ define "pf-main" }}
+<section class="pf-hero">
+  <div class="pf-wrap pf-hero-grid">
+    <div>
+      <p class="pf-kicker">Portfolio online</p>
+      <h1>Punya alamat sendiri untuk karya Anda.</h1>
+      <p class="pf-lead">Beli sekali, dapat subdomain, lalu isi foto, bio, keahlian, proyek, dan kontak. Situsnya langsung hidup setelah pembayaran lunas.</p>
+      <div class="pf-actions">
+        <a class="pf-btn" href="/beli">Ambil subdomain</a>
+        <a class="pf-btn alt" href="/#cara">Lihat caranya</a>
+      </div>
+    </div>
+    <aside class="pf-preview" aria-label="Contoh tampilan portfolio">
+      <div class="pf-preview-bar"><span></span><span></span><span></span><em>namaanda.{{ .Root }}</em></div>
+      <div class="pf-preview-body">
+        <div class="pf-preview-who">
+          <div class="pf-preview-avatar" aria-hidden="true">NA</div>
+          <div>
+            <strong>Nama Anda</strong>
+            <p>Desainer produk</p>
+          </div>
+        </div>
+        <p>Satu halaman yang bisa dikirim ke klien, lamaran, atau bio media sosial.</p>
+        <div class="pf-chip-row">
+          <span class="pf-chip">Foto</span>
+          <span class="pf-chip">Bio</span>
+          <span class="pf-chip">Keahlian</span>
+          <span class="pf-chip">Proyek</span>
+          <span class="pf-chip">Kontak</span>
+        </div>
+        <div class="pf-preview-work">
+          <span>Proyek</span>
+          <strong>Situs jurnal</strong>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="pf-band pf-band-plain" id="testimoni">
+  <div class="pf-wrap">
+    <h2 class="pf-section-title">Testimoni contoh</h2>
+    <p class="pf-lead pf-center-lead">Ulasan di bawah ini contoh untuk tampilan, bukan pembeli sungguhan.</p>
+    <div class="pf-quotes">
+      {{ range .Quotes }}
+      <article class="pf-quote">
+        <p>{{ .Quote }}</p>
+        <strong>{{ .Name }}</strong>
+        <span>{{ .Role }} · Contoh</span>
+      </article>
+      {{ end }}
+    </div>
+    <div class="pf-actions pf-center"><a class="pf-btn alt" href="/testimoni">Semua testimoni</a></div>
+  </div>
+</section>
+
+<section class="pf-band" id="cara">
+  <div class="pf-wrap">
+    <h2 class="pf-section-title">Cara kerjanya</h2>
+    <div class="pf-grid">
+      <article class="pf-card"><p class="pf-step">01</p><h3>Pilih nama</h3><p>Isi nama, email, WhatsApp, dan subdomain yang masih kosong.</p></article>
+      <article class="pf-card"><p class="pf-step">02</p><h3>Bayar</h3><p>Pembayaran lewat Midtrans. Setelah lunas, alamat itu langsung aktif.</p></article>
+      <article class="pf-card"><p class="pf-step">03</p><h3>Isi portfolio</h3><p>Atur password, lalu lengkapi isi dari halaman kelola.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-band pf-band-plain" id="isi">
+  <div class="pf-wrap">
+    <h2 class="pf-section-title">Yang tampil di situs</h2>
+    <div class="pf-grid">
+      <article class="pf-card"><h3>Profil</h3><p>Foto, nama, kalimat pembuka, dan bio singkat.</p></article>
+      <article class="pf-card"><h3>Keahlian dan proyek</h3><p>Daftar keahlian plus kartu proyek dengan tautan.</p></article>
+      <article class="pf-card"><h3>Kontak</h3><p>Email, WhatsApp, dan tautan yang ingin Anda bagikan.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-band" id="contoh">
+  <div class="pf-wrap pf-center">
+    <h2 class="pf-section-title">Contoh yang sudah online</h2>
+    <p class="pf-lead">Satu template yang sama dipakai setiap pembeli. Isinya yang berbeda.</p>
+    {{ if .DemoURL }}
+    <div class="pf-actions"><a class="pf-btn alt" href="{{ .DemoURL }}">Buka contoh.{{ .Root }}</a></div>
+    {{ else }}
+    <p>Contoh akan muncul di <strong>contoh.{{ .Root }}</strong> setelah situs contoh diaktifkan.</p>
+    {{ end }}
+  </div>
+</section>
+
+<section class="pf-band pf-band-plain" id="harga">
+  <div class="pf-wrap">
+    <article class="pf-price-card">
+      <h2>Harga</h2>
+      <p class="pf-price">{{ .PriceLabel }}</p>
+      <p>Sekali bayar untuk satu subdomain dan satu halaman portfolio yang bisa Anda ubah sendiri.</p>
+      <div class="pf-actions"><a class="pf-btn" href="/beli">Beli sekarang</a></div>
+    </article>
+  </div>
+</section>
+
+<section class="pf-band" id="faq">
+  <div class="pf-wrap pf-faq-wrap">
+    <h2 class="pf-section-title">Pertanyaan</h2>
+    <div class="pf-faq">
+      <details open><summary>Kapan subdomain aktif?</summary><p>Begitu pembayaran berstatus lunas. Nama yang belum dibayar dilepas lagi setelah 24 jam.</p></details>
+      <details><summary>Apa yang bisa diubah nanti?</summary><p>Foto, nama, bio, keahlian, proyek, dan kontak. Nama subdomain tidak berubah dari halaman kelola.</p></details>
+      <details><summary>Di mana artikelnya?</summary><p>Artikel tetap ada di menu Artikel. Halaman depan ini khusus untuk menjual portfolio.</p></details>
+    </div>
+  </div>
+</section>
+
+{{ if .Articles }}
+<section class="pf-band pf-band-plain" id="artikel">
+  <div class="pf-wrap">
+    <h2 class="pf-section-title">Artikel</h2>
+    <div class="pf-articles">
+      {{ range .Articles }}
+      <a class="pf-article" href="{{ .Href }}"><span>{{ .Title }}</span><small>{{ .Date }}</small></a>
+      {{ end }}
+    </div>
+    <div class="pf-actions pf-center"><a class="pf-btn alt" href="/posts">Semua artikel</a></div>
+  </div>
+</section>
+{{ end }}
+{{ end }}

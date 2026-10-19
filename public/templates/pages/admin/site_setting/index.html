@@ -1,0 +1,2726 @@
+{{ define "admin-content" }}
+<div class="container-fluid pb-4 site-settings-admin">
+  <div
+    id="site-settings-error"
+    class="alert alert-danger d-none"
+    role="alert"
+  ></div>
+
+  <div class="card admin-crud-card shadow-sm site-settings-tabs-card">
+    <div class="card-header py-0 px-0 bg-body-tertiary bg-opacity-25">
+      <ul
+        class="nav nav-tabs card-header-tabs flex-nowrap flex-md-wrap mx-2 mx-md-3 mb-0 mt-2 gap-1 gap-md-0"
+        id="site-settings-tabs"
+        role="tablist"
+      >
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active rounded-top px-3 py-2"
+            id="ss-tab-settings"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-settings"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-settings"
+            aria-selected="true"
+          >
+            <i class="bi bi-sliders me-1" aria-hidden="true"></i>
+            Pengaturan site
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ss-tab-scripts"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-scripts"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-scripts"
+            aria-selected="false"
+          >
+            <i class="bi bi-code-slash me-1" aria-hidden="true"></i>
+            Script site
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ss-tab-meta"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-meta"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-meta"
+            aria-selected="false"
+          >
+            <i class="bi bi-search me-1" aria-hidden="true"></i>
+            Meta site
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ss-tab-connections"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-connections"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-connections"
+            aria-selected="false"
+          >
+            <i class="bi bi-plug me-1" aria-hidden="true"></i>
+            Koneksi site
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ss-tab-web-images"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-web-images"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-web-images"
+            aria-selected="false"
+          >
+            <i class="bi bi-images me-1" aria-hidden="true"></i>
+            API gambar web
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ss-tab-r2"
+            data-bs-toggle="tab"
+            data-bs-target="#ss-pane-r2"
+            type="button"
+            role="tab"
+            aria-controls="ss-pane-r2"
+            aria-selected="false"
+          >
+            <i class="bi bi-cloud me-1" aria-hidden="true"></i>
+            Cloudflare R2
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <div class="tab-content" id="site-settings-tab-content">
+        <div
+          class="tab-pane fade show active"
+          id="ss-pane-settings"
+          role="tabpanel"
+          aria-labelledby="ss-tab-settings"
+          tabindex="0"
+        >
+          <form id="form-site-settings" class="row g-3 g-lg-4" novalidate>
+            <div class="col-12">
+              <div class="ss-section-divider">
+                <span class="ss-section-divider__title">
+                  <i class="bi bi-sliders me-1" aria-hidden="true"></i>
+                  Umum
+                </span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="ss-site-name" class="form-label">Nama site</label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0"
+                  ><i class="bi bi-type" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="ss-site-name"
+                  name="site_name"
+                  required
+                  minlength="1"
+                  maxlength="150"
+                  value="{{ with .setting }}{{ .site_name }}{{ end }}"
+                  autocomplete="organization"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="ss-tagline" class="form-label">Tagline</label>
+              <div class="input-group">
+                <span
+                  class="input-group-text border-end-0 align-items-start pt-2"
+                  ><i class="bi bi-quote" aria-hidden="true"></i
+                ></span>
+                <textarea
+                  class="form-control border-start-0 ps-0"
+                  id="ss-tagline"
+                  name="tagline"
+                  rows="1"
+                  maxlength="255"
+                  placeholder="Deskripsi singkat satu baris"
+                >
+{{- with .setting }}{{ .tagline }}{{ end -}}</textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="ss-footer-copy" class="form-label">Teks footer</label>
+              <div class="input-group">
+                <span
+                  class="input-group-text border-end-0 align-items-start pt-2"
+                  ><i class="bi bi-c-circle" aria-hidden="true"></i
+                ></span>
+                <textarea
+                  class="form-control border-start-0 ps-0"
+                  id="ss-footer-copy"
+                  name="footer_copy"
+                  rows="2"
+                  maxlength="255"
+                  placeholder="Contoh: © 2026 domain.com | Hak cipta dilindungi."
+                >
+{{- with .setting }}{{ .footer_copy }}{{ end -}}</textarea>
+              </div>
+              <div class="form-text">
+                Kosongkan untuk memakai default: copyright + nama site.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="ss-article-slug-mode" class="form-label">URL artikel publik</label>
+              <select
+                class="form-select"
+                id="ss-article-slug-mode"
+                name="article_slug_mode"
+              >
+                <option value="direct" {{ with .setting }}{{ if or (eq .article_slug_mode "") (eq .article_slug_mode "direct") }}selected{{ end }}{{ else }}selected{{ end }}>
+                  Langsung: /post-slug
+                </option>
+                <option value="category" {{ with .setting }}{{ if eq .article_slug_mode "category" }}selected{{ end }}{{ end }}>
+                  Dengan kategori: /category-slug/post-slug
+                </option>
+                <option value="category_nested" {{ with .setting }}{{ if eq .article_slug_mode "category_nested" }}selected{{ end }}{{ end }}>
+                  Dengan subkategori: /category-slug/subcategory-slug/post-slug
+                </option>
+              </select>
+              <div class="form-text">
+                Mode <strong>Dengan kategori</strong>: <code>/slug-kategori/slug-artikel</code> (subkategori memakai slug subkategori, mis. <code>/mbg/judul</code>).
+                Mode <strong>Dengan subkategori</strong>: <code>/induk/sub/artikel</code> (mis. <code>/bansos/mbg/judul</code>).
+                Mengubah opsi ini memicu redirect 301 ke URL canonical baru.
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="ss-article-schema-type" class="form-label">Tipe JSON-LD artikel</label>
+              <select
+                class="form-select"
+                id="ss-article-schema-type"
+                name="article_schema_type"
+              >
+                <option value="Article" {{ with .setting }}{{ if or (eq .article_schema_type "") (eq .article_schema_type "Article") }}selected{{ end }}{{ else }}selected{{ end }}>
+                  Article
+                </option>
+                <option value="NewsArticle" {{ with .setting }}{{ if eq .article_schema_type "NewsArticle" }}selected{{ end }}{{ end }}>
+                  NewsArticle
+                </option>
+              </select>
+              <div class="form-text">
+                Pilih <code>@type</code> yang dipakai pada JSON-LD artikel publik.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <span class="form-label d-block">Auto-tag post</span>
+              <div class="form-check form-switch mt-1">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="ss-scraper-auto-tag"
+                  name="scraper_auto_tag"
+                  {{ with .setting }}{{ if .scraper_auto_tag }}checked{{ end }}{{ else }}checked{{ end }}
+                />
+                <label class="form-check-label" for="ss-scraper-auto-tag"
+                  >Deteksi tag, autolink di isi, dan pasang tag ke post hasil scraper</label
+                >
+              </div>
+              <div class="form-text">
+                Tersimpan otomatis saat diubah. Saat nonaktif, berlaku untuk scraper terjadwal, run now, dan bulk run (tanpa toggle per kategori).
+              </div>
+            </div>
+            <div class="col-md-6">
+              <span class="form-label d-block">Auto-link Kategori &amp; Artikel</span>
+              <div class="form-check form-switch mt-1">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="ss-auto-href-enabled"
+                  name="auto_href_enabled"
+                  {{ with .setting }}{{ if .auto_href_enabled }}checked{{ end }}{{ end }}
+                />
+                <label class="form-check-label" for="ss-auto-href-enabled"
+                  >Deteksi nama kategori dan judul artikel di dalam isi artikel, lalu ubah otomatis menjadi link (mengutamakan kategori)</label
+                >
+              </div>
+              <div class="form-text">
+                Tersimpan otomatis saat diubah. Saat aktif, kategori dan artikel lain yang disebutkan di isi artikel otomatis menjadi link yang bisa diklik.
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                  <span class="form-label d-block">Baca juga di isi artikel</span>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="ss-also-read-enabled"
+                      name="also_read_enabled"
+                      {{ with .setting }}{{ if .also_read_enabled }}checked{{ end }}{{ else }}checked{{ end }}
+                    />
+                    <label class="form-check-label" for="ss-also-read-enabled"
+                      >Sisipkan kotak &ldquo;Baca juga&rdquo; di dalam konten artikel terbit</label
+                    >
+                  </div>
+                  <div class="form-text">
+                    Tersimpan otomatis saat diubah. Saat dimatikan, blok di semua artikel terbit dihapus dari database; saat diaktifkan kembali, disisipkan ulang menurut kategori dan views.
+                  </div>
+                </div>
+                <div
+                  class="col-md-6{{ with .setting }}{{ if not .also_read_enabled }} d-none{{ end }}{{ else }}{{ end }}"
+                  id="ss-also-read-max-fields"
+                >
+                  <label for="ss-also-read-max-inserts" class="form-label"
+                    >Maksimal per artikel</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-journal-bookmark" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-also-read-max-inserts"
+                      name="also_read_max_inserts"
+                      min="1"
+                      max="20"
+                      step="1"
+                      value="{{ with .setting }}{{ .also_read_max_inserts }}{{ else }}6{{ end }}"
+                      title="Jumlah kotak Baca juga maksimum di satu artikel."
+                    />
+                  </div>
+                  <div class="form-text">
+                    Default 6. Rentang 1–20.
+                  </div>
+                </div>
+                <div
+                  class="col-md-6{{ with .setting }}{{ if not .also_read_enabled }} d-none{{ end }}{{ else }}{{ end }}"
+                  id="ss-also-read-interval-fields"
+                >
+                  <label for="ss-also-read-paragraph-interval" class="form-label"
+                    >Interval paragraf</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-paragraph" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-also-read-paragraph-interval"
+                      name="also_read_paragraph_interval"
+                      min="1"
+                      max="20"
+                      step="1"
+                      value="{{ with .setting }}{{ if .also_read_paragraph_interval }}{{ .also_read_paragraph_interval }}{{ else }}3{{ end }}{{ else }}3{{ end }}"
+                      title="Sisipkan satu kotak Baca juga setelah setiap N paragraf berisi teks."
+                    />
+                  </div>
+                  <div class="form-text">
+                    Default 3. Rentang 1–20. Dihitung dari paragraf &lt;p&gt; yang berisi teks.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="row g-4">
+                <div class="col-12 col-xl-6">
+                  <span class="form-label d-block">Auto recycle tanggal post</span>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="ss-post-date-refresh-enabled"
+                      name="post_date_refresh_enabled"
+                      {{ with .setting }}{{ if .post_date_refresh_enabled }}checked{{ end }}{{ end }}
+                    />
+                    <label class="form-check-label" for="ss-post-date-refresh-enabled"
+                      >Aktifkan recycle otomatis post lama (<code class="small">updated_at</code>)</label
+                    >
+                  </div>
+                  <div class="form-text mb-2">
+                    Saat nonaktif, scheduler tidak mengubah tanggal post. Aktifkan switch untuk mengatur umur dan interval.
+                  </div>
+                  <div
+                    class="row g-3{{ with .setting }}{{ if not .post_date_refresh_enabled }} d-none{{ end }}{{ else }} d-none{{ end }}"
+                    id="ss-post-date-refresh-fields"
+                  >
+                    <div class="col-12 col-md-6">
+                      <label for="ss-post-date-refresh-days" class="form-label"
+                        >Update post yang lebih lama dari (hari)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-calendar3" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-post-date-refresh-days"
+                          name="post_date_refresh_days"
+                          min="0"
+                          max="3650"
+                          step="1"
+                          value="{{ with .setting }}{{ .post_date_refresh_days }}{{ else }}30{{ end }}"
+                          placeholder="30"
+                          title="Post terbit yang lebih lama dari jumlah hari ini (berdasarkan updated_at / created_at) akan di-refresh."
+                        />
+                      </div>
+                      <div class="form-text">
+                        Gunakan minimal 1 saat refresh aktif. Contoh: 30 menargetkan post bertanggal 30+ hari lalu.
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label for="ss-post-date-interval-mins" class="form-label"
+                        >Interval per post (menit)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-clock-history" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-post-date-interval-mins"
+                          name="post_date_interval_mins"
+                          min="0"
+                          max="1440"
+                          step="1"
+                          value="{{ with .setting }}{{ .post_date_interval_mins }}{{ else }}30{{ end }}"
+                          placeholder="30"
+                          title="0 = batch hingga 200 post per menit. Lebih dari 0 = satu post tiap N menit (delay nyata)."
+                        />
+                      </div>
+                      <div class="form-text">
+                        0 mem-batch banyak post tiap menit. Nilai positif me-refresh satu post per waktu, menunggu sesuai menit ini antar post.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-xl-6">
+                  <span class="form-label d-block">Manual recycle tanggal via URL</span>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="ss-post-date-url-recycle-enabled"
+                      name="post_date_url_recycle_enabled"
+                      {{ with .setting }}{{ if .post_date_url_recycle_enabled }}checked{{ end }}{{ end }}
+                    />
+                    <label class="form-check-label" for="ss-post-date-url-recycle-enabled"
+                      >Aktifkan recycle manual dari URL terdaftar + <code class="small">updated_at</code></label
+                    >
+                  </div>
+                  <div class="form-text mb-2">
+                    Satu URL artikel publik per baris (lengkap <code>https://…</code> atau path relatif root). 
+                    <strong>Segmen path terakhir</strong> harus cocok dengan slug post. URL <strong>tidak disimpan</strong>; klik Run untuk memasukkannya ke antrean, worker akan memproses antrean sesuai interval di bawah. Reload akan mengosongkan textarea ini.
+                  </div>
+                  <div
+                    class="mt-2 post-date-url-recycle-fields-wrap{{ with .setting }}{{ if not .post_date_url_recycle_enabled }} d-none{{ end }}{{ else }} d-none{{ end }}"
+                    id="ss-post-date-url-recycle-fields"
+                  >
+                    <label for="ss-post-date-url-recycle-urls" class="form-label">URL (satu per baris)</label>
+                    <textarea
+                      class="form-control font-monospace small"
+                      id="ss-post-date-url-recycle-urls"
+                      name="post_date_url_recycle_urls"
+                      rows="5"
+                      placeholder="https://yoursite.com/article-slug&#10;https://yoursite.com/category/another-slug"
+                    ></textarea>
+                    <div class="row g-3 mt-1 align-items-end">
+                      <div class="col-12 col-md-6">
+                        <label for="ss-post-date-url-recycle-interval-mins" class="form-label"
+                          >Interval antar URL (menit)</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-post-date-url-recycle-interval-mins"
+                          name="post_date_url_recycle_interval_mins"
+                          min="0"
+                          max="1440"
+                          step="1"
+                          value="{{ with .setting }}{{ .post_date_url_recycle_interval_mins }}{{ else }}0{{ end }}"
+                          title="Background worker: waktu tunggu minimum sebelum URL berikutnya dalam rotasi. 0 = URL berikutnya pada tick menit berikutnya. Run now memakai interval ini antar request dalam satu pass."
+                        />
+                        <div class="form-text">0 = proses link berikutnya tiap menit (round-robin). Lebih tinggi = rotasi lebih lambat.</div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <button type="button" class="btn btn-outline-primary w-100" id="ss-post-date-url-recycle-run">
+                          <i class="bi bi-play-circle me-1" aria-hidden="true"></i>
+                          Jalankan recycle URL sekarang
+                        </button>
+                        <div class="form-text">Menjalankan semua baris sekali sesuai urutan (dengan interval di atas antar request).</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="row g-3 align-items-end mt-1">
+                <div class="col-12 col-md-4">
+                  <label for="ss-source-disclaimer-mode" class="form-label"
+                    >Mode disclaimer sumber</label
+                  >
+                  <select
+                    class="form-select"
+                    id="ss-source-disclaimer-mode"
+                    name="source_disclaimer_mode"
+                  >
+                    <option value="default" {{ with .setting }}{{ if or (eq .source_disclaimer_mode "") (eq .source_disclaimer_mode "default") }}selected{{ end }}{{ else }}selected{{ end }}>
+                      Default
+                    </option>
+                    <option value="custom" {{ with .setting }}{{ if eq .source_disclaimer_mode "custom" }}selected{{ end }}{{ end }}>
+                      Custom
+                    </option>
+                  </select>
+                </div>
+                <div
+                  class="col-12{{ with .setting }}{{ if ne .source_disclaimer_mode "custom" }} d-none{{ end }}{{ else }} d-none{{ end }}"
+                  id="ss-source-disclaimer-template-wrap"
+                >
+                  <label for="ss-source-disclaimer-template" class="form-label"
+                    >Template</label
+                  >
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ss-source-disclaimer-template"
+                    name="source_disclaimer_template"
+                    rows="3"
+                    placeholder='Teks disclaimer. Gunakan {{"{{source}}"}} untuk menyertakan sumber.'
+                  >{{ with .setting }}{{ .source_disclaimer_template }}{{ end }}</textarea>
+                  <div class="form-text">
+                    Gunakan <code>{{"{{source}}"}}</code> untuk menyertakan URL/host sumber dalam disclaimer.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+              <label for="ss-homepage-layout" class="form-label">Layout homepage</label>
+              <select
+                class="form-select"
+                id="ss-homepage-layout"
+                name="homepage_layout"
+              >
+                <option value="default" {{ with .setting }}{{ if or (eq .homepage_layout "") (eq .homepage_layout "default") }}selected{{ end }}{{ else }}selected{{ end }}>
+                  Default
+                </option>
+                <option value="detik" {{ with .setting }}{{ if eq .homepage_layout "detik" }}selected{{ end }}{{ end }}>
+                  Detik
+                </option>
+                <option value="neo" {{ with .setting }}{{ if eq .homepage_layout "neo" }}selected{{ end }}{{ end }}>
+                  Neo (belum final)
+                </option>
+              </select>
+              <div class="form-text">
+                <strong>Neo</strong>: homepage bergaya majalah (hero, tag populer, Kategori Unggulan + tab kategori, sisi Terpopuler, kartu highlight, feed). Warna mengikuti tema di bawah.
+              </div>
+            </div>
+            <div class="col-md-6 col-xl-8">
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 col-lg-4">
+                  <label for="ss-sidebar-list-limit-popular" class="form-label">Sidebar atas (populer)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="ss-sidebar-list-limit-popular"
+                    name="sidebar_list_limit_popular"
+                    min="1"
+                    max="20"
+                    step="1"
+                    value="{{ with .setting }}{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else }}{{ .sidebar_list_limit }}{{ end }}{{ else }}5{{ end }}"
+                  />
+                  <div class="form-text small">
+                    <em>Populer</em>, <em>Berita terpopuler</em> (Detik), <em>Terpopuler</em> (Neo).
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                  <label for="ss-sidebar-list-limit-latest" class="form-label">Sidebar bawah (terbaru)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="ss-sidebar-list-limit-latest"
+                    name="sidebar_list_limit_latest"
+                    min="1"
+                    max="20"
+                    step="1"
+                    value="{{ with .setting }}{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else }}{{ .sidebar_list_limit }}{{ end }}{{ else }}5{{ end }}"
+                  />
+                  <div class="form-text small">
+                    <em>Terbaru</em> (default/Neo), <em>Rekomendasi</em> (Detik). Maksimal 20 per daftar.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="row g-3 align-items-start">
+                <div class="col-12 col-xl-9 col-xxl-7">
+                  <div class="row g-3 align-items-start">
+                    <div class="col-12 col-sm-7 col-md-6">
+                      <span class="form-label d-block">Caption gambar sampul (SEO)</span>
+                      <div class="form-check form-switch mt-1">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="ss-image-caption-enabled"
+                          name="image_caption_enabled"
+                          {{ with .setting }}{{ if .image_caption_enabled }}checked{{ end }}{{ end }}
+                        />
+                        <label class="form-check-label" for="ss-image-caption-enabled"
+                          >Tampilkan figcaption di hero artikel</label
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="col-12 col-sm-5 col-md-4{{ with .setting }}{{ if not .image_caption_enabled }} d-none{{ end }}{{ else }} d-none{{ end }}"
+                      id="ss-image-caption-mode-wrap"
+                    >
+                      <label for="ss-image-caption-mode" class="form-label">Mode caption</label>
+                      <select
+                        class="form-select"
+                        id="ss-image-caption-mode"
+                        name="image_caption_mode"
+                      >
+                        <option value="default" {{ with .setting }}{{ if or (eq .image_caption_mode "") (eq .image_caption_mode "default") }}selected{{ end }}{{ else }}selected{{ end }}>
+                          Default
+                        </option>
+                        <option value="custom" {{ with .setting }}{{ if eq .image_caption_mode "custom" }}selected{{ end }}{{ end }}>
+                          Custom
+                        </option>
+                      </select>
+                      <div class="form-text">
+                        <strong>Default</strong>: teks berbeda sesuai sumber gambar (web search, AI, scrape, dll.).
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="col-12{{ with .setting }}{{ if or (not .image_caption_enabled) (ne .image_caption_mode "custom") }} d-none{{ end }}{{ else }} d-none{{ end }}"
+                  id="ss-image-caption-template-wrap"
+                >
+                  <label for="ss-image-caption-template" class="form-label">Template caption</label>
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ss-image-caption-template"
+                    name="image_caption_template"
+                    rows="2"
+                    placeholder='Foto: Ilustrasi {{"{{title}}"}}.'
+                  >{{ with .setting }}{{ .image_caption_template }}{{ else }}Foto: Ilustrasi {{"{{title}}"}}.{{ end }}</textarea>
+                  <div class="form-text">
+                    Dipakai untuk <strong>semua</strong> sampul dalam mode Custom. Placeholder:
+                    <code>{{"{{title}}"}}</code>,
+                    <code>{{"{{provider}}"}}</code>,
+                    <code>{{"{{source}}"}}</code>,
+                    <code>{{"{{credit}}"}}</code> (Pexels attribution span, etc.).
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="ss-section-divider">
+                <span class="ss-section-divider__title">
+                  <i class="bi bi-palette me-1" aria-hidden="true"></i>
+                  Tema &amp; tipografi
+                </span>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="ss-color-theme" class="form-label">Warna dasar</label>
+              <select
+                class="form-select"
+                id="ss-color-theme"
+                name="color_theme"
+              >
+                <option value="default" {{ with .setting }}{{ if or (eq .color_theme "") (eq .color_theme "default") }}selected{{ end }}{{ else }}selected{{ end }}>
+                  Default (aksen merah)
+                </option>
+                <option value="ocean" {{ with .setting }}{{ if eq .color_theme "ocean" }}selected{{ end }}{{ end }}>
+                  Ocean (biru-teal)
+                </option>
+                <option value="forest" {{ with .setting }}{{ if eq .color_theme "forest" }}selected{{ end }}{{ end }}>
+                  Forest (hijau)
+                </option>
+                <option value="sunset" {{ with .setting }}{{ if eq .color_theme "sunset" }}selected{{ end }}{{ end }}>
+                  Sunset (coral)
+                </option>
+                <option value="slate" {{ with .setting }}{{ if eq .color_theme "slate" }}selected{{ end }}{{ end }}>
+                  Slate (biru-abu)
+                </option>
+                <option value="violet" {{ with .setting }}{{ if eq .color_theme "violet" }}selected{{ end }}{{ end }}>
+                  Violet (ungu)
+                </option>
+                <option value="amber" {{ with .setting }}{{ if eq .color_theme "amber" }}selected{{ end }}{{ end }}>
+                  Amber (emas hangat)
+                </option>
+                <option value="dark" {{ with .setting }}{{ if eq .color_theme "dark" }}selected{{ end }}{{ end }}>
+                  Mode gelap (background gelap)
+                </option>
+                <option value="custom" {{ with .setting }}{{ if eq .color_theme "custom" }}selected{{ end }}{{ end }}>
+                  Custom (8 warna)
+                </option>
+              </select>
+            </div>
+            <div
+              id="ss-custom-colors-wrapper"
+              class="col-12{{ if not .color_theme_custom }} d-none{{ end }}"
+            >
+              <div class="row g-3 g-lg-4">
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-text-primary" class="form-label"
+                >Teks utama</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-type" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-text-primary-picker"
+                    value="{{ with .setting }}{{ if .text_primary }}{{ .text_primary }}{{ else }}#1f2937{{ end }}{{ else }}#1f2937{{ end }}"
+                    aria-label="Pilih warna teks utama"
+                    title="Pilih warna teks utama"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-text-primary"
+                  name="text_primary"
+                  maxlength="20"
+                  placeholder="#1f2937"
+                  value="{{ with .setting }}{{ .text_primary }}{{ end }}"
+                  title="CSS color, e.g. #1f2937"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-text-secondary" class="form-label"
+                >Teks sekunder</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-type-h1" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-text-secondary-picker"
+                    value="{{ with .setting }}{{ if .text_secondary }}{{ .text_secondary }}{{ else }}#64748b{{ end }}{{ else }}#64748b{{ end }}"
+                    aria-label="Pilih warna teks sekunder"
+                    title="Pilih warna teks sekunder"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-text-secondary"
+                  name="text_secondary"
+                  maxlength="20"
+                  placeholder="#64748b"
+                  value="{{ with .setting }}{{ .text_secondary }}{{ end }}"
+                  title="CSS color, e.g. #64748b"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-background-primary" class="form-label"
+                >Background utama</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-square-fill" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-background-primary-picker"
+                    value="{{ with .setting }}{{ if .background_primary }}{{ .background_primary }}{{ else }}#ffffff{{ end }}{{ else }}#ffffff{{ end }}"
+                    aria-label="Pilih warna background utama"
+                    title="Pilih warna background utama"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-background-primary"
+                  name="background_primary"
+                  maxlength="20"
+                  placeholder="#ffffff"
+                  value="{{ with .setting }}{{ .background_primary }}{{ end }}"
+                  title="CSS color, e.g. #ffffff"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-background-secondary" class="form-label"
+                >Background sekunder</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-square" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-background-secondary-picker"
+                    value="{{ with .setting }}{{ if .background_secondary }}{{ .background_secondary }}{{ else }}#ffffff{{ end }}{{ else }}#ffffff{{ end }}"
+                    aria-label="Pilih warna background sekunder"
+                    title="Pilih warna background sekunder"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-background-secondary"
+                  name="background_secondary"
+                  maxlength="20"
+                  placeholder="#ffffff"
+                  value="{{ with .setting }}{{ .background_secondary }}{{ end }}"
+                  title="CSS color, e.g. #ffffff"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-primary-button" class="form-label"
+                >Tombol utama</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-square-fill" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-primary-button-picker"
+                    value="{{ with .setting }}{{ if .primary_button }}{{ .primary_button }}{{ else }}#0d6efd{{ end }}{{ else }}#0d6efd{{ end }}"
+                    aria-label="Pilih warna tombol utama"
+                    title="Pilih warna tombol utama"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-primary-button"
+                  name="primary_button"
+                  maxlength="20"
+                  placeholder="#0d6efd"
+                  value="{{ with .setting }}{{ .primary_button }}{{ end }}"
+                  title="CSS color, e.g. #0d6efd"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-secondary-button" class="form-label"
+                >Tombol sekunder</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-square" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-secondary-button-picker"
+                    value="{{ with .setting }}{{ if .secondary_button }}{{ .secondary_button }}{{ else }}#6c757d{{ end }}{{ else }}#6c757d{{ end }}"
+                    aria-label="Pilih warna tombol sekunder"
+                    title="Pilih warna tombol sekunder"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-secondary-button"
+                  name="secondary_button"
+                  maxlength="20"
+                  placeholder="#6c757d"
+                  value="{{ with .setting }}{{ .secondary_button }}{{ end }}"
+                  title="CSS color, e.g. #6c757d"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-accent-color" class="form-label"
+                >Warna aksen</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-palette" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-accent-color-picker"
+                    value="{{ with .setting }}{{ if .accent_color }}{{ .accent_color }}{{ else }}#c62828{{ end }}{{ else }}#c62828{{ end }}"
+                    aria-label="Pilih warna aksen"
+                    title="Pilih warna aksen"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-accent-color"
+                  name="accent_color"
+                  maxlength="20"
+                  placeholder="#c62828"
+                  value="{{ with .setting }}{{ .accent_color }}{{ end }}"
+                  title="CSS color, e.g. #c62828"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-border-color" class="form-label"
+                >Warna border</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-border" aria-hidden="true"></i
+                ></span>
+                <span class="input-group-text p-1">
+                  <input
+                    type="color"
+                    class="form-control form-control-color border-0 p-0"
+                    id="ss-border-color-picker"
+                    value="{{ with .setting }}{{ if .border_color }}{{ .border_color }}{{ else }}#e5e7eb{{ end }}{{ else }}#e5e7eb{{ end }}"
+                    aria-label="Pilih warna border"
+                    title="Pilih warna border"
+                  />
+                </span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-border-color"
+                  name="border_color"
+                  maxlength="20"
+                  placeholder="#e5e7eb"
+                  value="{{ with .setting }}{{ .border_color }}{{ end }}"
+                  title="CSS color, e.g. #e5e7eb"
+                />
+              </div>
+            </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-font-family-preset" class="form-label">Font site</label>
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-fonts" aria-hidden="true"></i
+                ></span>
+                <select
+                  class="form-select"
+                  id="ss-font-family-preset"
+                >
+                  <option value="system">System UI</option>
+                  <option value="inter">Inter</option>
+                  <option value="opensans">Open Sans</option>
+                  <option value="roboto">Roboto</option>
+                  <option value="nunitosans">Nunito Sans</option>
+                  <option value="montserrat">Montserrat</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="worksans">Work Sans</option>
+                  <option value="oswald">Oswald (Bold)</option>
+                  <option value="comic">Comic Sans</option>
+                  <option value="georgia">Georgia</option>
+                  <option value="merriweather">Merriweather</option>
+                  <option value="lora">Lora</option>
+                  <option value="ptserif">PT Serif</option>
+                  <option value="sourceserif">Source Serif 4</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="literata">Literata</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <input
+                type="text"
+                class="form-control font-monospace mt-2"
+                id="ss-font-family"
+                name="font_family"
+                maxlength="255"
+                value="{{ with .setting }}{{ if .font_family }}{{ .font_family }}{{ else }}system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, 'Helvetica Neue', sans-serif{{ end }}{{ else }}system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, 'Helvetica Neue', sans-serif{{ end }}"
+                placeholder="system-ui, -apple-system, 'Segoe UI', sans-serif"
+                title="CSS font-family value"
+              />
+              <div class="form-text">Pilih preset yang cocok untuk site artikel, atau edit kolom di bawah untuk stack custom.</div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-content-font-size" class="form-label"
+                >Text content font size</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-fonts" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-content-font-size"
+                  name="content_font_size"
+                  maxlength="12"
+                  value="{{ with .setting }}{{ if .content_font_size }}{{ .content_font_size }}{{ else }}17px{{ end }}{{ else }}17px{{ end }}"
+                  placeholder="17px"
+                  title="CSS size, e.g. 17px, 1rem, 110%"
+                />
+              </div>
+              <div class="form-text">Override `.blog-article-body.post-body` font size.</div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label for="ss-sidebar-font-size" class="form-label"
+                >Text sidebar font size</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-list-ul" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="ss-sidebar-font-size"
+                  name="sidebar_font_size"
+                  maxlength="12"
+                  value="{{ with .setting }}{{ if .sidebar_font_size }}{{ .sidebar_font_size }}{{ else }}14px{{ end }}{{ else }}14px{{ end }}"
+                  placeholder="14px"
+                  title="CSS size, e.g. 14px, 0.875rem, 100%"
+                />
+              </div>
+              <div class="form-text">Used for sidebar Popular & Latest text.</div>
+            </div>
+            <div class="col-12">
+              <div class="ss-section-divider">
+                <span class="ss-section-divider__title">
+                  <i class="bi bi-images me-1" aria-hidden="true"></i>
+                  Image optimization &amp; storage
+                </span>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="row g-3">
+                <div class="col-12">
+                  <span class="form-label d-block">Resize gambar (posts, self-hosted)</span>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="ss-img-resize-enabled"
+                      name="img_resize_enabled"
+                      {{ with .setting }}{{ if .img_resize_enabled }}checked{{ end }}{{ end }}
+                    />
+                    <label class="form-check-label" for="ss-img-resize-enabled"
+                      >Aktifkan proxy <code class="small">/img</code> untuk thumbnail, avatar, dan gambar di isi artikel</label
+                    >
+                  </div>
+                  <div class="form-text mb-2">
+                    Self-hosted resize (bukan Cloudflare). Saat nonaktif, prefix <code class="small">/img</code> pada gambar publik akan dihapus.
+                  </div>
+                </div>
+                <div
+                  class="col-12 {{ if and .setting (not .setting.img_resize_enabled) }}d-none{{ end }}"
+                  id="ss-img-proxy-fields"
+                >
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-3">
+                      <label for="ss-img-resize-width" class="form-label"
+                        >Lebar maksimum gambar post (<code class="small">/img</code>)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-arrows-expand" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-img-resize-width"
+                          name="img_resize_width"
+                          min="1"
+                          max="4000"
+                          step="1"
+                          value="{{ with .setting }}{{ .img_resize_width }}{{ end }}"
+                          placeholder="400"
+                          title="Batas atas w= (px); kosong = tanpa batas"
+                        />
+                      </div>
+                      <div class="form-text">
+                        Lebar aktual mengikuti ukuran tampilan di browser (thumbnail, hero, isi artikel). Field ini hanya membatasi maksimum <code class="small">?w=</code>; kosongkan untuk tanpa batas.
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                      <label for="ss-img-resize-height" class="form-label"
+                        >Tinggi maksimum gambar post (<code class="small">/img</code>)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-arrows-vertical" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-img-resize-height"
+                          name="img_resize_height"
+                          min="1"
+                          max="4000"
+                          step="1"
+                          value="{{ with .setting }}{{ .img_resize_height }}{{ end }}"
+                          placeholder="400"
+                          title="Batas atas h= (px); kosong = tanpa batas"
+                        />
+                      </div>
+                      <div class="form-text">
+                        Tinggi aktual mengikuti slot tampilan di browser. Bersama lebar, proxy memotong sementara (cover crop) jika rasio gambar asli berbeda. Field ini hanya membatasi maksimum <code class="small">?h=</code>.
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                      <label for="ss-img-resize-quality" class="form-label"
+                        >Kualitas gambar post (<code class="small">/img</code>)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-sliders2" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-img-resize-quality"
+                          name="img_resize_quality"
+                          min="1"
+                          max="100"
+                          step="1"
+                          value="{{ with .setting }}{{ .img_resize_quality }}{{ end }}"
+                          placeholder="90"
+                          title="Parameter q= untuk proxy /img"
+                        />
+                      </div>
+                      <div class="form-text">
+                        <code class="small">?q=</code> pada URL <code class="small">/img/...</code> (1–100).
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12" id="ss-cloudflare-image-fields">
+                  <span class="form-label d-block">Resize gambar (Cloudflare CDN)</span>
+                  <div class="form-check form-switch mt-1">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="ss-image-resize-enabled"
+                      name="image_resize_enabled"
+                      {{ with .setting }}{{ if .image_resize_enabled }}checked{{ end }}{{ else }}checked{{ end }}
+                    />
+                    <label class="form-check-label" for="ss-image-resize-enabled"
+                      >Aktifkan resize dinamis lewat <code class="small">/cdn-cgi/image/</code> pada thumbnail daftar artikel</label
+                    >
+                  </div>
+                  <div class="form-text mb-2">
+                    Untuk situs di belakang Cloudflare. Saat nonaktif, prefix <code class="small">/cdn-cgi/image/</code> pada thumbnail akan dihapus. Terpisah dari proxy <code class="small">/img</code> di atas.
+                  </div>
+                </div>
+                <div
+                  class="col-12 {{ if and .setting (not .setting.image_resize_enabled) }}d-none{{ end }}"
+                  id="ss-cdn-resize-fields"
+                >
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-3">
+                      <label for="ss-image-resize-width" class="form-label"
+                        >Lebar gambar post (Cloudflare)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-arrows-expand" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-image-resize-width"
+                          name="image_resize_width"
+                          min="1"
+                          max="4000"
+                          step="1"
+                          value="{{ with .setting }}{{ .image_resize_width }}{{ end }}"
+                          placeholder="400"
+                          title="CDN /cdn-cgi/image/ width= for post images"
+                        />
+                      </div>
+                      <div class="form-text">
+                        <code class="small">width=</code> pada <code class="small">/cdn-cgi/image/</code>.
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                      <label for="ss-image-resize-quality" class="form-label"
+                        >Kualitas gambar post (Cloudflare)</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text"
+                          ><i class="bi bi-sliders2" aria-hidden="true"></i
+                        ></span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="ss-image-resize-quality"
+                          name="image_resize_quality"
+                          min="1"
+                          max="100"
+                          step="1"
+                          value="{{ with .setting }}{{ .image_resize_quality }}{{ end }}"
+                          placeholder="90"
+                          title="CDN /cdn-cgi/image/ quality= for post images"
+                        />
+                      </div>
+                      <div class="form-text">
+                        <code class="small">quality=</code> pada <code class="small">/cdn-cgi/image/</code> (1–100).
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <span class="form-label d-block">Stored post images (AI &amp; scraper)</span>
+                  <div class="form-text">
+                    Ukuran maksimal dan kualitas encode saat menyimpan gambar hasil generate ke disk atau R2. Tidak memakai Cloudflare; hasil yang lebih kecil dari batas tidak diperbesar.
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <label for="ss-stored-image-max-width" class="form-label"
+                    >Max width (longest edge, px)</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-image" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-stored-image-max-width"
+                      name="stored_image_max_width"
+                      min="1"
+                      max="4000"
+                      step="1"
+                      value="{{ with .setting }}{{ .stored_image_max_width }}{{ end }}"
+                      placeholder="800"
+                      title="Cap longest side of stored AI/scraper post images"
+                    />
+                  </div>
+                  <div class="form-text">Opsional. Contoh: 800 — hanya mengecilkan gambar yang lebih besar.</div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <label for="ss-stored-image-quality" class="form-label"
+                    >Kualitas WebP (tersimpan)</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-file-earmark-image" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-stored-image-quality"
+                      name="stored_image_quality"
+                      min="1"
+                      max="100"
+                      step="1"
+                      value="{{ with .setting }}{{ .stored_image_quality }}{{ end }}"
+                      placeholder="82"
+                      title="Lossy WebP quality when encoding stored AI images (optional)"
+                    />
+                  </div>
+                  <div class="form-text">Opsional. WebP lossy 1–100; kosong = aturan encode default.</div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <label for="ss-avatar-resize-width" class="form-label"
+                    >Lebar resize gambar (avatar)</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-person-bounding-box" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-avatar-resize-width"
+                      name="avatar_resize_width"
+                      min="1"
+                      max="4000"
+                      step="1"
+                      value="{{ with .setting }}{{ .avatar_resize_width }}{{ end }}"
+                      placeholder="120"
+                      title="Avatar image width for CDN resize URL"
+                    />
+                  </div>
+                  <div class="form-text">Opsional. Contoh: 120</div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <label for="ss-avatar-resize-quality" class="form-label"
+                    >Kualitas resize gambar (avatar)</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-person-lines-fill" aria-hidden="true"></i
+                    ></span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ss-avatar-resize-quality"
+                      name="avatar_resize_quality"
+                      min="1"
+                      max="100"
+                      step="1"
+                      value="{{ with .setting }}{{ .avatar_resize_quality }}{{ end }}"
+                      placeholder="60"
+                      title="Avatar image quality for CDN resize URL"
+                    />
+                  </div>
+                  <div class="form-text">Opsional. Rentang 1 - 100.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="ss-section-divider">
+                <span class="ss-section-divider__title">
+                  <i class="bi bi-badge-tm me-1" aria-hidden="true"></i>
+                  Brand assets
+                </span>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <span class="form-label d-block">Logo</span>
+              <div
+                class="btn-group btn-group-sm mb-2"
+                role="group"
+                aria-label="Logo source"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="ss-logo-source-mode"
+                  id="ss-logo-mode-upload"
+                  value="upload"
+                  autocomplete="off"
+                  checked
+                />
+                <label class="btn btn-outline-secondary" for="ss-logo-mode-upload"
+                  >Unggah file</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="ss-logo-source-mode"
+                  id="ss-logo-mode-url"
+                  value="url"
+                  autocomplete="off"
+                />
+                <label class="btn btn-outline-secondary" for="ss-logo-mode-url"
+                  >URL</label
+                >
+              </div>
+              <div id="ss-logo-upload-wrap" class="mb-2">
+                <input
+                  type="file"
+                  class="form-control form-control-sm"
+                  id="ss-logo-file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                />
+                <div class="form-text">
+                  JPG, PNG, WebP, or GIF (max 5 MB). Fills the URL field below.
+                </div>
+              </div>
+              <div id="ss-logo-url-wrap" class="d-none">
+                <label for="ss-logo-url" class="form-label">URL logo</label>
+                <div class="input-group">
+                  <span class="input-group-text border-end-0"
+                    ><i class="bi bi-image" aria-hidden="true"></i
+                  ></span>
+                  <input
+                    type="text"
+                    class="form-control border-start-0 ps-0"
+                    id="ss-logo-url"
+                    name="logo_url"
+                    maxlength="500"
+                    value="{{ with .setting }}{{ .logo_url }}{{ end }}"
+                    placeholder="https://… (kosongkan untuk pakai site title)"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <span class="form-label d-block">Favicon</span>
+              <div
+                class="btn-group btn-group-sm mb-2"
+                role="group"
+                aria-label="Favicon source"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="ss-favicon-source-mode"
+                  id="ss-favicon-mode-upload"
+                  value="upload"
+                  autocomplete="off"
+                  checked
+                />
+                <label class="btn btn-outline-secondary" for="ss-favicon-mode-upload"
+                  >Unggah file</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="ss-favicon-source-mode"
+                  id="ss-favicon-mode-url"
+                  value="url"
+                  autocomplete="off"
+                />
+                <label class="btn btn-outline-secondary" for="ss-favicon-mode-url"
+                  >URL</label
+                >
+              </div>
+              <div id="ss-favicon-upload-wrap" class="mb-2">
+                <input
+                  type="file"
+                  class="form-control form-control-sm"
+                  id="ss-favicon-file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,.ico,image/x-icon"
+                />
+                <div class="form-text">
+                  ICO, or JPG / PNG / WebP / GIF (max 5 MB). Fills the URL field
+                  below.
+                </div>
+              </div>
+              <div id="ss-favicon-url-wrap" class="d-none">
+                <label for="ss-favicon-url" class="form-label">URL favicon</label>
+                <div class="input-group">
+                  <span class="input-group-text border-end-0"
+                    ><i class="bi bi-globe2" aria-hidden="true"></i
+                  ></span>
+                  <input
+                    type="text"
+                    class="form-control border-start-0 ps-0"
+                    id="ss-favicon-url"
+                    name="favicon_url"
+                    maxlength="500"
+                    value="{{ with .setting }}{{ .favicon_url }}{{ end }}"
+                    placeholder="/static/images/favicon.ico or https://…"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="ss-section-divider">
+                <span class="ss-section-divider__title">
+                  <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
+                  Access &amp; social
+                </span>
+              </div>
+            </div>
+            <div class="col-12 col-lg-8">
+              <label for="ss-login-url" class="form-label"
+                >URL login</label
+              >
+              <div class="input-group">
+                <span class="input-group-text border-end-0"
+                  ><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="ss-login-url"
+                  name="login_url"
+                  maxlength="500"
+                  value="{{ with .setting }}{{ .login_url }}{{ end }}"
+                  placeholder="/login or https://idp.example.com/sign-in"
+                />
+              </div>
+              <div class="form-text">
+                Path di site ini (contoh <code>/signin</code>) atau URL sign-in eksternal. Kosong berarti tetap memakai <code>/login</code>. Jika diisi, <code>/login</code> akan redirect memakai aturan yang sama seperti &quot;mode redirect 404&quot; di bawah. Restart server jika memakai path multi-segmen (contoh <code>/account/signin</code>).
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="ss-frontend-routes-disabled"
+                  name="frontend_routes_disabled"
+                  {{ with .setting }}{{ if .frontend_routes_disabled }}checked{{ end }}{{ end }}
+                />
+                <label class="form-check-label" for="ss-frontend-routes-disabled">
+                  Nonaktifkan frontend publik (SSR)
+                </label>
+              </div>
+              <div class="form-text">
+                Halaman artikel, kategori, dan beranda SSR di BE tidak bisa diakses. API, RSS, sitemap, robots, dan ads tetap aktif.
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="ss-admin-login-frontend-disabled"
+                  name="admin_login_frontend_disabled"
+                  {{ with .setting }}{{ if .admin_login_frontend_disabled }}checked{{ end }}{{ end }}
+                />
+                <label class="form-check-label" for="ss-admin-login-frontend-disabled">
+                  Nonaktifkan login &amp; admin frontend
+                </label>
+              </div>
+              <div class="form-text">
+                Menutup halaman login SSR dan panel <code>/admin</code>. API admin (<code>/api/v1/admin</code>) tetap bisa dipakai.
+              </div>
+            </div>
+            <div class="col-12 col-lg-4">
+              <label for="ss-not-found-redirect-mode" class="form-label"
+                >404 redirect mode</label
+              >
+              <select
+                class="form-select"
+                id="ss-not-found-redirect-mode"
+                name="not_found_redirect_mode"
+              >
+                <option value="home" {{ with .setting }}{{ if or (eq .not_found_redirect_mode "") (eq .not_found_redirect_mode "home") }}selected{{ end }}{{ else }}selected{{ end }}>
+                  Redirect to home
+                </option>
+                <option value="random" {{ with .setting }}{{ if eq .not_found_redirect_mode "random" }}selected{{ end }}{{ end }}>
+                  Redirect to random post
+                </option>
+              </select>
+            </div>
+            <div class="col-12">
+              <h6 class="mb-1">Link media sosial</h6>
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-social-facebook-url" class="form-label">Facebook URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-social-facebook-url"
+                name="social_facebook_url"
+                maxlength="500"
+                value="{{ with .setting }}{{ .social_facebook_url }}{{ end }}"
+                placeholder="https://facebook.com/username"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-social-x-url" class="form-label">X URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-social-x-url"
+                name="social_x_url"
+                maxlength="500"
+                value="{{ with .setting }}{{ .social_x_url }}{{ end }}"
+                placeholder="https://x.com/username"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-social-instagram-url" class="form-label">Instagram URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-social-instagram-url"
+                name="social_instagram_url"
+                maxlength="500"
+                value="{{ with .setting }}{{ .social_instagram_url }}{{ end }}"
+                placeholder="https://instagram.com/username"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-social-youtube-url" class="form-label">YouTube URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-social-youtube-url"
+                name="social_youtube_url"
+                maxlength="500"
+                value="{{ with .setting }}{{ .social_youtube_url }}{{ end }}"
+                placeholder="https://youtube.com/@channel"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-social-tiktok-url" class="form-label">TikTok URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-social-tiktok-url"
+                name="social_tiktok_url"
+                maxlength="500"
+                value="{{ with .setting }}{{ .social_tiktok_url }}{{ end }}"
+                placeholder="https://www.tiktok.com/@username"
+              />
+            </div>
+            <div class="col-12 pt-2 ss-actions">
+              <button type="submit" class="btn btn-primary px-4" id="ss-submit">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="ss-pane-scripts"
+          role="tabpanel"
+          aria-labelledby="ss-tab-scripts"
+          tabindex="0"
+        >
+          <div
+            id="site-scripts-error"
+            class="alert alert-danger d-none"
+            role="alert"
+          ></div>
+
+          <ul class="nav nav-pills gap-1 mb-3 ss-subtabs" role="tablist" id="ss-scripts-subtabs">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="ss-subtab-homepage"
+                data-bs-toggle="pill"
+                data-bs-target="#ss-subpane-homepage"
+                type="button"
+                role="tab"
+                aria-controls="ss-subpane-homepage"
+                aria-selected="true"
+              >
+                Homepage scripts
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="ss-subtab-article"
+                data-bs-toggle="pill"
+                data-bs-target="#ss-subpane-article"
+                type="button"
+                role="tab"
+                aria-controls="ss-subpane-article"
+                aria-selected="false"
+              >
+                Article scripts
+              </button>
+            </li>
+          </ul>
+
+          <div class="mb-3 pb-1 border-bottom">
+            <div class="form-check form-switch mb-0">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="ss-ads-lazy-load-enabled"
+                name="ads_lazy_load_enabled"
+                form="form-site-scripts"
+                {{- with .setting }}{{ if .ads_lazy_load_enabled }} checked{{ end }}{{ end -}}
+              />
+              <label class="form-check-label" for="ss-ads-lazy-load-enabled"
+                >Lazy load ads (<code>.site-ad</code> slots)</label
+              >
+            </div>
+            <div class="form-text mt-1 mb-0">
+              When enabled, top/center/bottom ad slots, article lists, and in-article ads are filled (AdSense push) only when each slot approaches the viewport. Default: off.
+            </div>
+          </div>
+
+          <div class="tab-content" id="ss-scripts-subtabs-content">
+          <div
+            class="tab-pane fade show active"
+            id="ss-subpane-homepage"
+            role="tabpanel"
+            aria-labelledby="ss-subtab-homepage"
+            tabindex="0"
+          >
+          <form id="form-site-scripts" class="row g-3 g-lg-4" novalidate>
+            <div class="col-12">
+              <label for="ss-header-script" class="form-label"
+                >Script header</label
+              >
+              <textarea
+                class="form-control font-monospace ss-codearea"
+                id="ss-header-script"
+                name="header_script"
+                rows="8"
+                placeholder="Example: &lt;script&gt;...&lt;/script&gt;"
+              >
+{{- with .setting }}{{ .header_script }}{{ end -}}</textarea>
+              <div class="form-text text-muted"
+                >Inserted inside &lt;head&gt; (Analytics, AdSense loader, ad verification meta, etc.).</div>
+            </div>
+            <div class="col-12 col-lg-4">
+              <label for="ss-ads-top" class="form-label">Script iklan atas</label>
+              <textarea
+                class="form-control font-monospace ss-adsarea"
+                id="ss-ads-top"
+                name="ads_top"
+                rows="6"
+                placeholder="Example: &lt;img src=&quot;...&quot; alt=&quot;&quot;&gt; or &lt;script&gt;...&lt;/script&gt;"
+              >
+{{- with .setting }}{{ .ads_top }}{{ end -}}</textarea>
+            </div>
+            <div class="col-12 col-lg-4">
+              <label for="ss-ads-center" class="form-label"
+                >Script iklan tengah</label
+              >
+              <textarea
+                class="form-control font-monospace ss-adsarea"
+                id="ss-ads-center"
+                name="ads_center"
+                rows="6"
+                placeholder="Example: &lt;img src=&quot;...&quot; alt=&quot;&quot;&gt; or &lt;script&gt;...&lt;/script&gt;"
+              >
+{{- with .setting }}{{ .ads_center }}{{ end -}}</textarea>
+            </div>
+            <div class="col-12 col-lg-4">
+              <label for="ss-ads-bottom" class="form-label"
+                >Script iklan bawah</label
+              >
+              <textarea
+                class="form-control font-monospace ss-adsarea"
+                id="ss-ads-bottom"
+                name="ads_bottom"
+                rows="6"
+                placeholder="Example: &lt;img src=&quot;...&quot; alt=&quot;&quot;&gt; or &lt;script&gt;...&lt;/script&gt;"
+              >
+{{- with .setting }}{{ .ads_bottom }}{{ end -}}</textarea>
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-ads-txt" class="form-label">ads.txt</label>
+              <textarea
+                class="form-control font-monospace ss-codearea"
+                id="ss-ads-txt"
+                name="ads_txt"
+                rows="8"
+                placeholder="google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"
+              >
+{{- with .setting }}{{ .ads_txt }}{{ end -}}</textarea>
+              <div class="form-text">
+                Plain text file content served at <code>/ads.txt</code>.
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-robots-txt" class="form-label">robots.txt</label>
+              <textarea
+                class="form-control font-monospace ss-codearea"
+                id="ss-robots-txt"
+                name="robots_txt"
+                rows="8"
+                placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://example.com/sitemap.xml"
+              >
+{{- with .setting }}{{ .robots_txt }}{{ end -}}</textarea>
+              <div class="form-text">
+                Plain text file content served at <code>/robots.txt</code>.
+              </div>
+            </div>
+            <div class="col-12 pt-2 ss-actions">
+              <button
+                type="submit"
+                class="btn btn-primary px-4"
+                id="ss-scripts-submit"
+              >
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="ss-subpane-article"
+            role="tabpanel"
+            aria-labelledby="ss-subtab-article"
+            tabindex="0"
+          >
+            <div
+              id="site-article-ads-error"
+              class="alert alert-danger d-none"
+              role="alert"
+            ></div>
+            <form id="form-article-ads" class="row g-3 g-lg-4" novalidate>
+              <input
+                type="hidden"
+                id="ss-article-ads-data"
+                name="article_ads_json"
+                value="{{- with .setting }}{{ .article_ads_json }}{{ end -}}"
+              />
+              <div class="col-12 col-md-6 col-lg-4">
+                <label for="ss-article-ads-count" class="form-label">
+                  In-article ad count
+                </label>
+                <select
+                  id="ss-article-ads-count"
+                  class="form-select"
+                  aria-describedby="ss-article-ads-count-help"
+                >
+                  <option value="0">0 (off)</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+                <div id="ss-article-ads-count-help" class="form-text">
+                  Max 10. Choose how many ads to insert into article content; each slot has its own <code>%</code> position.
+                </div>
+              </div>
+              <div class="col-12">
+                <div
+                  id="ss-article-ads-list"
+                  class="d-flex flex-column gap-3"
+                ></div>
+                <div id="ss-article-ads-empty" class="form-text text-muted">
+                  No in-article ad slots yet. Choose a count above to start filling them.
+                </div>
+              </div>
+              <div class="col-12 pt-2 ss-actions">
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4"
+                  id="ss-article-ads-submit"
+                >
+                  <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </form>
+            <template id="ss-article-ads-item-tpl">
+              <div class="card border ss-article-ad-card" data-article-ad-card>
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="mb-0 fw-semibold ss-article-ad-title">
+                      Ad #<span data-article-ad-index>1</span>
+                    </h5>
+                    <span class="badge text-bg-light border" data-article-ad-percent-label>50%</span>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-12 col-md-4 col-lg-3">
+                      <label class="form-label ss-article-ad-pos-label">
+                        Position (% content)
+                      </label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        data-article-ad-position
+                        min="1"
+                        max="99"
+                        step="1"
+                        value="50"
+                        inputmode="numeric"
+                      />
+                      <div class="form-text">1 = topmost, 99 = bottommost.</div>
+                    </div>
+                    <div class="col-12 col-md-8 col-lg-9">
+                      <label class="form-label">Ad script / HTML</label>
+                      <textarea
+                        class="form-control font-monospace"
+                        data-article-ad-content
+                        rows="5"
+                        placeholder="Example: &lt;script&gt;...&lt;/script&gt; or &lt;img src=&quot;...&quot;&gt;"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          </div>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="ss-pane-meta"
+          role="tabpanel"
+          aria-labelledby="ss-tab-meta"
+          tabindex="0"
+        >
+          <div
+            id="site-meta-error"
+            class="alert alert-danger d-none"
+            role="alert"
+          ></div>
+
+          <form id="form-site-meta" class="row g-3 g-lg-4" novalidate>
+            <div class="col-12">
+              <label for="sm-default-title" class="form-label"
+                >Judul default</label
+              >
+              <div class="input-group">
+                <span class="input-group-text border-end-0"
+                  ><i class="bi bi-bookmark" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="sm-default-title"
+                  name="default_title"
+                  required
+                  minlength="1"
+                  maxlength="255"
+                  value="{{ with .setting }}{{ .default_title }}{{ end }}"
+                  autocomplete="off"
+                  aria-describedby="sm-default-title-count"
+                />
+              </div>
+              <div id="sm-default-title-count" class="form-text text-end">
+                0/255 karakter
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="sm-default-description" class="form-label"
+                >Deskripsi default</label
+              >
+              <div class="input-group">
+                <span
+                  class="input-group-text border-end-0 align-items-start pt-2"
+                  ><i class="bi bi-card-text" aria-hidden="true"></i
+                ></span>
+                <textarea
+                  class="form-control border-start-0 ps-0"
+                  id="sm-default-description"
+                  name="default_description"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Ringkasan singkat untuk mesin pencari dan pratinjau sosial"
+                  aria-describedby="sm-default-description-count"
+                >
+{{- with .setting }}{{ .default_description }}{{ end -}}</textarea>
+              </div>
+              <div id="sm-default-description-count" class="form-text text-end">
+                0/500 karakter
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <span class="form-label d-block">Gambar default (OG)</span>
+              <div
+                class="btn-group btn-group-sm mb-2"
+                role="group"
+                aria-label="Sumber gambar default"
+              >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="sm-default-image-source-mode"
+                  id="sm-default-image-mode-upload"
+                  value="upload"
+                  autocomplete="off"
+                  checked
+                />
+                <label
+                  class="btn btn-outline-secondary"
+                  for="sm-default-image-mode-upload"
+                  >Unggah file</label
+                >
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="sm-default-image-source-mode"
+                  id="sm-default-image-mode-url"
+                  value="url"
+                  autocomplete="off"
+                />
+                <label
+                  class="btn btn-outline-secondary"
+                  for="sm-default-image-mode-url"
+                  >URL</label
+                >
+              </div>
+              <div id="sm-default-image-upload-wrap" class="mb-2">
+                <input
+                  type="file"
+                  class="form-control form-control-sm"
+                  id="sm-default-image-file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                />
+                <div class="form-text">
+                  JPG, PNG, WebP, or GIF (max 5 MB). Fills the URL field below.
+                </div>
+              </div>
+              <div id="sm-default-image-url-wrap" class="d-none">
+                <label for="sm-default-image" class="form-label"
+                  >URL gambar default</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text border-end-0"
+                    ><i class="bi bi-image" aria-hidden="true"></i
+                  ></span>
+                  <input
+                    type="text"
+                    class="form-control border-start-0 ps-0"
+                    id="sm-default-image"
+                    name="default_image"
+                    maxlength="500"
+                    value="{{ with .setting }}{{ .default_image }}{{ end }}"
+                    placeholder="https://… or /static/…"
+                  />
+                </div>
+              </div>
+              <div class="form-text">
+                Open Graph / Twitter card image when a page has none.
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="sm-default-keywords" class="form-label"
+                >Kata kunci default</label
+              >
+              <div class="input-group">
+                <span class="input-group-text border-end-0"
+                  ><i class="bi bi-tags" aria-hidden="true"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="sm-default-keywords"
+                  name="default_keywords"
+                  maxlength="500"
+                  value="{{ with .setting }}{{ .default_keywords }}{{ end }}"
+                  placeholder="keyword one, keyword two"
+                />
+              </div>
+            </div>
+            <div class="col-12 pt-2 ss-actions">
+              <button type="submit" class="btn btn-primary px-4" id="sm-submit">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="ss-pane-connections"
+          role="tabpanel"
+          aria-labelledby="ss-tab-connections"
+          tabindex="0"
+        >
+          <div
+            id="site-connections-error"
+            class="alert alert-danger d-none"
+            role="alert"
+          ></div>
+
+          <form
+            id="form-site-connections"
+            class="site-connections-form row"
+            novalidate
+          >
+            <div class="col-md-6 mb-4 pb-2 border-bottom border-opacity-50">
+              <label for="sc-ahrefs" class="form-label fw-semibold"
+                >Ahrefs</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="sc-ahrefs"
+                name="ahrefs"
+                maxlength="512"
+                placeholder="Masukkan kode verifikasi"
+                value="{{ with .connections }}{{ .ahrefs }}{{ end }}"
+                autocomplete="off"
+              />
+              <p class="form-text text-secondary small mb-0 mt-2">
+                Ambil kode verifikasi di
+                <a
+                  id="sc-link-ahrefs"
+                  href="https://yoa.st/ahrefs-verification-code"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Ahrefs</a
+                >.
+              </p>
+            </div>
+
+            <div class="col-md-6 mb-4 pb-2 border-bottom border-opacity-50">
+              <label for="sc-google" class="form-label fw-semibold"
+                >Google</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="sc-google"
+                name="google"
+                maxlength="512"
+                placeholder="Masukkan kode verifikasi"
+                value="{{ with .connections }}{{ .google }}{{ end }}"
+                autocomplete="off"
+              />
+              <p class="form-text text-secondary small mb-0 mt-2">
+                Ambil kode verifikasi di
+                <a
+                  id="sc-link-google"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Google Search Console</a
+                >
+              </p>
+            </div>
+
+            <div class="col-md-6 mb-4 pb-2 border-bottom border-opacity-50">
+              <label for="sc-bing" class="form-label fw-semibold">Bing</label>
+              <input
+                type="text"
+                class="form-control"
+                id="sc-bing"
+                name="bing"
+                maxlength="512"
+                placeholder="Masukkan kode verifikasi"
+                value="{{ with .connections }}{{ .bing }}{{ end }}"
+                autocomplete="off"
+              />
+              <p class="form-text text-secondary small mb-0 mt-2">
+                Ambil kode verifikasi di
+                <a
+                  id="sc-link-bing"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Bing Webmaster Tools</a
+                >
+              </p>
+            </div>
+
+            <div class="col-md-6 mb-4 pb-2 border-bottom border-opacity-50">
+              <label for="sc-yandex" class="form-label fw-semibold"
+                >Yandex</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="sc-yandex"
+                name="yandex"
+                maxlength="512"
+                placeholder="Masukkan kode verifikasi"
+                value="{{ with .connections }}{{ .yandex }}{{ end }}"
+                autocomplete="off"
+              />
+              <p class="form-text text-secondary small mb-0 mt-2">
+                Tambahkan situs Anda di
+                <a
+                  id="sc-link-yandex"
+                  href="https://webmaster.yandex.com/sites/add/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Yandex Webmaster</a
+                >.
+              </p>
+            </div>
+
+            <div class="col-12 my-3 pt-3 border-top">
+              <h6 class="fw-semibold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-google text-primary fs-5" aria-hidden="true"></i>
+                Google Search Console Indexing API
+              </h6>
+              <p class="text-secondary small mb-3">
+                Kirim otomatis dan manual request pengindeksan artikel ke Google Search Console via Indexing API.
+              </p>
+              
+              <div class="form-check form-switch mb-3 bg-body-tertiary p-2.5 rounded ps-5 border">
+                <input
+                  class="form-check-input ms-0 me-2"
+                  type="checkbox"
+                  role="switch"
+                  id="sc-google-indexing-enabled"
+                  name="google_indexing_enabled"
+                  {{ with .connections }}{{ if .google_indexing_enabled }}checked{{ end }}{{ end }}
+                />
+                <label class="form-check-label small fw-semibold" for="sc-google-indexing-enabled">
+                  Otomatis Index Saat Artikel Diterbitkan (Auto-Indexing)
+                </label>
+              </div>
+
+              <div class="card border bg-body">
+                <div class="card-header bg-body-tertiary border-bottom py-2 px-3">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <span class="fw-semibold small"><i class="bi bi-key me-1 text-primary"></i>Kredensial Service Account JSON</span>
+                    <ul class="nav nav-pills nav-fill card-header-pills gap-1" id="sc-gsc-json-tabs" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button
+                          class="nav-link active btn-sm py-1 px-3 small"
+                          id="gsc-tab-upload"
+                          data-bs-toggle="tab"
+                          data-bs-target="#gsc-pane-upload"
+                          type="button"
+                          role="tab"
+                          aria-controls="gsc-pane-upload"
+                          aria-selected="true"
+                        >
+                          <i class="bi bi-file-earmark-arrow-up me-1"></i> Upload File JSON
+                        </button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button
+                          class="nav-link btn-sm py-1 px-3 small"
+                          id="gsc-tab-script"
+                          data-bs-toggle="tab"
+                          data-bs-target="#gsc-pane-script"
+                          type="button"
+                          role="tab"
+                          aria-controls="gsc-pane-script"
+                          aria-selected="false"
+                        >
+                          <i class="bi bi-code-slash me-1"></i> Tempel Script JSON
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="tab-content" id="sc-gsc-json-tab-content">
+                    <!-- Tab 1: Upload File JSON -->
+                    <div
+                      class="tab-pane fade show active"
+                      id="gsc-pane-upload"
+                      role="tabpanel"
+                      aria-labelledby="gsc-tab-upload"
+                      tabindex="0"
+                    >
+                      <div class="mb-2">
+                        <label for="sc-gsc-file-input" class="form-label small fw-semibold">Pilih File Key Service Account (.json)</label>
+                        <input
+                          type="file"
+                          class="form-control form-control-sm"
+                          id="sc-gsc-file-input"
+                          accept=".json,application/json"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Tab 2: Tempel Script JSON -->
+                    <div
+                      class="tab-pane fade"
+                      id="gsc-pane-script"
+                      role="tabpanel"
+                      aria-labelledby="gsc-tab-script"
+                      tabindex="0"
+                    >
+                      <textarea
+                        class="form-control font-monospace small"
+                        id="sc-google-service-account-json"
+                        name="google_service_account_json"
+                        rows="6"
+                        placeholder='Tempelkan isi file JSON kredensial Google Service Account di sini (e.g. {"type": "service_account", ...})'
+                      >{{ with .connections }}{{ .google_service_account_json }}{{ end }}</textarea>
+                    </div>
+                  </div>
+
+                  <div id="sc-gsc-file-info" class="alert alert-success py-2.5 px-3 small mt-3 mb-0 d-none">
+                    <div class="d-flex align-items-center gap-2 mb-1 fw-bold text-success">
+                      <i class="bi bi-check-circle-fill fs-6"></i>
+                      <span>Kredensial Service Account Aktif</span>
+                    </div>
+                    <div class="text-secondary small" id="sc-gsc-file-details"></div>
+                  </div>
+
+                  <div class="form-text small text-secondary mt-2">
+                    Scope yang dibutuhkan: <code>https://www.googleapis.com/auth/indexing</code>. Pastikan email Service Account telah ditambahkan sebagai Pemilik/Editor di Google Search Console.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="row">
+              <div class="col-12 mb-3">
+                <h6 class="fw-semibold mb-2">Auto-post social</h6>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="sc-auto-post-enabled"
+                    {{
+                    with
+                    .connections
+                    }}{{
+                    if
+                    .auto_post_enabled
+                    }}checked{{
+                    end
+                    }}{{
+                    end
+                    }}
+                  />
+                  <label class="form-check-label" for="sc-auto-post-enabled">
+                    Enable auto-post when post is published
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-12 mb-4">
+                <label for="sc-auto-post-template" class="form-label fw-semibold"
+                  >Post template</label
+                >
+                <textarea
+                  class="form-control font-monospace"
+                  id="sc-auto-post-template"
+                  rows="3"
+                  placeholder='{{"{{title}}"}}&#10;{{"{{url}}"}}&#10;{{"{{snippet}}"}}'
+                >
+  {{ with .connections }}{{ .auto_post_template }}{{ end }}</textarea>
+                <div class="form-text">
+                  Placeholders: <code>{{"{{title}}"}}</code>,
+                  <code>{{"{{url}}"}}</code>, <code>{{"{{snippet}}"}}</code>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-4">
+                <h6 class="fw-semibold">Facebook</h6>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sc-facebook-enabled"
+                    {{
+                    with
+                    .connections
+                    }}{{
+                    if
+                    .facebook_enabled
+                    }}checked{{
+                    end
+                    }}{{
+                    end
+                    }}
+                  />
+                  <label class="form-check-label" for="sc-facebook-enabled"
+                    >Aktifkan</label
+                  >
+                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-facebook-client-id"
+                  maxlength="255"
+                  placeholder="OAuth Client ID"
+                  value="{{ with .connections }}{{ .facebook_client_id }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-facebook-client-secret"
+                  maxlength="255"
+                  placeholder="Client Secret OAuth"
+                  value="{{ with .connections }}{{ .facebook_client_secret }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="sc-facebook-account-id"
+                  maxlength="255"
+                  placeholder="Account/Page ID (optional)"
+                  value="{{ with .connections }}{{ .facebook_account_id }}{{ end }}"
+                />
+                <div class="form-text mt-1">
+                  Publish URL:
+                  <code id="sc-facebook-publish-preview">-</code>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-4">
+                <h6 class="fw-semibold">X (Twitter)</h6>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sc-x-enabled"
+                    {{
+                    with
+                    .connections
+                    }}{{
+                    if
+                    .x_enabled
+                    }}checked{{
+                    end
+                    }}{{
+                    end
+                    }}
+                  />
+                  <label class="form-check-label" for="sc-x-enabled"
+                    >Aktifkan</label
+                  >
+                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-x-client-id"
+                  maxlength="255"
+                  placeholder="OAuth Client ID"
+                  value="{{ with .connections }}{{ .x_client_id }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-x-client-secret"
+                  maxlength="255"
+                  placeholder="Client Secret OAuth"
+                  value="{{ with .connections }}{{ .x_client_secret }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="sc-x-account-id"
+                  maxlength="255"
+                  placeholder="Account/User ID (optional)"
+                  value="{{ with .connections }}{{ .x_account_id }}{{ end }}"
+                />
+                <div class="form-text mt-1">
+                  Publish URL:
+                  <code id="sc-x-publish-preview">-</code>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-4">
+                <h6 class="fw-semibold">TikTok</h6>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sc-tiktok-enabled"
+                    {{
+                    with
+                    .connections
+                    }}{{
+                    if
+                    .tiktok_enabled
+                    }}checked{{
+                    end
+                    }}{{
+                    end
+                    }}
+                  />
+                  <label class="form-check-label" for="sc-tiktok-enabled"
+                    >Aktifkan</label
+                  >
+                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-tiktok-client-id"
+                  maxlength="255"
+                  placeholder="OAuth Client ID"
+                  value="{{ with .connections }}{{ .tiktok_client_id }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-tiktok-client-secret"
+                  maxlength="255"
+                  placeholder="Client Secret OAuth"
+                  value="{{ with .connections }}{{ .tiktok_client_secret }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="sc-tiktok-account-id"
+                  maxlength="255"
+                  placeholder="Account/Open ID (optional)"
+                  value="{{ with .connections }}{{ .tiktok_account_id }}{{ end }}"
+                />
+                <div class="form-text mt-1">
+                  Publish URL:
+                  <code id="sc-tiktok-publish-preview">-</code>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-4">
+                <h6 class="fw-semibold">Instagram</h6>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sc-instagram-enabled"
+                    {{
+                    with
+                    .connections
+                    }}{{
+                    if
+                    .instagram_enabled
+                    }}checked{{
+                    end
+                    }}{{
+                    end
+                    }}
+                  />
+                  <label class="form-check-label" for="sc-instagram-enabled"
+                    >Aktifkan</label
+                  >
+                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-instagram-client-id"
+                  maxlength="255"
+                  placeholder="OAuth Client ID"
+                  value="{{ with .connections }}{{ .instagram_client_id }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control mb-2 font-monospace"
+                  id="sc-instagram-client-secret"
+                  maxlength="255"
+                  placeholder="Client Secret OAuth"
+                  value="{{ with .connections }}{{ .instagram_client_secret }}{{ end }}"
+                />
+                <input
+                  type="text"
+                  class="form-control font-monospace"
+                  id="sc-instagram-account-id"
+                  maxlength="255"
+                  placeholder="Account/User ID (optional)"
+                  value="{{ with .connections }}{{ .instagram_account_id }}{{ end }}"
+                />
+                <div class="form-text mt-1">
+                  Publish URL:
+                  <code id="sc-instagram-publish-preview">-</code>
+                </div>
+              </div>
+              
+              <button
+                type="button"
+                class="btn btn-outline-secondary px-4 ms-2"
+                id="sc-test-autopost"
+              >
+                <i class="bi bi-send-check me-1" aria-hidden="true"></i>
+                Test autopost
+              </button>
+            </div> -->
+            <div class="pt-2 ss-actions">
+              <button type="submit" class="btn btn-primary px-4" id="sc-submit">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="ss-pane-web-images"
+          role="tabpanel"
+          aria-labelledby="ss-tab-web-images"
+          tabindex="0"
+        >
+          <div
+            id="site-web-images-error"
+            class="alert alert-danger d-none"
+            role="alert"
+          ></div>
+          <form id="form-site-web-images" class="row g-3 g-lg-4" novalidate>
+            <div class="col-12">
+              <p class="text-muted mb-0">
+                Atur kredensial API untuk post manual, bulk generate, dan pencarian gambar web scraper.
+                Urutan mode <strong>Auto</strong>: Pexels → Unsplash → Google → Bing (via SerpAPI).
+                Provider yang dinonaktifkan akan dilewati dalam mode Auto.
+              </p>
+            </div>
+            <div class="col-12">
+              <div
+                id="site-web-images-config-status"
+                class="alert alert-warning mb-0 d-none"
+                role="status"
+              ></div>
+            </div>
+            <div class="col-12 col-xl-6">
+              <div class="card border h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" role="switch" id="wi-unsplash-enabled" data-wi-enabled="unsplash" />
+                      <label class="form-check-label fw-semibold" for="wi-unsplash-enabled">Unsplash</label>
+                    </div>
+                    <span class="badge text-bg-warning d-none" data-wi-status="unsplash">Belum config</span>
+                  </div>
+                  <div class="form-text mt-0 mb-3">
+                    <a href="https://unsplash.com/oauth/applications" target="_blank" rel="noopener noreferrer">Ambil access key Unsplash</a>
+                  </div>
+                  <label for="wi-unsplash-access-key" class="form-label">Kunci akses</label>
+                  <input type="text" class="form-control font-monospace" id="wi-unsplash-access-key" data-wi-credential="unsplash.access_key" autocomplete="off" />
+                  <div class="form-text">Dipakai untuk API pencarian resmi Unsplash.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-xl-6">
+              <div class="card border h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" role="switch" id="wi-serpapi-enabled" data-wi-enabled="serpapi" />
+                      <label class="form-check-label fw-semibold" for="wi-serpapi-enabled">SerpAPI</label>
+                    </div>
+                    <span class="badge text-bg-warning d-none" data-wi-status="serpapi">Belum config</span>
+                  </div>
+                  <div class="form-text mt-0 mb-3">
+                    <a href="https://serpapi.com/manage-api-key" target="_blank" rel="noopener noreferrer">Ambil API key SerpAPI</a>
+                  </div>
+                  <label for="wi-serpapi-api-key" class="form-label">Kunci API</label>
+                  <input type="text" class="form-control font-monospace" id="wi-serpapi-api-key" data-wi-credential="serpapi.api_key" autocomplete="off" />
+                  <div class="form-text">Satu kunci dipakai untuk Google Images dan Bing Images. Aktifkan toggle SerpAPI agar Google/Bing ikut mode <strong>Auto</strong>; untuk sumber spesifik Google/Bing, cukup isi kunci API.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-xl-6">
+              <div class="card border h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" role="switch" id="wi-pexels-enabled" data-wi-enabled="pexels" />
+                      <label class="form-check-label fw-semibold" for="wi-pexels-enabled">Pexels</label>
+                    </div>
+                    <span class="badge text-bg-warning d-none" data-wi-status="pexels">Belum config</span>
+                  </div>
+                  <div class="form-text mt-0 mb-3">
+                    <a href="https://www.pexels.com/api/new/" target="_blank" rel="noopener noreferrer">Ambil API key Pexels</a>
+                  </div>
+                  <label for="wi-pexels-api-key" class="form-label">Kunci API</label>
+                  <input type="text" class="form-control font-monospace" id="wi-pexels-api-key" data-wi-credential="pexels.api_key" autocomplete="off" />
+                  <div class="form-text">Tanpa key, Pexels akan dilewati dalam mode Auto.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 pt-2 ss-actions">
+              <button type="submit" class="btn btn-primary px-4" id="ss-web-images-submit">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div
+          class="tab-pane fade"
+          id="ss-pane-r2"
+          role="tabpanel"
+          aria-labelledby="ss-tab-r2"
+          tabindex="0"
+        >
+          <div
+            id="site-r2-error"
+            class="alert alert-danger d-none"
+            role="alert"
+          ></div>
+          <form id="form-site-r2" class="row g-3 g-lg-4" novalidate>
+            <div class="col-12 col-lg-6">
+              <label for="ss-r2-account-id" class="form-label">R2 Account ID</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="ss-r2-account-id"
+                name="r2_account_id"
+                maxlength="128"
+                value="{{ with .cloud_storage }}{{ .r2_account_id }}{{ end }}"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-r2-access-key-id" class="form-label">R2 Access Key ID</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="ss-r2-access-key-id"
+                name="r2_access_key_id"
+                maxlength="128"
+                value="{{ with .cloud_storage }}{{ .r2_access_key_id }}{{ end }}"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12">
+              <label for="ss-r2-secret-access-key" class="form-label">R2 Secret Access Key</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="ss-r2-secret-access-key"
+                name="r2_secret_access_key"
+                maxlength="256"
+                value="{{ with .cloud_storage }}{{ .r2_secret_access_key }}{{ end }}"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-r2-bucket" class="form-label">R2 Bucket</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="ss-r2-bucket"
+                name="r2_bucket"
+                maxlength="120"
+                placeholder="media"
+                value="{{ with .cloud_storage }}{{ if .r2_bucket }}{{ .r2_bucket }}{{ else }}media{{ end }}{{ else }}media{{ end }}"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12 col-lg-6">
+              <label for="ss-r2-prefix" class="form-label">R2 Prefix</label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="ss-r2-prefix"
+                name="r2_prefix"
+                maxlength="255"
+                placeholder="uploads"
+                value="{{ with .cloud_storage }}{{ if .r2_prefix }}{{ .r2_prefix }}{{ else }}uploads{{ end }}{{ else }}uploads{{ end }}"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12">
+              <label for="ss-r2-public-base-url" class="form-label">R2 Public Base URL</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ss-r2-public-base-url"
+                name="r2_public_base_url"
+                maxlength="500"
+                value="{{ with .cloud_storage }}{{ .r2_public_base_url }}{{ end }}"
+                placeholder="https://your-public-bucket.r2.dev"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-12 pt-2 ss-actions">
+              <button type="submit" class="btn btn-primary px-4" id="ss-r2-submit">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                Simpan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script
+  defer
+  src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/site_setting.min.js?v={{ .asset_version }}"
+></script>
+<script
+  defer
+  src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/site_connections.min.js?v={{ .asset_version }}"
+></script>
+{{ end }} {{ template "layouts-admin-app" . }}

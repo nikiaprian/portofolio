@@ -1,0 +1,89 @@
+{{ define "client-content" }}
+<main class="theme2-page max-w-7xl mx-auto px-4 sm:px-6 py-8">
+  <div class="grid lg:grid-cols-3 gap-10">
+    <div id="public-root" class="public-root lg:col-span-2 space-y-8 animate-fadeUp">
+      <section class="blog-author-card overflow-hidden border border-gray-200 bg-white" aria-label="Profil author">
+        <div class="blog-author-card-banner h-28 bg-gray-100 border-b border-gray-200" aria-hidden="true"></div>
+        <div class="blog-author-card-body px-6 pb-6 relative">
+          <div class="blog-author-card-avatar absolute -top-14 left-6 border-4 border-white rounded-full bg-white overflow-hidden w-28 h-28">
+            <span class="blog-author-card-img blog-author-card-img--fallback flex items-center justify-center w-full h-full rounded-full bg-accent text-3xl font-bold text-white" aria-hidden="true"
+              >{{ .author_avatar_letter }}</span
+            >
+            {{ if .author_img }}
+            <img
+              class="blog-author-card-img absolute inset-0 rounded-full object-cover w-full h-full"
+              src="{{ resizeImg .author_img 112 112 }}"
+              alt="{{ .author_name }}"
+              loading="lazy"
+              decoding="async"
+              width="112"
+              height="112"
+              onerror="this.remove()"
+            />
+            {{ end }}
+          </div>
+          <div class="blog-author-card-main pt-16">
+            <p class="text-xs font-sans font-bold uppercase tracking-widest text-accent mb-1">Penulis</p>
+            <h1 class="blog-author-card-name font-serif text-2xl sm:text-3xl font-bold text-gray-900">{{ .author_name }}</h1>
+            <p class="blog-author-card-headline text-sm font-medium text-gray-600 mt-1">{{ .author_role_label }}</p>
+            {{ if .author_bio }}
+            <p class="blog-author-card-bio text-gray-700 mt-4 leading-relaxed font-sans">{{ .author_bio }}</p>
+            {{ else }}
+            <p class="blog-author-card-bio blog-author-card-bio--empty text-gray-500 italic mt-4 font-sans">
+              Belum ada deskripsi profil.
+            </p>
+            {{ end }}
+            <p class="blog-author-card-metric text-sm text-gray-600 mt-4 font-sans">
+              <strong class="text-gray-900">{{ .author_posts_count }}</strong> artikel dipublikasikan
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div class="blog-feed-head mt-8">
+        <h2 class="text-xs font-sans font-bold uppercase tracking-widest text-gray-900 pl-3 border-l-4 border-accent">Artikel</h2>
+      </div>
+
+      {{ if .posts }}
+        {{ template "client-topic-posts-list" . }}
+        {{ template "client-pagination" . }}
+      {{ else }}
+        <p id="author-posts" class="text-gray-600 font-sans" tabindex="-1">Belum ada artikel dari author ini.</p>
+      {{ end }}
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</main>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.ClientBindPageImg) {
+      window.ClientBindPageImg(list);
+    }
+  })();
+</script>
+{{ end }}

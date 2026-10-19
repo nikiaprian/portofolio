@@ -1,0 +1,62 @@
+---
+description: Prevent repository-wide scanning
+alwaysApply: true
+---
+
+# Repository Reading Policy
+
+Do not read entire repository.
+
+Do not read internal/**.
+
+Do not read public/**.
+
+Do not read templates/**.
+
+Always identify feature area first.
+
+Examples:
+
+Feature: Post
+Allowed:
+
+- post_handler.go
+- post_service.go
+- post_repository.go
+- post.go
+
+Feature: Category
+Allowed:
+
+- category_handler.go
+- category_service.go
+- category_repository.go
+- category.go
+
+Feature: Site Setting
+Allowed:
+
+- site_setting_handler.go
+- site_setting_service.go
+- site_setting_repository.go
+- site_setting.go
+
+If more than 10 files are required:
+
+Stop and explain why.
+
+Do not continue scanning automatically.
+
+# Decision Making
+
+Working code is not enough.
+
+Also verify:
+
+- Architecture consistency
+- Reuse existing code
+- Performance impact
+- Cache impact
+- Query impact
+
+Never create duplicate logic if similar implementation already exists.

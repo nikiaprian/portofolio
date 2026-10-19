@@ -1,0 +1,11 @@
+{{ define "admin-content" }}
+
+{{ template "admin-crud-list" . }}
+
+{{ template "admin-page-delete" . }}
+
+<script defer src="/static/js/admin/page.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}
