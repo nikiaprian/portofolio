@@ -6,6 +6,7 @@
 {{ if .Saved }}<p class="pf-ok">Perubahan tersimpan.</p>{{ end }}
 {{ if .Error }}<p class="pf-error">{{ .Error }}</p>{{ end }}
 {{ if eq .Status "suspended" }}<p class="pf-error">Situs ini sedang dinonaktifkan, jadi pengunjung tidak bisa melihatnya.</p>{{ end }}
+<p class="pf-help">Template yang dibeli: <strong>{{ .TemplateName }}</strong>. Susunan halaman mengikuti template ini.</p>
 
 <section class="pf-section">
   <h2>Foto</h2>

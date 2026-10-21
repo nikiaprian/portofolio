@@ -2,11 +2,21 @@
 <div class="pf-split pf-checkout">
   <div>
     <p class="pf-kicker">Checkout</p>
-    <h1>Ambil subdomain Anda.</h1>
-    <p class="pf-lead">Situs tampil dengan nama yang Anda pilih.</p>
+    <h1>Beli template ini.</h1>
+    <p class="pf-lead">Isi data, lalu lanjut ke WhatsApp. Setelah pembayaran diterima, admin mengaktifkan portfolio Anda.</p>
+    <p class="pf-price">{{ .PriceLabel }}</p>
   </div>
   <form class="pf-form pf-card" method="post" action="/beli">
     {{ if .Error }}<p class="pf-error">{{ .Error }}</p>{{ end }}
+    <label>Template
+      <select name="template" required>
+        <option value="">Pilih template</option>
+        {{ range .Products }}
+        <option value="{{ .Slug }}" {{ if eq .Slug $.Template }}selected{{ end }}>{{ .Name }}</option>
+        {{ end }}
+      </select>
+    </label>
+    {{ if .TemplateName }}<p class="pf-help">Yang dibeli: <strong>{{ .TemplateName }}</strong></p>{{ end }}
     <label>Nama<input name="name" required maxlength="100" value="{{ .Name }}" /></label>
     <label>Email<input name="email" type="email" required maxlength="150" value="{{ .Email }}" /></label>
     <label>WhatsApp<input name="whatsapp" required inputmode="tel" value="{{ .WhatsApp }}" placeholder="08…" /></label>
@@ -14,7 +24,7 @@
       <input name="subdomain" required minlength="3" maxlength="30" pattern="[a-z0-9][a-z0-9-]{1,28}[a-z0-9]" value="{{ .Subdomain }}" placeholder="namaanda" />
     </label>
     <p class="pf-help">Alamat: <strong id="pf-host">{{ if .Subdomain }}{{ .Subdomain }}{{ else }}nama{{ end }}.portofolioku.id</strong></p>
-    <button class="pf-btn" type="submit">Lanjut Pembayaran</button>
+    <button class="pf-btn" type="submit">Lanjut ke WhatsApp</button>
   </form>
 </div>
 <script>

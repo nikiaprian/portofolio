@@ -6,11 +6,11 @@
       <h1>Satu tautan, dan portofolio Anda <span>langsung kelihatan.</span></h1>
       <p class="pf-lead">Foto, cerita singkat, keahlian, dan proyek bisa duduk di satu halaman. Pilih namanya, lalu isi sendiri. Tautannya siap dikirim.</p>
       <div class="pf-actions">
-        <a class="pf-btn" href="/beli">Buat Portofolio-ku</a>
+        <a class="pf-btn" href="/#produk">Pilih template</a>
       </div>
       <ul class="pf-trust">
         <li>Domain dengan nama Anda</li>
-        <li>Langsung aktif</li>
+        <li>Aktif setelah pembayaran dikonfirmasi</li>
         <li>Dapat dikustomisasi kapanpun</li>
       </ul>
     </div>
@@ -109,19 +109,7 @@
       <p class="pf-lead">Template siap dipakai. Bisa dikustomisasi dengan mudah.</p>
     </div>
     <div class="pf-product-grid">
-      {{ range .Products }}
-      <a class="pf-product" href="/produk/{{ .Slug }}">
-        <span class="pf-product-frame tone-{{ .Tone }}" aria-hidden="true">
-          <span class="pf-product-bar"></span>
-          <span class="pf-product-face">
-            <span class="pf-product-avatar"></span>
-            <span class="pf-product-lines"><i></i><i></i><i></i></span>
-          </span>
-        </span>
-        <strong>{{ .Name }}</strong>
-        <span>{{ .Summary }}</span>
-      </a>
-      {{ end }}
+      {{ range .Products }}{{ template "pf-product-card" . }}{{ end }}
     </div>
     <div class="pf-actions pf-center"><a class="pf-btn alt" href="/produk">Lihat semua produk</a></div>
   </div>
@@ -174,12 +162,12 @@
     <div class="pf-section-head">
       <p class="pf-kicker">Tiga langkah</p>
       <h2 class="pf-section-title">Dari nama domain sampai halaman jadi</h2>
-      <p class="pf-lead">Pilih nama domain, selesaikan pembayaran, lalu kustomisasi isinya.</p>
+      <p class="pf-lead">Pilih template, isi form, lalu selesaikan pembayaran lewat WhatsApp.</p>
     </div>
     <div class="pf-grid">
-      <article class="pf-card"><p class="pf-step">01</p><h3>Pilih nama domain</h3><p>Nama yang masih kosong, email dan WhatsApp.</p></article>
-      <article class="pf-card"><p class="pf-step">02</p><h3>Pembayaran</h3><p>Pembayaran mudah dan cepat. Alamatnya langsung aktif.</p></article>
-      <article class="pf-card"><p class="pf-step">03</p><h3>Kustomisasi</h3><p>Lengkapi foto, bio, keahlian, proyek, dan kontak dari halaman kelola.</p></article>
+      <article class="pf-card"><p class="pf-step">01</p><h3>Pilih template</h3><p>Klasik, Studio, Editorial, Galeri, Lamaran, atau Kreator.</p></article>
+      <article class="pf-card"><p class="pf-step">02</p><h3>Isi form</h3><p>Nama, email, WhatsApp, dan subdomain. Lalu lanjut ke chat WhatsApp.</p></article>
+      <article class="pf-card"><p class="pf-step">03</p><h3>Admin mengaktifkan</h3><p>Setelah pembayaran diterima, portfolio aktif dan isinya bisa Anda ubah.</p></article>
     </div>
   </div>
 </section>
@@ -210,7 +198,7 @@
       <div>
         <p class="pf-kicker">Contoh halaman</p>
         <h2>Lihat salah satu halamannya</h2>
-        <p class="pf-lead">Susunannya sama. Foto, cerita, dan karyanya yang membedakan.</p>
+        <p class="pf-lead">Setiap template punya susunan sendiri. Foto, cerita, dan karyanya Anda yang mengisi.</p>
       </div>
       {{ if .DemoURL }}
       <div class="pf-actions"><a class="pf-btn alt" href="{{ .DemoURL }}">Buka Contoh</a></div>
@@ -229,11 +217,11 @@
       <p class="pf-price">{{ .PriceLabel }}</p>
       <p>Halaman itu lalu bisa Anda ubah sendiri.</p>
       <ul class="pf-includes">
-        <li>Alamat langsung aktif</li>
+        <li>Aktif setelah pembayaran dikonfirmasi</li>
         <li>Foto, bio, keahlian, proyek, dan kontak</li>
         <li>Kustomisasi diatur dari halaman kelola</li>
       </ul>
-      <div class="pf-actions"><a class="pf-btn" href="/beli">Beli sekarang</a></div>
+      <div class="pf-actions"><a class="pf-btn" href="/produk">Pilih template</a></div>
     </article>
   </div>
 </section>
@@ -245,7 +233,7 @@
       <h2 class="pf-section-title">Pertanyaan yang sering muncul</h2>
     </div>
     <div class="pf-faq">
-      <details open><summary>Kapan alamatnya aktif?</summary><p>Alamatnya langsung aktif. Nama yang tidak dilanjutkan dilepas lagi setelah 24 jam.</p></details>
+      <details open><summary>Kapan alamatnya aktif?</summary><p>Setelah pembayaran di chat WhatsApp dikonfirmasi, admin mengaktifkan portfolio. Tautan untuk mengatur password ikut terkirim di chat itu. Nama yang belum dibayar dilepas lagi setelah 24 jam.</p></details>
       <details><summary>Apa yang masih bisa diubah?</summary><p>Foto, nama, bio, keahlian, proyek, dan kontak. Nama subdomain tidak berubah dari halaman kelola.</p></details>
       <details><summary>Artikelnya ke mana?</summary><p>Tetap ada di menu Artikel. Halaman depan ini khusus untuk halaman portfolio.</p></details>
     </div>

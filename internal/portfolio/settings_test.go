@@ -27,18 +27,19 @@ func TestBuyerWhatsAppLink(t *testing.T) {
 		Email:     "andi@example.com",
 		WhatsApp:  "+628111",
 		Subdomain: "andi",
+		Template:  "klasik",
 		Amount:    149000,
-	}, "portofolioku.id")
+	}, "portofolioku.id", "https://portofolioku.id/kelola/atur-password/abc")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.HasPrefix(link, "https://wa.me/6281200000000?text=") {
 		t.Fatal(link)
 	}
-	if !strings.Contains(link, "andi.portofolioku.id") && !strings.Contains(link, "andi.portofolioku.id") {
+	if !strings.Contains(link, "andi.portofolioku.id") || !strings.Contains(link, "Klasik") || !strings.Contains(link, "atur-password") {
 		t.Fatal(link)
 	}
-	if _, err := BuyerWhatsAppLink("", entity.PortfolioOrder{}, "localhost"); err == nil {
+	if _, err := BuyerWhatsAppLink("", entity.PortfolioOrder{}, "localhost", ""); err == nil {
 		t.Fatal("expected missing admin number to fail")
 	}
 }

@@ -39,7 +39,7 @@
   {{ .json_ld_html }}
   <link rel="icon" type="image/png" href="/static/img/favicon.png?v=2" />
   {{ if .SnapJS }}<script src="{{ .SnapJS }}" data-client-key="{{ .ClientKey }}"></script>{{ end }}
-  <link rel="stylesheet" href="/static/css/portfolio.css?v=102" />
+  <link rel="stylesheet" href="/static/css/portfolio.css?v=103" />
   {{ if .header_script }}{{ .header_script }}{{ end }}
   {{ if .font_stylesheet }}<link rel="stylesheet" href="{{ .font_stylesheet }}" />{{ end }}
   {{ if .font_family }}
@@ -57,7 +57,7 @@
   </style>
   {{ end }}
 </head>
-<body class="{{ if and (ne .Nav "none") (ne .Nav "bare") }}pf-home{{ end }}{{ if eq .layout "home" }} pf-landing{{ end }}">
+<body class="{{ if and (ne .Nav "none") (ne .Nav "bare") }}pf-home{{ end }}{{ if eq .layout "home" }} pf-landing{{ end }}{{ if .ThemeClass }} {{ .ThemeClass }}{{ end }}">
   {{ if and (ne .Nav "none") (ne .Nav "bare") }}
   <header class="pf-top">
     <div class="pf-wrap pf-top-inner">
@@ -74,7 +74,7 @@
         <a href="/testimoni">Testimoni</a>
         <a href="/posts">Artikel</a>
       </nav>
-      <a class="pf-btn" href="/beli">Buat Portofolio</a>
+      <a class="pf-btn" href="/produk">Buat Portofolio</a>
     </div>
   </header>
   <main{{ if ne .layout "home" }} class="pf-sheet"{{ end }}>

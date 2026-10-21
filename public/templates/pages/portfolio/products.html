@@ -3,22 +3,10 @@
   <div class="pf-section-head">
     <p class="pf-kicker">Template</p>
     <h1 class="pf-list-title">Produk</h1>
-    <p class="pf-lead">Pilih tampilan halaman. Isinya tetap bisa dikustomisasi.</p>
+    <p class="pf-lead">Pilih tampilan yang ingin dibeli. Isinya tetap bisa diubah setelah portfolio aktif.</p>
   </div>
   <div class="pf-product-grid">
-    {{ range .Products }}
-    <a class="pf-product" href="/produk/{{ .Slug }}">
-      <span class="pf-product-frame tone-{{ .Tone }}" aria-hidden="true">
-        <span class="pf-product-bar"></span>
-        <span class="pf-product-face">
-          <span class="pf-product-avatar"></span>
-          <span class="pf-product-lines"><i></i><i></i><i></i></span>
-        </span>
-      </span>
-      <strong>{{ .Name }}</strong>
-      <span>{{ .Summary }}</span>
-    </a>
-    {{ end }}
+    {{ range .Products }}{{ template "pf-product-card" . }}{{ end }}
   </div>
 </div>
 {{ end }}

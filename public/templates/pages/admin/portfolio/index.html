@@ -2,7 +2,7 @@
 <div class="container-fluid pb-4">
   <div class="mb-3">
     <h1 class="h3 mb-1">Portfolio</h1>
-    <p class="text-secondary mb-0">Pesanan dan situs subdomain pembeli.</p>
+    <p class="text-secondary mb-0">Pesanan masuk lewat WhatsApp. Aktifkan situs setelah pembayaran diterima.</p>
   </div>
   {{ if .error }}<div class="alert alert-warning">{{ .error }}</div>{{ end }}
   {{ if .saved }}<div class="alert alert-success">Pengaturan tersimpan.</div>{{ end }}
@@ -76,17 +76,23 @@
     <div class="table-responsive">
       <table class="table table-striped mb-0">
         <thead>
-          <tr><th>Subdomain</th><th>Nama</th><th>Status</th><th>Dibuat</th><th></th></tr>
+          <tr><th>Subdomain</th><th>Nama</th><th>Template</th><th>Status</th><th>Dibuat</th><th></th></tr>
         </thead>
         <tbody>
           {{ range .sites }}
           <tr>
             <td>{{ .Subdomain }}</td>
             <td>{{ .DisplayName }}</td>
-            <td>{{ .Status }}</td>
+            <td>{{ .Template }}</td>
+            <td>{{ if eq .Status "pending" }}Menunggu pembayaran{{ else if eq .Status "active" }}Aktif{{ else if eq .Status "suspended" }}Nonaktif{{ else }}{{ .Status }}{{ end }}</td>
             <td>{{ .Created }}</td>
             <td class="text-end">
-              {{ if eq .Status "active" }}
+              {{ if eq .Status "pending" }}
+              <form method="post" action="{{ $.public_base }}/admin/portfolios/{{ .ID }}/status">
+                <input type="hidden" name="status" value="active" />
+                <button class="btn btn-sm btn-success" type="submit">Aktifkan</button>
+              </form>
+              {{ else if eq .Status "active" }}
               <form method="post" action="{{ $.public_base }}/admin/portfolios/{{ .ID }}/status">
                 <input type="hidden" name="status" value="suspended" />
                 <button class="btn btn-sm btn-outline-danger" type="submit">Nonaktifkan</button>
@@ -100,7 +106,7 @@
             </td>
           </tr>
           {{ else }}
-          <tr><td colspan="5">Belum ada portfolio.</td></tr>
+          <tr><td colspan="6">Belum ada portfolio.</td></tr>
           {{ end }}
         </tbody>
       </table>
@@ -112,7 +118,7 @@
     <div class="table-responsive">
       <table class="table table-striped mb-0">
         <thead>
-          <tr><th>Subdomain</th><th>Pembeli</th><th>Email</th><th>Jumlah</th><th>Status</th><th>Dibuat</th></tr>
+          <tr><th>Subdomain</th><th>Pembeli</th><th>Email</th><th>Template</th><th>Jumlah</th><th>Status</th><th>Dibuat</th></tr>
         </thead>
         <tbody>
           {{ range .orders }}
@@ -120,12 +126,13 @@
             <td>{{ .Subdomain }}</td>
             <td>{{ .BuyerName }}</td>
             <td>{{ .Email }}</td>
+            <td>{{ .Template }}</td>
             <td>{{ .Amount }}</td>
-            <td>{{ .Status }}</td>
+            <td>{{ if eq .Status "paid" }}Lunas{{ else if eq .Status "pending" }}Menunggu{{ else }}{{ .Status }}{{ end }}</td>
             <td>{{ .Created }}</td>
           </tr>
           {{ else }}
-          <tr><td colspan="6">Belum ada pesanan.</td></tr>
+          <tr><td colspan="7">Belum ada pesanan.</td></tr>
           {{ end }}
         </tbody>
       </table>

@@ -38,6 +38,7 @@ type CheckoutInput struct {
 	Email     string
 	WhatsApp  string
 	Subdomain string
+	Template  string
 }
 
 // ProfileInput is the buyer editor form.
@@ -103,6 +104,10 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 	email := NormalizeEmail(in.Email)
 	whatsapp := NormalizeWhatsApp(in.WhatsApp)
 	sub := NormalizeSubdomain(in.Subdomain)
+	tpl, ok := TemplateBySlug(in.Template)
+	if !ok {
+		return nil, &InputError{Message: "Pilih template yang tersedia."}
+	}
 	if msg := ValidatePersonName(name); msg != "" {
 		return nil, &InputError{Message: msg}
 	}
@@ -147,6 +152,7 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 		Email:           email,
 		WhatsApp:        whatsapp,
 		Subdomain:       sub,
+		Template:        tpl.Slug,
 		Amount:          s.price,
 		Status:          entity.PortfolioOrderPending,
 	}
@@ -154,6 +160,7 @@ func (s *Service) Checkout(in CheckoutInput, finishURL func(publicRef string) st
 	_ = s.db.Where("status = ? AND created_at < ? AND dns_record_id <> ''", entity.PortfolioPending, now.Add(-PendingHold)).Find(&stale).Error
 	site := entity.Portfolio{
 		Subdomain:   sub,
+		Template:    tpl.Slug,
 		Status:      entity.PortfolioPending,
 		DisplayName: name,
 		Email:       email,
@@ -304,19 +311,23 @@ func (s *Service) HandleNotification(n Notification) error {
 		if !paid {
 			return nil
 		}
-		if err := tx.Model(&entity.Portfolio{}).Where("id = ?", order.PortfolioID).Update("status", entity.PortfolioActive).Error; err != nil {
-			return err
-		}
-		var existing entity.PortfolioAccount
-		err := tx.Where("portfolio_id = ?", order.PortfolioID).First(&existing).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return tx.Create(&entity.PortfolioAccount{
-				PortfolioID: order.PortfolioID,
-				Email:       order.Email,
-			}).Error
-		}
-		return err
+		return activatePaid(tx, order.PortfolioID, order.Email)
 	})
+}
+
+func activatePaid(tx *gorm.DB, portfolioID uint, email string) error {
+	if err := tx.Model(&entity.Portfolio{}).Where("id = ?", portfolioID).Update("status", entity.PortfolioActive).Error; err != nil {
+		return err
+	}
+	var existing entity.PortfolioAccount
+	err := tx.Where("portfolio_id = ?", portfolioID).First(&existing).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return tx.Create(&entity.PortfolioAccount{
+			PortfolioID: portfolioID,
+			Email:       email,
+		}).Error
+	}
+	return err
 }
 
 func (s *Service) SetPassword(token, password string) error {
@@ -355,7 +366,7 @@ func (s *Service) Login(email, password string) (*entity.PortfolioAccount, error
 		return nil, err
 	}
 	if strings.TrimSpace(account.Password) == "" {
-		return nil, &InputError{Message: "Password belum diatur. Gunakan tautan dari halaman selesai pembayaran."}
+		return nil, &InputError{Message: "Password belum diatur. Gunakan tautan yang dikirim di chat WhatsApp."}
 	}
 	if bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password)) != nil {
 		return nil, &InputError{Message: "Email atau password salah."}
@@ -435,9 +446,35 @@ func (s *Service) SetStatus(portfolioID uint, status string) error {
 		return err
 	}
 	if site.Status == entity.PortfolioPending {
-		return &InputError{Message: "Portfolio yang belum lunas tidak bisa diubah statusnya."}
+		if status != entity.PortfolioActive {
+			return &InputError{Message: "Portfolio yang menunggu pembayaran hanya bisa diaktifkan."}
+		}
+		return s.confirmManualPayment(&site)
 	}
 	return s.db.Model(&site).Update("status", status).Error
+}
+
+// confirmManualPayment marks the latest order paid and turns the portfolio on.
+func (s *Service) confirmManualPayment(site *entity.Portfolio) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		var order entity.PortfolioOrder
+		err := tx.Where("portfolio_id = ?", site.ID).Order("id desc").First(&order).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &InputError{Message: "Pesanan untuk portfolio ini tidak ditemukan."}
+		}
+		if err != nil {
+			return err
+		}
+		if order.Status != entity.PortfolioOrderPaid {
+			if err := tx.Model(&entity.PortfolioOrder{}).Where("id = ?", order.ID).Updates(map[string]any{
+				"status":             entity.PortfolioOrderPaid,
+				"transaction_status": "manual",
+			}).Error; err != nil {
+				return err
+			}
+		}
+		return activatePaid(tx, site.ID, order.Email)
+	})
 }
 
 func (s *Service) AdminLists() ([]entity.Portfolio, []entity.PortfolioOrder, error) {

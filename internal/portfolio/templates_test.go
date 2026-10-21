@@ -18,4 +18,17 @@ func TestTemplates(t *testing.T) {
 	if _, ok := TemplateBySlug("tidak-ada"); ok {
 		t.Fatal("expected missing slug")
 	}
+	if NormalizeTemplate(" Studio ") != "studio" {
+		t.Fatal(NormalizeTemplate(" Studio "))
+	}
+	if NormalizeTemplate("tidak-ada") != "" {
+		t.Fatal("unknown template should be empty")
+	}
+	if ThemeClass("studio") != "pf-body-studio" || ThemeClass("") != "pf-body-klasik" {
+		t.Fatal(ThemeClass("studio"), ThemeClass(""))
+	}
+	sample := SamplePortfolio("galeri")
+	if sample["Template"] != "galeri" || sample["DisplayName"] == "" {
+		t.Fatalf("%v", sample["Template"])
+	}
 }

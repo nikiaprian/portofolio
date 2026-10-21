@@ -24,7 +24,7 @@ func TestPortfolioTemplatesParse(t *testing.T) {
 		"landing.html", "checkout.html", "pay.html", "done.html",
 		"public.html", "missing.html", "login.html", "password.html", "manage.html",
 		"blog.html", "article.html", "info.html", "testimoni.html", "error.html", "rss.html",
-		"products.html", "product.html",
+		"products.html", "product.html", "themes.html",
 	}
 	for _, name := range pages {
 		path := filepath.Join(root, "public", "templates", "pages", "portfolio", name)
@@ -80,8 +80,10 @@ func TestPortfolioPagesRenderCopy(t *testing.T) {
 	}
 	root := filepath.Join(filepath.Dir(file), "..", "..")
 	layout := filepath.Join(root, "public", "templates", "layouts", "portfolio", "app.html")
-	landing := filepath.Join(root, "public", "templates", "pages", "portfolio", "landing.html")
-	tmpl, err := template.ParseFiles(layout, landing)
+	pages := filepath.Join(root, "public", "templates", "pages", "portfolio")
+	landing := filepath.Join(pages, "landing.html")
+	themes := filepath.Join(pages, "themes.html")
+	tmpl, err := template.ParseFiles(layout, themes, landing)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,12 +110,12 @@ func TestPortfolioPagesRenderCopy(t *testing.T) {
 			t.Fatalf("landing missing %q", needle)
 		}
 	}
-	publicTmpl, err := template.ParseFiles(layout, filepath.Join(root, "public", "templates", "pages", "portfolio", "public.html"))
+	publicTmpl, err := template.ParseFiles(layout, themes, filepath.Join(pages, "public.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	buf.Reset()
-	if err := publicTmpl.ExecuteTemplate(&buf, "pf-app", map[string]any{
+	base := map[string]any{
 		"DisplayName": "Contoh Kreator",
 		"Headline":    "Desainer produk",
 		"Bio":         "Bio contoh.",
@@ -123,10 +125,25 @@ func TestPortfolioPagesRenderCopy(t *testing.T) {
 		"Skills":      []map[string]string{{"Name": "Riset"}},
 		"Projects":    []map[string]string{{"Title": "Situs jurnal", "Summary": "Alur baca", "URL": "https://example.com"}},
 		"Website":     "https://example.com",
-	}); err != nil {
+	}
+	if err := publicTmpl.ExecuteTemplate(&buf, "pf-app", base); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(buf.String(), "Contoh Kreator") || !strings.Contains(buf.String(), "Situs jurnal") {
+	if !strings.Contains(buf.String(), "pf-theme-klasik") || !strings.Contains(buf.String(), "Contoh Kreator") || !strings.Contains(buf.String(), "Situs jurnal") {
 		t.Fatal("public portfolio missing content")
+	}
+	for _, slug := range []string{"studio", "editorial", "galeri", "lamaran", "kreator"} {
+		buf.Reset()
+		data := map[string]any{}
+		for key, value := range base {
+			data[key] = value
+		}
+		data["Template"] = slug
+		if err := publicTmpl.ExecuteTemplate(&buf, "pf-app", data); err != nil {
+			t.Fatalf("%s: %v", slug, err)
+		}
+		if !strings.Contains(buf.String(), "pf-theme-"+slug) {
+			t.Fatalf("%s layout missing", slug)
+		}
 	}
 }

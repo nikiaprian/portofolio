@@ -37,6 +37,7 @@ type PortfolioLinks struct {
 type Portfolio struct {
 	ID          uint               `gorm:"primaryKey" json:"id"`
 	Subdomain   string             `gorm:"size:30;uniqueIndex;not null" json:"subdomain"`
+	Template    string             `gorm:"size:30;not null;default:klasik" json:"template"`
 	Status      string             `gorm:"size:20;index;not null;default:pending" json:"status"`
 	DisplayName string             `gorm:"size:100;not null;default:''" json:"display_name"`
 	Headline    string             `gorm:"size:160;not null;default:''" json:"headline"`
@@ -54,18 +55,18 @@ type Portfolio struct {
 
 // PortfolioSetting is the singleton admin configuration for checkout.
 type PortfolioSetting struct {
-	ID                       uint      `gorm:"primaryKey" json:"id"`
-	Price                    int64     `gorm:"not null;default:0" json:"price"`
-	PaymentWhatsApp          string    `gorm:"size:20;not null;default:''" json:"payment_whatsapp"`
+	ID                      uint      `gorm:"primaryKey" json:"id"`
+	Price                   int64     `gorm:"not null;default:0" json:"price"`
+	PaymentWhatsApp         string    `gorm:"size:20;not null;default:''" json:"payment_whatsapp"`
 	CloudflareAPIToken      string    `gorm:"size:255;not null;default:''" json:"-"`
-	CloudflareZoneID         string    `gorm:"size:64;not null;default:''" json:"cloudflare_zone_id"`
-	CloudflareRecordType     string    `gorm:"size:8;not null;default:''" json:"cloudflare_record_type"`
-	CloudflareRecordContent  string    `gorm:"size:255;not null;default:''" json:"cloudflare_record_content"`
-	CloudflareProxied        bool      `gorm:"not null;default:false" json:"cloudflare_proxied"`
-	MidtransServerKey        string    `gorm:"size:255;not null;default:''" json:"-"`
-	MidtransClientKey        string    `gorm:"size:255;not null;default:''" json:"-"`
-	MidtransIsProduction     bool      `gorm:"not null;default:false" json:"midtrans_is_production"`
-	UpdatedAt                time.Time `json:"updated_at"`
+	CloudflareZoneID        string    `gorm:"size:64;not null;default:''" json:"cloudflare_zone_id"`
+	CloudflareRecordType    string    `gorm:"size:8;not null;default:''" json:"cloudflare_record_type"`
+	CloudflareRecordContent string    `gorm:"size:255;not null;default:''" json:"cloudflare_record_content"`
+	CloudflareProxied       bool      `gorm:"not null;default:false" json:"cloudflare_proxied"`
+	MidtransServerKey       string    `gorm:"size:255;not null;default:''" json:"-"`
+	MidtransClientKey       string    `gorm:"size:255;not null;default:''" json:"-"`
+	MidtransIsProduction    bool      `gorm:"not null;default:false" json:"midtrans_is_production"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }
 
 // PortfolioOrder is a Midtrans checkout for one portfolio subdomain.
@@ -80,6 +81,7 @@ type PortfolioOrder struct {
 	Email             string    `gorm:"size:150;index;not null" json:"email"`
 	WhatsApp          string    `gorm:"size:20;not null;default:''" json:"whatsapp"`
 	Subdomain         string    `gorm:"size:30;index;not null" json:"subdomain"`
+	Template          string    `gorm:"size:30;not null;default:''" json:"template"`
 	Amount            int64     `gorm:"not null" json:"amount"`
 	Status            string    `gorm:"size:20;index;not null;default:pending" json:"status"`
 	TransactionStatus string    `gorm:"size:30;not null;default:''" json:"transaction_status"`

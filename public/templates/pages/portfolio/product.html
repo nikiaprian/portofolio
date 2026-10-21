@@ -3,18 +3,12 @@
   <p class="pf-kicker">Template</p>
   <h1>{{ .Name }}</h1>
   <p class="pf-lead">{{ .Detail }}</p>
-  <div class="pf-product-stage tone-{{ .Tone }}" aria-hidden="true">
-    <div class="pf-product-frame">
-      <span class="pf-product-bar"></span>
-      <span class="pf-product-face">
-        <span class="pf-product-avatar"></span>
-        <span class="pf-product-lines"><i></i><i></i><i></i></span>
-      </span>
-    </div>
+  <div class="pf-live-preview">
+    {{ template "pf-theme" .Preview }}
   </div>
-  <p class="pf-lead">{{ .Summary }}</p>
+  <p class="pf-lead">{{ .Summary }} Harga mengikuti halaman pembelian. Setelah form terkirim, Anda lanjut ke WhatsApp. Portfolio aktif setelah pembayaran dikonfirmasi.</p>
   <div class="pf-actions">
-    <a class="pf-btn" href="/beli">Pakai template ini</a>
+    <a class="pf-btn" href="/beli?template={{ .Slug }}">Pakai template ini</a>
     <a class="pf-btn alt" href="/produk">Semua produk</a>
   </div>
 </div>

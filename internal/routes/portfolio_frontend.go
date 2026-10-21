@@ -92,10 +92,12 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			"Title":    item.Name,
 			"SiteName": portfolioSiteName(setting),
 			"Favicon":  strings.TrimSpace(setting.FaviconURL),
+			"Slug":     item.Slug,
 			"Name":     item.Name,
 			"Summary":  item.Summary,
 			"Detail":   item.Detail,
 			"Tone":     item.Tone,
+			"Preview":  portfolio.SamplePortfolio(item.Slug),
 		}); err != nil {
 			c.String(http.StatusInternalServerError, "render error: %v", err)
 		}
@@ -113,7 +115,7 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 		}
 	})
 	r.GET("/beli", func(c *gin.Context) {
-		renderPortfolioCheckout(c, db, cfg, checkoutFields{}, "")
+		renderPortfolioCheckout(c, db, cfg, checkoutFields{Template: c.Query("template")}, "")
 	})
 	r.POST("/beli", func(c *gin.Context) {
 		fields := checkoutFields{
@@ -121,12 +123,14 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			Email:     c.PostForm("email"),
 			WhatsApp:  c.PostForm("whatsapp"),
 			Subdomain: c.PostForm("subdomain"),
+			Template:  c.PostForm("template"),
 		}
 		order, err := portfolioSvc(db, cfg).Checkout(portfolio.CheckoutInput{
 			Name:      fields.Name,
 			Email:     fields.Email,
 			WhatsApp:  fields.WhatsApp,
 			Subdomain: fields.Subdomain,
+			Template:  fields.Template,
 		}, func(ref string) string {
 			return strings.TrimRight(seo.RequestOrigin(c), "/") + "/beli/selesai/" + ref
 		})
@@ -139,7 +143,8 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			renderPortfolioCheckout(c, db, cfg, fields, msg)
 			return
 		}
-		link, err := portfolio.BuyerWhatsAppLink(portfolioSettings(db, cfg).PaymentWhatsApp, *order, cfg.PortfolioRootDomain)
+		setupURL := strings.TrimRight(seo.RequestOrigin(c), "/") + "/kelola/atur-password/" + order.SetupToken
+		link, err := portfolio.BuyerWhatsAppLink(portfolioSettings(db, cfg).PaymentWhatsApp, *order, cfg.PortfolioRootDomain, setupURL)
 		if err != nil {
 			msg := "Pembelian gagal disimpan."
 			var inputErr *portfolio.InputError
@@ -400,7 +405,7 @@ func renderPortfolioLanding(c *gin.Context, db *gorm.DB, cfg config.Config) erro
 }
 
 type checkoutFields struct {
-	Name, Email, WhatsApp, Subdomain string
+	Name, Email, WhatsApp, Subdomain, Template string
 }
 
 func renderPortfolioCheckout(c *gin.Context, db *gorm.DB, cfg config.Config, fields checkoutFields, message string) {
@@ -410,18 +415,26 @@ func renderPortfolioCheckout(c *gin.Context, db *gorm.DB, cfg config.Config, fie
 		status = http.StatusUnprocessableEntity
 	}
 	c.Header("Cache-Control", "no-store")
+	chosen := portfolio.NormalizeTemplate(fields.Template)
+	templateName := ""
+	if item, ok := portfolio.TemplateBySlug(chosen); ok {
+		templateName = item.Name
+	}
 	if err := renderPortfolioFile(c, db, status, "checkout.html", gin.H{
-		"Title":      "Beli portfolio",
-		"NoIndex":    true,
-		"SiteName":   portfolioSiteName(setting),
-		"Favicon":    strings.TrimSpace(setting.FaviconURL),
-		"Root":       cfg.PortfolioRootDomain,
-		"PriceLabel": portfolio.FormatIDR(portfolioSettings(db, cfg).Price),
-		"Name":       fields.Name,
-		"Email":      fields.Email,
-		"WhatsApp":   fields.WhatsApp,
-		"Subdomain":  fields.Subdomain,
-		"Error":      message,
+		"Title":        "Beli portfolio",
+		"NoIndex":      true,
+		"SiteName":     portfolioSiteName(setting),
+		"Favicon":      strings.TrimSpace(setting.FaviconURL),
+		"Root":         cfg.PortfolioRootDomain,
+		"PriceLabel":   portfolio.FormatIDR(portfolioSettings(db, cfg).Price),
+		"Name":         fields.Name,
+		"Email":        fields.Email,
+		"WhatsApp":     fields.WhatsApp,
+		"Subdomain":    fields.Subdomain,
+		"Template":     chosen,
+		"TemplateName": templateName,
+		"Products":     portfolio.Templates(),
+		"Error":        message,
 	}); err != nil {
 		c.String(http.StatusInternalServerError, "render error: %v", err)
 	}
@@ -515,8 +528,14 @@ func renderPortfolioPublic(c *gin.Context, db *gorm.DB, cfg config.Config, sub s
 			skills = append(skills, skill)
 		}
 	}
+	slug := portfolio.NormalizeTemplate(site.Template)
+	if slug == "" {
+		slug = "klasik"
+	}
 	return renderPortfolioFile(c, db, http.StatusOK, "public.html", gin.H{
 		"Nav":         "none",
+		"Template":    slug,
+		"ThemeClass":  portfolio.ThemeClass(slug),
 		"DisplayName": site.DisplayName,
 		"Headline":    site.Headline,
 		"Bio":         site.Bio,
@@ -614,6 +633,7 @@ func renderPortfolioManage(c *gin.Context, db *gorm.DB, cfg config.Config, site 
 		"SiteURL":      portfolio.TenantPublicURL(c, cfg.PortfolioRootDomain, site.Subdomain),
 		"HostLabel":    site.Subdomain + "." + cfg.PortfolioRootDomain,
 		"Status":       site.Status,
+		"TemplateName": portfolioTemplateLabel(site.Template),
 		"Saved":        saved,
 		"Error":        message,
 		"PhotoURL":     site.PhotoURL,
@@ -646,6 +666,7 @@ func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, messag
 			"ID":          site.ID,
 			"Subdomain":   site.Subdomain,
 			"DisplayName": site.DisplayName,
+			"Template":    portfolioTemplateLabel(site.Template),
 			"Status":      site.Status,
 			"Created":     site.CreatedAt.In(loc).Format("02 Jan 2006 15:04"),
 		})
@@ -656,6 +677,7 @@ func renderPortfolioAdmin(c *gin.Context, db *gorm.DB, cfg config.Config, messag
 			"Subdomain": order.Subdomain,
 			"BuyerName": order.BuyerName,
 			"Email":     order.Email,
+			"Template":  portfolioTemplateLabel(order.Template),
 			"Amount":    portfolio.FormatIDR(order.Amount),
 			"Status":    order.Status,
 			"Created":   order.CreatedAt.In(loc).Format("02 Jan 2006 15:04"),
@@ -845,6 +867,7 @@ func renderPortfolioFile(c *gin.Context, db *gorm.DB, status int, name string, d
 	}
 	tmpl, err := template.ParseFiles(
 		"public/templates/layouts/portfolio/app.html",
+		"public/templates/pages/portfolio/themes.html",
 		"public/templates/pages/portfolio/"+name,
 	)
 	if err != nil {
@@ -1055,6 +1078,16 @@ func portfolioSiteName(setting entity.SiteSetting) string {
 		return "Portfolio"
 	}
 	return name
+}
+
+func portfolioTemplateLabel(slug string) string {
+	if item, ok := portfolio.TemplateBySlug(slug); ok {
+		return item.Name
+	}
+	if strings.TrimSpace(slug) == "" {
+		return "Klasik"
+	}
+	return slug
 }
 
 func portfolioLocation() *time.Location {

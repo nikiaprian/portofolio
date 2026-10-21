@@ -1,6 +1,8 @@
 package portfolio
 
-// Template is one ready-made portfolio layout a buyer can start from.
+import "strings"
+
+// Template is one portfolio layout a buyer purchases and keeps.
 type Template struct {
 	Slug    string
 	Name    string
@@ -68,10 +70,71 @@ func HomeTemplates() []Template {
 
 // TemplateBySlug finds one catalog item.
 func TemplateBySlug(slug string) (Template, bool) {
+	slug = strings.ToLower(strings.TrimSpace(slug))
 	for _, item := range Templates() {
 		if item.Slug == slug {
 			return item, true
 		}
 	}
 	return Template{}, false
+}
+
+// NormalizeTemplate returns a known slug, or empty when the choice is not for sale.
+func NormalizeTemplate(slug string) string {
+	item, ok := TemplateBySlug(slug)
+	if !ok {
+		return ""
+	}
+	return item.Slug
+}
+
+// ThemeClass is the body class for a published portfolio page.
+func ThemeClass(slug string) string {
+	switch NormalizeTemplate(slug) {
+	case "studio":
+		return "pf-body-studio"
+	case "editorial":
+		return "pf-body-editorial"
+	case "galeri":
+		return "pf-body-galeri"
+	case "lamaran":
+		return "pf-body-lamaran"
+	case "kreator":
+		return "pf-body-kreator"
+	default:
+		return "pf-body-klasik"
+	}
+}
+
+// SamplePortfolio is the preview shown on a product page before someone buys it.
+func SamplePortfolio(slug string) map[string]any {
+	if NormalizeTemplate(slug) == "" {
+		slug = "klasik"
+	} else {
+		slug = NormalizeTemplate(slug)
+	}
+	return map[string]any{
+		"Template":    slug,
+		"DisplayName": "Nama Anda",
+		"Headline":    "Desainer produk",
+		"Bio":         "Membuat produk yang enak dipakai, dari riset sampai tampilan.",
+		"PhotoURL":    "/static/img/preview-avatar.jpg",
+		"Initials":    "NA",
+		"Email":       "nama@domain.id",
+		"WhatsAppURL": "https://wa.me/6281200000000",
+		"Skills": []struct{ Name string }{
+			{"Riset"},
+			{"Antarmuka"},
+			{"Prototipe"},
+		},
+		"Projects": []struct{ Title, Summary, URL string }{
+			{"Situs jurnal", "Arsip tulisan yang rapi", "https://example.com"},
+			{"Aplikasi catatan", "Catatan yang tinggal diklik", "https://example.com"},
+			{"Identitas merek", "Warna dan logo singkat", "https://example.com"},
+		},
+		"Website":   "https://example.com",
+		"Instagram": "https://instagram.com",
+		"LinkedIn":  "https://linkedin.com",
+		"GitHub":    "https://github.com",
+	}
 }
