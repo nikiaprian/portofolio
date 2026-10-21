@@ -1,15 +1,3 @@
 {{ define "pf-main" }}
-<div class="pf-product-page pf-product-detail">
-  <p class="pf-kicker">Template</p>
-  <h1>{{ .Name }}</h1>
-  <p class="pf-lead">{{ .Detail }}</p>
-  <div class="pf-live-preview">
-    {{ template "pf-theme" .Preview }}
-  </div>
-  <p class="pf-lead">{{ .Summary }} Harga mengikuti halaman pembelian. Setelah form terkirim, Anda lanjut ke WhatsApp. Portfolio aktif setelah pembayaran dikonfirmasi.</p>
-  <div class="pf-actions">
-    <a class="pf-btn" href="/beli?template={{ .Slug }}">Pakai template ini</a>
-    <a class="pf-btn alt" href="/produk">Semua produk</a>
-  </div>
-</div>
+{{ template "pf-theme" . }}
 {{ end }}

@@ -87,18 +87,12 @@ func registerPortfolioBuyerRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config)
 			c.Redirect(http.StatusFound, "/produk")
 			return
 		}
-		setting := loadSiteSetting(db)
-		if err := renderPortfolioFile(c, db, http.StatusOK, "product.html", gin.H{
-			"Title":    item.Name,
-			"SiteName": portfolioSiteName(setting),
-			"Favicon":  strings.TrimSpace(setting.FaviconURL),
-			"Slug":     item.Slug,
-			"Name":     item.Name,
-			"Summary":  item.Summary,
-			"Detail":   item.Detail,
-			"Tone":     item.Tone,
-			"Preview":  portfolio.SamplePortfolio(item.Slug),
-		}); err != nil {
+		data := portfolio.SamplePortfolio(item.Slug)
+		data["Nav"] = "none"
+		data["ThemeClass"] = portfolio.ThemeClass(item.Slug)
+		data["Title"] = item.Name
+		data["NoIndex"] = true
+		if err := renderPortfolioFile(c, db, http.StatusOK, "product.html", data); err != nil {
 			c.String(http.StatusInternalServerError, "render error: %v", err)
 		}
 	})

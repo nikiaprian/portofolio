@@ -1726,8 +1726,22 @@ h3 { font-size: 1rem; }
   border: 1px solid rgba(255, 255, 255, 0.62);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 24px rgba(72, 52, 120, 0.08);
 }
+.pf-product-open {
+  display: grid;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+}
 .pf-product strong { font-size: 1.05rem; }
-.pf-product > span:last-child { color: #5c5478; font-size: 0.92rem; line-height: 1.45; }
+.pf-product-open > span:last-child { color: #5c5478; font-size: 0.92rem; line-height: 1.45; }
+.pf-product-buy {
+  justify-self: start;
+  margin-top: 0.15rem;
+  color: #3a2d78;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
 .pf-product-frame {
   display: grid;
   gap: 0.55rem;

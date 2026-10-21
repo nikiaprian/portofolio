@@ -146,4 +146,41 @@ func TestPortfolioPagesRenderCopy(t *testing.T) {
 			t.Fatalf("%s layout missing", slug)
 		}
 	}
+	productTmpl, err := template.ParseFiles(layout, themes, filepath.Join(pages, "product.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	buf.Reset()
+	preview := map[string]any{}
+	for key, value := range base {
+		preview[key] = value
+	}
+	preview["Nav"] = "none"
+	preview["Template"] = "studio"
+	preview["ThemeClass"] = "pf-body-studio"
+	preview["Title"] = "Studio"
+	if err := productTmpl.ExecuteTemplate(&buf, "pf-app", preview); err != nil {
+		t.Fatal(err)
+	}
+	previewHTML := buf.String()
+	if strings.Contains(previewHTML, `class="pf-top"`) || strings.Contains(previewHTML, "pf-sitefoot") || !strings.Contains(previewHTML, "pf-theme-studio") {
+		t.Fatal("product preview should be the bare portfolio")
+	}
+	listTmpl, err := template.ParseFiles(layout, themes, filepath.Join(pages, "products.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	buf.Reset()
+	if err := listTmpl.ExecuteTemplate(&buf, "pf-app", map[string]any{
+		"Title": "Produk",
+		"Products": []map[string]string{{
+			"Slug": "klasik", "Name": "Klasik", "Summary": "Tenang",
+		}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	listHTML := buf.String()
+	if !strings.Contains(listHTML, `href="/produk/klasik" target="_blank"`) {
+		t.Fatal("product card should open a new tab")
+	}
 }
