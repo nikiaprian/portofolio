@@ -27,8 +27,12 @@ func TestTemplates(t *testing.T) {
 	if ThemeClass("studio") != "pf-body-studio" || ThemeClass("") != "pf-body-klasik" {
 		t.Fatal(ThemeClass("studio"), ThemeClass(""))
 	}
-	sample := SamplePortfolio("galeri")
-	if sample["Template"] != "galeri" || sample["DisplayName"] == "" {
-		t.Fatalf("%v", sample["Template"])
+	galeri := SamplePortfolio("galeri")
+	klasik := SamplePortfolio("klasik")
+	if galeri["Template"] != "galeri" || galeri["DisplayName"] == "" {
+		t.Fatalf("%v", galeri["Template"])
+	}
+	if galeri["DisplayName"] == klasik["DisplayName"] {
+		t.Fatal("each template preview should show a different person")
 	}
 }

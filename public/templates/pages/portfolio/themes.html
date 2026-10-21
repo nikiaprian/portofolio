@@ -47,24 +47,23 @@
 
 {{ define "pf-folio-links" }}
 {{ if or .Email .WhatsAppURL .Website .Instagram .LinkedIn .GitHub }}
-<footer class="pf-footer pf-folio-links">
-  <div>
-    {{ if .Email }}<div><a href="mailto:{{ .Email }}">{{ .Email }}</a></div>{{ end }}
-    {{ if .WhatsAppURL }}<div><a href="{{ .WhatsAppURL }}">WhatsApp</a></div>{{ end }}
+<section class="pf-folio-contact">
+  <h2 class="pf-label">Kontak</h2>
+  <div class="pf-folio-links">
+    {{ if .Email }}<a href="mailto:{{ .Email }}">{{ .Email }}</a>{{ end }}
+    {{ if .WhatsAppURL }}<a href="{{ .WhatsAppURL }}">WhatsApp</a>{{ end }}
+    {{ if .Website }}<a href="{{ .Website }}">Situs</a>{{ end }}
+    {{ if .Instagram }}<a href="{{ .Instagram }}">Instagram</a>{{ end }}
+    {{ if .LinkedIn }}<a href="{{ .LinkedIn }}">LinkedIn</a>{{ end }}
+    {{ if .GitHub }}<a href="{{ .GitHub }}">GitHub</a>{{ end }}
   </div>
-  <div>
-    {{ if .Website }}<div><a href="{{ .Website }}">Situs</a></div>{{ end }}
-    {{ if .Instagram }}<div><a href="{{ .Instagram }}">Instagram</a></div>{{ end }}
-    {{ if .LinkedIn }}<div><a href="{{ .LinkedIn }}">LinkedIn</a></div>{{ end }}
-    {{ if .GitHub }}<div><a href="{{ .GitHub }}">GitHub</a></div>{{ end }}
-  </div>
-</footer>
+</section>
 {{ end }}
 {{ end }}
 
 {{ define "pf-theme-klasik" }}
 <article class="pf-folio pf-theme-klasik">
-  <header class="pf-site-hero">
+  <header class="pf-kl-hero">
     {{ template "pf-folio-photo" . }}
     <div>
       <p class="pf-kicker">Portfolio</p>
@@ -72,20 +71,22 @@
       {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
     </div>
   </header>
-  {{ if .Bio }}<section class="pf-block"><h2>Tentang</h2><p>{{ .Bio }}</p></section>{{ end }}
-  {{ if .Skills }}<section class="pf-block"><h2>Keahlian</h2>{{ template "pf-folio-skills" . }}</section>{{ end }}
+  {{ if .Bio }}<section class="pf-block"><h2 class="pf-label">Tentang</h2><p class="pf-kl-bio">{{ .Bio }}</p></section>{{ end }}
+  {{ if .Skills }}<section class="pf-block"><h2 class="pf-label">Keahlian</h2>{{ template "pf-folio-skills" . }}</section>{{ end }}
   {{ if .Projects }}
   <section class="pf-block">
-    <h2>Proyek</h2>
-    <div class="pf-projects">
+    <h2 class="pf-label">Karya terpilih</h2>
+    <ol class="pf-kl-list">
       {{ range .Projects }}
-      <article class="pf-folio-card">
-        <h3>{{ .Title }}</h3>
-        {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
-        {{ if .URL }}<a href="{{ .URL }}">Lihat proyek</a>{{ end }}
-      </article>
+      <li>
+        <div>
+          <h3>{{ .Title }}</h3>
+          {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+        </div>
+        {{ if .URL }}<a href="{{ .URL }}">Lihat</a>{{ end }}
+      </li>
       {{ end }}
-    </div>
+    </ol>
   </section>
   {{ end }}
   {{ template "pf-folio-links" . }}
@@ -96,23 +97,27 @@
 <article class="pf-folio pf-theme-studio">
   <header class="pf-st-hero">
     {{ template "pf-folio-photo" . }}
-    <p class="pf-kicker">Studio</p>
-    <h1>{{ .DisplayName }}</h1>
-    {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
+    <div>
+      <p class="pf-kicker">Studio</p>
+      <h1>{{ .DisplayName }}</h1>
+      {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
+    </div>
   </header>
   {{ if .Bio }}<p class="pf-st-bio">{{ .Bio }}</p>{{ end }}
   {{ if .Projects }}
-  <section class="pf-block">
+  <ol class="pf-st-list">
     {{ range .Projects }}
-    <article class="pf-st-work">
-      <h3>{{ .Title }}</h3>
-      {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+    <li>
+      <div>
+        <h3>{{ .Title }}</h3>
+        {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+      </div>
       {{ if .URL }}<a href="{{ .URL }}">Buka</a>{{ end }}
-    </article>
+    </li>
     {{ end }}
-  </section>
+  </ol>
   {{ end }}
-  {{ if .Skills }}<section class="pf-block"><h2>Keahlian</h2>{{ template "pf-folio-skills" . }}</section>{{ end }}
+  {{ if .Skills }}<section class="pf-block pf-st-skills"><h2 class="pf-label">Keahlian</h2>{{ template "pf-folio-skills" . }}</section>{{ end }}
   {{ template "pf-folio-links" . }}
 </article>
 {{ end }}
@@ -122,16 +127,17 @@
   <header class="pf-ed-hero">
     <p class="pf-kicker">Edisi portfolio</p>
     <h1>{{ .DisplayName }}</h1>
-    {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
+    {{ if .Headline }}<p class="pf-ed-dek">{{ .Headline }}</p>{{ end }}
   </header>
   <div class="pf-ed-grid">
     <aside>
       {{ template "pf-folio-photo" . }}
-      {{ if .Skills }}<h2>Keahlian</h2>{{ template "pf-folio-skills" . }}{{ end }}
+      {{ if .Bio }}<p>{{ .Bio }}</p>{{ end }}
+      {{ if .Skills }}<h2 class="pf-label">Keahlian</h2>{{ template "pf-folio-skills" . }}{{ end }}
     </aside>
     <div>
-      {{ if .Bio }}<p class="pf-ed-dek">{{ .Bio }}</p>{{ end }}
       {{ if .Projects }}
+      <h2 class="pf-label">Tulisan dan karya</h2>
       <ol class="pf-ed-list">
         {{ range .Projects }}
         <li>
@@ -157,63 +163,69 @@
       <h1>{{ .DisplayName }}</h1>
       {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
       {{ if .Bio }}<p>{{ .Bio }}</p>{{ end }}
+      {{ template "pf-folio-skills" . }}
     </div>
   </header>
   {{ if .Projects }}
   <section class="pf-block">
-    <h2>Karya</h2>
+    <h2 class="pf-label">Karya</h2>
     <div class="pf-gal-grid">
       {{ range .Projects }}
       <article class="pf-gal-card">
-        <span class="pf-gal-swatch" aria-hidden="true"></span>
-        <strong>{{ .Title }}</strong>
-        {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
-        {{ if .URL }}<a href="{{ .URL }}">Buka karya</a>{{ end }}
+        <div class="pf-gal-cover"><span>{{ .Title }}</span></div>
+        <div class="pf-gal-cap">
+          <strong>{{ .Title }}</strong>
+          {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+          {{ if .URL }}<a href="{{ .URL }}">Buka karya</a>{{ end }}
+        </div>
       </article>
       {{ end }}
     </div>
   </section>
   {{ end }}
-  {{ if .Skills }}<section class="pf-block"><h2>Keahlian</h2>{{ template "pf-folio-skills" . }}</section>{{ end }}
   {{ template "pf-folio-links" . }}
 </article>
 {{ end }}
 
 {{ define "pf-theme-lamaran" }}
 <article class="pf-folio pf-theme-lamaran">
-  <header class="pf-lam-head">
-    <div>
-      <p class="pf-kicker">Lamaran</p>
-      <h1>{{ .DisplayName }}</h1>
-      {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
-    </div>
-    {{ template "pf-folio-photo" . }}
-  </header>
-  <div class="pf-lam">
-    <aside class="pf-lam-side">
-      <h2>Kontak</h2>
-      {{ if .Email }}<p><a href="mailto:{{ .Email }}">{{ .Email }}</a></p>{{ end }}
-      {{ if .WhatsAppURL }}<p><a href="{{ .WhatsAppURL }}">WhatsApp</a></p>{{ end }}
-      {{ if .Website }}<p><a href="{{ .Website }}">Situs</a></p>{{ end }}
-      {{ if .LinkedIn }}<p><a href="{{ .LinkedIn }}">LinkedIn</a></p>{{ end }}
-      {{ if .GitHub }}<p><a href="{{ .GitHub }}">GitHub</a></p>{{ end }}
-      {{ if .Instagram }}<p><a href="{{ .Instagram }}">Instagram</a></p>{{ end }}
-      {{ if .Skills }}<h2>Keahlian</h2>{{ template "pf-folio-skills" . }}{{ end }}
-    </aside>
-    <div>
-      {{ if .Bio }}<section class="pf-block"><h2>Ringkas</h2><p>{{ .Bio }}</p></section>{{ end }}
-      {{ if .Projects }}
-      <section class="pf-block">
-        <h2>Pengalaman</h2>
-        {{ range .Projects }}
-        <article class="pf-lam-item">
-          <h3>{{ .Title }}</h3>
-          {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
-          {{ if .URL }}<a href="{{ .URL }}">Lihat</a>{{ end }}
-        </article>
+  <div class="pf-lam-sheet">
+    <header class="pf-lam-head">
+      <div>
+        <p class="pf-kicker">Lamaran</p>
+        <h1>{{ .DisplayName }}</h1>
+        {{ if .Headline }}<p class="pf-folio-lead">{{ .Headline }}</p>{{ end }}
+      </div>
+      {{ template "pf-folio-photo" . }}
+    </header>
+    <div class="pf-lam">
+      <aside class="pf-lam-side">
+        <h2 class="pf-label">Kontak</h2>
+        {{ if .Email }}<p><a href="mailto:{{ .Email }}">{{ .Email }}</a></p>{{ end }}
+        {{ if .WhatsAppURL }}<p><a href="{{ .WhatsAppURL }}">WhatsApp</a></p>{{ end }}
+        {{ if .Website }}<p><a href="{{ .Website }}">Situs</a></p>{{ end }}
+        {{ if .LinkedIn }}<p><a href="{{ .LinkedIn }}">LinkedIn</a></p>{{ end }}
+        {{ if .GitHub }}<p><a href="{{ .GitHub }}">GitHub</a></p>{{ end }}
+        {{ if .Instagram }}<p><a href="{{ .Instagram }}">Instagram</a></p>{{ end }}
+        {{ if .Skills }}<h2 class="pf-label">Keahlian</h2>{{ template "pf-folio-skills" . }}{{ end }}
+      </aside>
+      <div>
+        {{ if .Bio }}<section class="pf-block"><h2 class="pf-label">Ringkas</h2><p>{{ .Bio }}</p></section>{{ end }}
+        {{ if .Projects }}
+        <section class="pf-block">
+          <h2 class="pf-label">Pengalaman</h2>
+          <ol class="pf-lam-list">
+            {{ range .Projects }}
+            <li>
+              <h3>{{ .Title }}</h3>
+              {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+              {{ if .URL }}<a href="{{ .URL }}">Lihat</a>{{ end }}
+            </li>
+            {{ end }}
+          </ol>
+        </section>
         {{ end }}
-      </section>
-      {{ end }}
+      </div>
     </div>
   </div>
 </article>
@@ -238,10 +250,14 @@
   {{ if .Bio }}<p class="pf-kr-bio">{{ .Bio }}</p>{{ end }}
   {{ if .Projects }}
   <section class="pf-block">
-    <h2>Karya</h2>
+    <h2 class="pf-label">Karya</h2>
     <div class="pf-kr-works">
       {{ range .Projects }}
-      {{ if .URL }}<a href="{{ .URL }}">{{ .Title }}</a>{{ else }}<span>{{ .Title }}</span>{{ end }}
+      <article>
+        <h3>{{ .Title }}</h3>
+        {{ if .Summary }}<p>{{ .Summary }}</p>{{ end }}
+        {{ if .URL }}<a href="{{ .URL }}">Buka</a>{{ end }}
+      </article>
       {{ end }}
     </div>
   </section>
