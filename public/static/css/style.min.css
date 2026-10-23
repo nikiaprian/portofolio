@@ -57,8 +57,11 @@ body.site-layout-tirtayasa {
 
 .ty-logo {
   display: block;
-  max-height: 2.25rem;
+  height: 3.5rem;
   width: auto;
+  max-width: min(18rem, 70vw);
+  object-fit: contain;
+  object-position: left center;
 }
 
 .ty-bar-nav {
