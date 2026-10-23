@@ -1,0 +1,42 @@
+{{ define "client-topic-posts-list" }}
+{{ if .posts }}
+<div class="blog-posts-list{{ if eq .homepage_layout "neo" }} neo-mag-feed-list{{ end }}">
+  {{ range $i, $p := .posts }}
+  <a
+    class="blog-posts-item{{ if eq $.homepage_layout "neo" }} neo-mag-feed-item{{ end }}"
+    href="{{ $p.href }}"
+  >
+    <span
+      class="blog-posts-thumb{{ if eq $.homepage_layout "neo" }} neo-mag-feed-thumb{{ end }} blog-posts-thumb--loading"
+      aria-hidden="true"
+      data-thumb-skeleton
+    >
+      <img
+        src="{{ $p.thumb }}"
+        alt=""
+        width="88"
+        height="66"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+    <span class="blog-posts-text{{ if eq $.homepage_layout "neo" }} neo-mag-feed-text{{ end }}">
+      <span class="blog-posts-title{{ if eq $.homepage_layout "neo" }} neo-mag-feed-title{{ end }}">{{ $p.title }}</span>
+      {{ if $p.time }}
+      {{ if eq $.homepage_layout "neo" }}
+      <span class="neo-mag-feed-byline">
+        <span class="neo-mag-feed-byline-i blog-posts-time">{{ $p.time }}</span>
+      </span>
+      {{ else }}
+      <span class="blog-posts-time">{{ $p.time }}</span>
+      {{ end }}
+      {{ end }}
+    </span>
+  </a>
+  {{ if and (eq $i 4) $.ads_center }}
+  <div class="site-ad site-ad--center site-ad--inlist" aria-label="Iklan">{{ $.ads_center }}</div>
+  {{ end }}
+  {{ end }}
+</div>
+{{ end }}
+{{ end }}

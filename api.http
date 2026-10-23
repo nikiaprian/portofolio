@@ -1,0 +1,498 @@
+@baseUrl = http://localhost:8080
+@apiPrefix = /api/v1
+@token = 
+
+### Health
+GET {{baseUrl}}/health
+
+
+###
+### PUBLIC (no JWT)
+###
+
+### List published posts (e.g. after scraper runs)
+GET {{baseUrl}}{{apiPrefix}}/posts?page=1&size=10
+Accept: application/json
+
+###
+### Get published post by slug
+GET {{baseUrl}}{{apiPrefix}}/posts/slug/your-post-slug
+Accept: application/json
+
+###
+### List categories (public)
+GET {{baseUrl}}{{apiPrefix}}/categories?page=1&size=50
+Accept: application/json
+
+
+###
+### AUTH
+###
+
+### Register
+POST {{baseUrl}}{{apiPrefix}}/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "secret123"
+}
+
+###
+### Login
+POST {{baseUrl}}{{apiPrefix}}/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "admin@bebii.com",
+  "password": "admin123"
+}
+
+###
+### Logout
+POST {{baseUrl}}{{apiPrefix}}/auth/logout
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### USERS CRUD
+###
+
+### List users
+GET {{baseUrl}}{{apiPrefix}}/admin/users?page=1&size=10&q=admin
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create user
+POST {{baseUrl}}{{apiPrefix}}/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New User 2",
+  "email": "newuser2@example.com",
+  "password": "secret123"
+}
+
+###
+### Get user by id
+GET {{baseUrl}}{{apiPrefix}}/admin/users/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update user
+PUT {{baseUrl}}{{apiPrefix}}/admin/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New User 2 Updated",
+  "email": "newuser2@example.com",
+  "password": "newsecret"
+}
+
+###
+### Delete user
+DELETE {{baseUrl}}{{apiPrefix}}/admin/users/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### CATEGORIES CRUD
+###
+
+### List categories
+GET {{baseUrl}}{{apiPrefix}}/admin/categories?page=1&size=10&q=teknologi
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create category
+POST {{baseUrl}}{{apiPrefix}}/admin/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New Category",
+  "slug": "new-category"
+}
+
+###
+### Get category by id
+GET {{baseUrl}}{{apiPrefix}}/admin/categories/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update category
+PUT {{baseUrl}}{{apiPrefix}}/admin/categories/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Updated Category",
+  "slug": "category-1-updated"
+}
+
+###
+### Delete category
+DELETE {{baseUrl}}{{apiPrefix}}/admin/categories/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### TAGS CRUD
+###
+
+### List tags
+GET {{baseUrl}}{{apiPrefix}}/admin/tags?page=1&size=10&q=ai
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create tag
+POST {{baseUrl}}{{apiPrefix}}/admin/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New Tag",
+  "slug": "new-tag"
+}
+
+###
+### Get tag by id
+GET {{baseUrl}}{{apiPrefix}}/admin/tags/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update tag
+PUT {{baseUrl}}{{apiPrefix}}/admin/tags/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Updated Tag",
+  "slug": "updated-tag"
+}
+
+###
+### Delete tag
+DELETE {{baseUrl}}{{apiPrefix}}/admin/tags/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+###
+### AI SETTING (keys in ai_setting table)
+###
+
+### Get AI settings
+GET {{baseUrl}}{{apiPrefix}}/admin/ai-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Upload bulk post cover background (multipart form field name: image)
+POST {{baseUrl}}{{apiPrefix}}/admin/ai-setting/upload-bulk-cover-background
+Authorization: Bearer {{token}}
+
+###
+### Update AI settings (keys, models, scraper_* prompts, generate_* bulk prompts)
+PUT {{baseUrl}}{{apiPrefix}}/admin/ai-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "gemini": "",
+  "groq": "",
+  "openai": "",
+  "claude": "",
+  "gemini_model": "gemini-3-flash-preview",
+  "groq_model": "groq/llama-3.3-70b-versatile",
+  "openai_model": "gpt-4o-mini",
+  "claude_model": "claude-3-5-sonnet-20241022",
+  "scraper_ai_provider": "auto",
+  "generate_ai_provider": "auto",
+  "scraper_prompt_title": "Parafrase judul berita berikut ke Bahasa Indonesia yang natural.\n- Pertahankan makna, jangan tambah fakta\n- Jangan pakai tanda kutip\n- Output: judul saja (1 baris)\n\nJudul:\n\u007b\u007btitle\u007d\u007d",
+  "scraper_prompt_content": "Tugas:\nParafrase artikel berita berikut ke dalam Bahasa Indonesia yang natural, jelas, dan enak dibaca.\n\nAturan:\n- Pertahankan makna asli, jangan menambah atau mengurangi fakta.\n- Gunakan gaya bahasa jurnalistik yang rapi dan profesional.\n- Susun ulang kalimat agar tidak terdeteksi sebagai duplikat, tetapi tetap setia pada isi.\n\nFormat Output:\n- Output HARUS berupa HTML murni (tanpa markdown, tanpa fenced code / blok kode).\n- Output HARUS diawali dengan paragraf pembuka menggunakan \u003cp\u003e.\n- Setelah minimal 1 paragraf pembuka, boleh gunakan \u003ch2\u003e atau \u003ch3\u003e untuk subjudul jika diperlukan.\n- Gunakan hanya tag berikut:\n  \u003ch2\u003e, \u003ch3\u003e, \u003cp\u003e, \u003cul\u003e, \u003col\u003e, \u003cli\u003e, \u003cstrong\u003e, \u003cem\u003e, \u003ca\u003e, \u003cblockquote\u003e, \u003ctable\u003e, \u003cthead\u003e, \u003ctbody\u003e, \u003ctr\u003e, \u003cth\u003e, \u003ctd\u003e\n\nAturan Tambahan:\n- Jangan gunakan CSS, atribut style, class, id, atau tag \u003cscript\u003e.\n- Jangan menambahkan komentar atau teks di luar HTML.\n- Jika terdapat data numerik seperti perbandingan, statistik, atau daftar angka, sajikan dalam tabel HTML dengan header yang jelas.\n- Jika tidak ada data numerik, jangan buat tabel.\n\nPenanganan Error:\n- Jika konten kosong, tidak valid, atau terlalu pendek, tetap hasilkan:\n  \u003cp\u003eKonten tidak tersedia.\u003c/p\u003e\n\nIsi Artikel:\n\u007b\u007bcontent\u007d\u007d",
+  "generate_prompt_title": "",
+  "generate_prompt_content": "",
+  "generate_prompt_meta_description": "",
+  "generate_prompt_meta_keywords": "",
+  "bulk_cover_background_url": ""
+}
+
+
+###
+### SITE SETTING (branding + default SEO meta, singleton)
+###
+
+### Get site setting
+GET {{baseUrl}}{{apiPrefix}}/admin/site-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Upload site asset (logo, favicon, or default_image) — multipart form
+### kind: logo | favicon | default_image ; field name: image
+POST {{baseUrl}}{{apiPrefix}}/admin/site-setting/upload-image
+Authorization: Bearer {{token}}
+
+###
+### Update site setting
+PUT {{baseUrl}}{{apiPrefix}}/admin/site-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "site_name": "Bebii Blog",
+  "tagline": "Short tagline for the site",
+  "logo_url": "/static/images/logo.png",
+  "favicon_url": "/static/images/favicon.ico",
+  "text_primary": "#212529",
+  "text_secondary": "#6c757d",
+  "background_primary": "#ffffff",
+  "background_secondary": "#f8f9fa",
+  "primary_button": "#0d6efd",
+  "secondary_button": "#6c757d",
+  "accent_color": "#c62828",
+  "border_color": "#ced4da",
+  "login_url": "",
+  "default_title": "Bebii Blog",
+  "default_description": "Default meta description for SEO and social previews.",
+  "default_image": "",
+  "default_keywords": "blog, news, technology"
+}
+
+
+###
+### SITE CONNECTIONS (webmaster verification codes, singleton)
+###
+
+### Get site connections
+GET {{baseUrl}}{{apiPrefix}}/admin/site-connections
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update site connections
+PUT {{baseUrl}}{{apiPrefix}}/admin/site-connections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "ahrefs": "",
+  "google": "",
+  "bing": "",
+  "yandex": "",
+  "auto_post_enabled": true,
+  "auto_post_template": "\u007b\u007btitle\u007d\u007d\n\u007b\u007burl\u007d\u007d\n\u007b\u007bsnippet\u007d\u007d",
+  "facebook_enabled": true,
+  "facebook_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "facebook_token": "",
+  "x_enabled": true,
+  "x_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "x_token": "",
+  "tiktok_enabled": true,
+  "tiktok_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "tiktok_token": "",
+  "instagram_enabled": true,
+  "instagram_webhook": "https://webhook.site/6f220fd0-a618-4704-8efe-24431ee61d15",
+  "instagram_token": ""
+}
+
+###
+### Test autopost (manual trigger without publishing real post)
+POST {{baseUrl}}{{apiPrefix}}/admin/site-connections/test-autopost
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Test autopost dari api.http",
+  "slug": "test-autopost-api-http",
+  "content": "Ini konten test untuk memastikan webhook autopost terkirim ke platform yang enabled.",
+  "image": "https://example.com/test-image.jpg"
+}
+
+
+###
+### SCRAPER SETTING (news RSS scraper, singleton)
+###
+
+### Get scraper setting
+GET {{baseUrl}}{{apiPrefix}}/admin/scraper-setting
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Scraper logs (rolling retention: ADMIN_LOG_RETENTION_HOURS, shared with login + bulk post logs)
+GET {{baseUrl}}{{apiPrefix}}/admin/scraper-logs?page=1&size=50
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Login logs (sign-in audit; optional ?success=1 or success=0; same retention as ADMIN_LOG_RETENTION_HOURS)
+GET {{baseUrl}}{{apiPrefix}}/admin/login-logs?page=1&size=50
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Bulk post logs (AI suggest + batch generate audit; writers only see own rows; same retention as ADMIN_LOG_RETENTION_HOURS)
+GET {{baseUrl}}{{apiPrefix}}/admin/bulk-post-logs?page=1&size=50
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update scraper setting (use real RSS/Atom feed URLs; comma-separated)
+PUT {{baseUrl}}{{apiPrefix}}/admin/scraper-setting
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "enabled": false,
+  "interval_mins": 5,
+  "feed_urls": "https://www.cnnindonesia.com/nasional/rss",
+  "author_email": "admin@bebii.com",
+  "category_slug": "category-1",
+  "ai_provider": "auto",
+  "ai_title_prompt": "Parafrase judul berita berikut ke Bahasa Indonesia yang natural.\n- Pertahankan makna, jangan tambah fakta\n- Jangan pakai tanda kutip\n- Output: judul saja (1 baris)\n\nJudul:\n\u007b\u007btitle\u007d\u007d",
+  "ai_body_prompt": "Tugas:\nParafrase artikel berita berikut ke dalam Bahasa Indonesia yang natural, jelas, dan enak dibaca.\n\nAturan:\n- Pertahankan makna asli, jangan menambah atau mengurangi fakta.\n- Gunakan gaya bahasa jurnalistik yang rapi dan profesional.\n- Susun ulang kalimat agar tidak terdeteksi sebagai duplikat, tetapi tetap setia pada isi.\n\nFormat Output:\n- Output HARUS berupa HTML murni (tanpa markdown, tanpa fenced code / blok kode).\n- Output HARUS diawali dengan paragraf pembuka menggunakan \u003cp\u003e.\n- Setelah minimal 1 paragraf pembuka, boleh gunakan \u003ch2\u003e atau \u003ch3\u003e untuk subjudul jika diperlukan.\n- Gunakan hanya tag berikut:\n  \u003ch2\u003e, \u003ch3\u003e, \u003cp\u003e, \u003cul\u003e, \u003col\u003e, \u003cli\u003e, \u003cstrong\u003e, \u003cem\u003e, \u003ca\u003e, \u003cblockquote\u003e, \u003ctable\u003e, \u003cthead\u003e, \u003ctbody\u003e, \u003ctr\u003e, \u003cth\u003e, \u003ctd\u003e\n\nAturan Tambahan:\n- Jangan gunakan CSS, atribut style, class, id, atau tag \u003cscript\u003e.\n- Jangan menambahkan komentar atau teks di luar HTML.\n- Jika terdapat data numerik seperti perbandingan, statistik, atau daftar angka, sajikan dalam tabel HTML dengan header yang jelas.\n- Jika tidak ada data numerik, jangan buat tabel.\n\nPenanganan Error:\n- Jika konten kosong, tidak valid, atau terlalu pendek, tetap hasilkan:\n  \u003cp\u003eKonten tidak tersedia.\u003c/p\u003e\n\nIsi Artikel:\n\u007b\u007bcontent\u007d\u007d"
+}
+
+
+###
+### POSTS CRUD
+###
+
+### List posts
+GET {{baseUrl}}{{apiPrefix}}/admin/posts?page=1&size=10&q=published
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create post
+POST {{baseUrl}}{{apiPrefix}}/admin/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "New Post",
+  "slug": "new-post",
+  "content": "Content of new post",
+  "source": "https://example.com/article",
+  "status": "published",
+  "author_id": 1,
+  "category_id": 1
+}
+
+###
+### Generate post with AI
+POST {{baseUrl}}{{apiPrefix}}/admin/posts/generate-draft
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "prompt": "Cara membuat kue",
+  "provider": "gemini"
+}
+
+
+###
+### Get post by id
+GET {{baseUrl}}{{apiPrefix}}/admin/posts/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update post
+PUT {{baseUrl}}{{apiPrefix}}/admin/posts/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Updated Post",
+  "slug": "updated-post",
+  "content": "Updated content of post",
+  "source": "https://example.com/updated",
+  "status": "published",
+  "author_id": 1,
+  "category_id": 1
+}
+
+###
+### Delete post
+DELETE {{baseUrl}}{{apiPrefix}}/admin/posts/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### PAGES CRUD
+###
+
+### List pages
+GET {{baseUrl}}{{apiPrefix}}/admin/pages?page=1&size=10&q=about
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Create page
+POST {{baseUrl}}{{apiPrefix}}/admin/pages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "New Page",
+  "slug": "new-page",
+  "content": "Content of new page",
+  "status": "published"
+}
+
+###
+### Get page by id
+GET {{baseUrl}}{{apiPrefix}}/admin/pages/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+### Update page
+PUT {{baseUrl}}{{apiPrefix}}/admin/pages/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Updated Page",
+  "slug": "updated-page",
+  "content": "Updated content of page",
+  "status": "published"
+}
+
+###
+### Delete page
+DELETE {{baseUrl}}{{apiPrefix}}/admin/pages/1
+Authorization: Bearer {{token}}
+Accept: application/json

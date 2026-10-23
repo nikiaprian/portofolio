@@ -1,0 +1,69 @@
+{{ define "client-article-neo-top" }}
+{{ if .hero_url }}
+<figure class="blog-article-hero blog-article-hero--neo">
+  <img src="{{ .hero_url }}" alt="{{ .post_title }}" loading="eager" decoding="async" />
+  {{ if .hero_caption_html }}<figcaption class="blog-article-hero-caption">{{ .hero_caption_html }}</figcaption>{{ end }}
+</figure>
+{{ end }}
+<header class="blog-article-head blog-article-head--neo">
+  <nav class="blog-article-breadcrumb" aria-label="Breadcrumb">
+    <ol class="blog-article-breadcrumb-list">
+      <li><a href="{{ .public_base }}/">Home</a></li>
+      {{ if .category_parent_name }}
+      <li><a href="{{ .category_parent_href }}">{{ .category_parent_name }}</a></li>
+      {{ end }}
+      {{ if and .cat_name .cat_href }}
+      <li><a href="{{ .cat_href }}">{{ .cat_name }}</a></li>
+      {{ else if and .cat_slug .cat_name }}
+      <li><a href="{{ $.public_base }}/{{ .cat_slug }}">{{ .cat_name }}</a></li>
+      {{ else if .cat_name }}
+      <li>{{ .cat_name }}</li>
+      {{ end }}
+      <li><span aria-current="page">{{ .post_title }}</span></li>
+    </ol>
+  </nav>
+  {{ if .cat_name }}
+  <div class="blog-article-category-row">
+    {{ if .cat_href }}
+    <a href="{{ .cat_href }}" class="blog-article-category blog-article-category--neo">{{ .cat_name }}</a>
+    {{ else if .cat_slug }}
+    <a href="{{ $.public_base }}/{{ .cat_slug }}" class="blog-article-category blog-article-category--neo">{{ .cat_name }}</a>
+    {{ else }}
+    <span class="blog-article-category blog-article-category--neo">{{ .cat_name }}</span>
+    {{ end }}
+  </div>
+  {{ end }}
+  <h1>{{ .post_title }}</h1>
+  <div class="blog-article-byline blog-article-byline--neo">
+    <span class="blog-article-avatar" aria-hidden="true">
+      {{ if .author_img }}
+      <img class="blog-article-avatar-img" src="{{ .author_img }}" alt="" loading="lazy" decoding="async" />
+      {{ else }}
+      {{ .avatar_letter }}
+      {{ end }}
+    </span>
+    <a class="blog-article-byline-name" href="{{ .author_path }}">{{ .author_name }}</a>
+    {{ if or .post_time_label .post_view_count }}
+    <div class="blog-article-byline-meta-neo" role="group" aria-label="Informasi artikel">
+      {{ if .post_time_label }}
+      <span class="blog-article-meta-item blog-article-meta-item--time">
+        <svg class="blog-article-meta-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <time datetime="{{ .post_updated_at_iso }}">{{ .post_time_label }}</time>
+      </span>
+      {{ end }}
+      {{ if .post_view_count }}
+      <span class="blog-article-meta-item blog-article-meta-item--views">
+        <svg class="blog-article-meta-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-6M22 19V3"/></svg>
+        <span>{{ .post_view_count }}</span>
+      </span>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</header>
+<div class="blog-article-fontsize blog-article-fontsize--neo" aria-label="Pengaturan ukuran teks">
+  <span class="blog-article-fontsize-a blog-article-fontsize-a--sm" aria-hidden="true">A</span>
+  <input id="blog-fontsize-range" class="blog-article-fontsize-range" type="range" min="14" max="24" step="1" value="17" aria-label="Atur ukuran teks artikel" />
+  <span class="blog-article-fontsize-a blog-article-fontsize-a--lg" aria-hidden="true">A</span>
+</div>
+{{ end }}

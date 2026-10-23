@@ -1,0 +1,12 @@
+{{ define "client-content" }}
+<main class="container py-4 py-md-5">
+  <article class="mx-auto" style="max-width: 860px">
+    <header class="mb-3 mb-md-4">
+      <h1 class="h2 mb-0">{{ .page_title }}</h1>
+    </header>
+    <section class="blog-page-content">
+      {{ .page_content }}
+    </section>
+  </article>
+</main>
+{{ end }}

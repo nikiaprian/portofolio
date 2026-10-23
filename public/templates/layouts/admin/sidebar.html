@@ -1,0 +1,298 @@
+{{ define "admin-sidebar" }}
+<aside class="app-sidebar bg-body shadow d-flex flex-column">
+  <div class="sidebar-brand">
+    <a href="{{ if .public_base }}{{ .public_base }}{{ end }}" target="_blank" class="brand-link">
+      <span class="brand-text fw-bold text-uppercase">{{ .site_name }}</span>
+    </a>
+  </div>
+  <div
+    class="sidebar-wrapper d-flex flex-column flex-grow-1"
+    style="min-height: 0; flex: 1 1 auto"
+  >
+    <nav class="mt-2 flex-grow-1 overflow-auto" aria-label="Admin navigation">
+      <ul class="nav sidebar-menu flex-column" id="navigation">
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a
+            href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/dashboard"
+            class="nav-link{{ if eq .admin_nav "dashboard" }} active{{ end }}"
+            {{ if eq .admin_nav "dashboard" }}aria-current="page"{{ end }}
+          >
+            <i class="nav-icon bi bi-speedometer2" aria-hidden="true"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <!-- Users -->
+        <li class="nav-item admin-only">
+          <a
+            href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/users"
+            class="nav-link{{ if eq .admin_nav "users" }} active{{ end }}"
+            {{ if eq .admin_nav "users" }}aria-current="page"{{ end }}
+          >
+            <i class="nav-icon bi bi-people" aria-hidden="true"></i>
+            <p>User</p>
+          </a>
+        </li>
+
+        <!-- Pages -->
+        <li class="nav-item admin-only{{ if eq .admin_nav "pages" }} menu-open{{ end }}">
+          <a
+            href="#"
+            class="nav-link"
+            data-lte-toggle="treeview"
+            role="button"
+            aria-expanded="{{ if eq .admin_nav "pages" }}true{{ else }}false{{ end }}"
+            aria-controls="sidebar-pages-treeview"
+          >
+            <i class="nav-icon bi bi-file-earmark" aria-hidden="true"></i>
+            <p>
+              Page
+              <i class="nav-arrow bi bi-chevron-right" aria-hidden="true"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview" id="sidebar-pages-treeview">
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/pages"
+                class="nav-link{{ if and (eq .admin_nav "pages") (or (eq .admin_pages_subnav "list") (eq .admin_pages_subnav "edit")) }} active{{ end }}"
+                {{ if and (eq .admin_nav "pages") (or (eq .admin_pages_subnav "list") (eq .admin_pages_subnav "edit")) }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-list-ul" aria-hidden="true"></i>
+                <p>Semua Page</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/pages/create"
+                class="nav-link{{ if and (eq .admin_nav "pages") (eq .admin_pages_subnav "create") }} active{{ end }}"
+                {{ if and (eq .admin_nav "pages") (eq .admin_pages_subnav "create") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-plus-lg" aria-hidden="true"></i>
+                <p>Tambah Page</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Posts -->
+        <li class="nav-item{{ if or (eq .admin_nav "posts") (eq .admin_nav "categories") (eq .admin_nav "tags") }} menu-open{{ end }}">
+          <a
+            href="#"
+            class="nav-link"
+            data-lte-toggle="treeview"
+            role="button"
+            aria-expanded="{{ if or (eq .admin_nav "posts") (eq .admin_nav "categories") (eq .admin_nav "tags") }}true{{ else }}false{{ end }}"
+            aria-controls="sidebar-posts-treeview"
+          >
+            <i class="nav-icon bi bi-file-earmark-text" aria-hidden="true"></i>
+            <p>
+              Post
+              <i class="nav-arrow bi bi-chevron-right" aria-hidden="true"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview" id="sidebar-posts-treeview">
+
+            <!-- All posts -->
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/posts"
+                class="nav-link{{ if and (eq .admin_nav "posts") (or (eq .admin_posts_subnav "list") (eq .admin_posts_subnav "edit")) }} active{{ end }}"
+                {{ if and (eq .admin_nav "posts") (or (eq .admin_posts_subnav "list") (eq .admin_posts_subnav "edit")) }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-list-ul" aria-hidden="true"></i>
+                <p>Semua post</p>
+              </a>
+            </li>
+
+            <!-- Create post -->
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/posts/create"
+                class="nav-link{{ if and (eq .admin_nav "posts") (eq .admin_posts_subnav "create") }} active{{ end }}"
+                {{ if and (eq .admin_nav "posts") (eq .admin_posts_subnav "create") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-plus-lg" aria-hidden="true"></i>
+                <p>Tambah post</p>
+              </a>
+            </li>
+            
+            <!-- Categories -->
+            <li class="nav-item admin-only">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/categories"
+                class="nav-link{{ if eq .admin_nav "categories" }} active{{ end }}"
+                {{ if eq .admin_nav "categories" }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-folder2" aria-hidden="true"></i>
+                <p>Category</p>
+              </a>
+            </li>
+
+            <!-- Tags -->
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/tags"
+                class="nav-link{{ if eq .admin_nav "tags" }} active{{ end }}"
+                {{ if eq .admin_nav "tags" }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-tag" aria-hidden="true"></i>
+                <p>Tag</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Bulk posts (AI) -->
+        <li class="nav-item">
+          <a
+            href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/bulk-posts"
+            class="nav-link{{ if eq .admin_nav "bulk_posts" }} active{{ end }}"
+            {{ if eq .admin_nav "bulk_posts" }}aria-current="page"{{ end }}
+          >
+            <i class="nav-icon bi bi-layers" aria-hidden="true"></i>
+            <p>Bulk post</p>
+          </a>
+        </li>
+
+        <!-- Scraper -->
+        <li class="nav-item">
+          <a
+            href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/scraper-settings"
+            class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "scraper") }} active{{ end }}"
+            {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "scraper") }}aria-current="page"{{ end }}
+          >
+            <i class="nav-icon bi bi-rss" aria-hidden="true"></i>
+            <p>Scraper</p>
+          </a>
+        </li>
+
+        <!-- Logs (grouped) -->
+        <li class="nav-item{{ if eq .admin_nav "logs" }} menu-open{{ end }}">
+          <a
+            href="#"
+            class="nav-link"
+            data-lte-toggle="treeview"
+            role="button"
+            aria-expanded="{{ if eq .admin_nav "logs" }}true{{ else }}false{{ end }}"
+            aria-controls="sidebar-logs-treeview"
+          >
+            <i class="nav-icon bi bi-clipboard-data" aria-hidden="true"></i>
+            <p>
+              Log
+              <i class="nav-arrow bi bi-chevron-right" aria-hidden="true"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview" id="sidebar-logs-treeview">
+            <li class="nav-item admin-only">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/scraper-logs"
+                class="nav-link{{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "scraper") }} active{{ end }}"
+                {{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "scraper") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-journal-text" aria-hidden="true"></i>
+                <p>Log scraper</p>
+              </a>
+            </li>
+            <li class="nav-item admin-only">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/login-logs"
+                class="nav-link{{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "login") }} active{{ end }}"
+                {{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "login") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-door-open" aria-hidden="true"></i>
+                <p>Log login</p>
+              </a>
+            </li>
+            <li class="nav-item writer-or-admin-visible">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/bulk-post-logs"
+                class="nav-link{{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "bulk") }} active{{ end }}"
+                {{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "bulk") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-ui-checks-grid" aria-hidden="true"></i>
+                <p>Log bulk post</p>
+              </a>
+            </li>
+            <li class="nav-item writer-or-admin-visible">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/manual-post-ai-logs"
+                class="nav-link{{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "manual_post_ai") }} active{{ end }}"
+                {{ if and (eq .admin_nav "logs") (eq .admin_logs_subnav "manual_post_ai") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-stars" aria-hidden="true"></i>
+                <p>Log AI post manual</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Settings -->
+        <li class="nav-item admin-only{{ if and (eq .admin_nav "settings") (ne .admin_settings_subnav "scraper") }} menu-open{{ end }}">
+          <a
+            href="#"
+            class="nav-link"
+            data-lte-toggle="treeview"
+            role="button"
+            aria-expanded="{{ if and (eq .admin_nav "settings") (ne .admin_settings_subnav "scraper") }}true{{ else }}false{{ end }}"
+            aria-controls="sidebar-settings-treeview"
+          >
+            <i class="nav-icon bi bi-gear" aria-hidden="true"></i>
+            <p>
+              Settings
+              <i class="nav-arrow bi bi-chevron-right" aria-hidden="true"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview" id="sidebar-settings-treeview">
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/ai-setting"
+                class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "ai") }} active{{ end }}"
+                {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "ai") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-key" aria-hidden="true"></i>
+                <p>AI settings</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/site-settings"
+                class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "site") }} active{{ end }}"
+                {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "site") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-globe2" aria-hidden="true"></i>
+                <p>Site</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/restore-backup"
+                class="nav-link{{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "backup") }} active{{ end }}"
+                {{ if and (eq .admin_nav "settings") (eq .admin_settings_subnav "backup") }}aria-current="page"{{ end }}
+              >
+                <i class="nav-icon bi bi-database-down" aria-hidden="true"></i>
+                <p>Restore &amp; Backup</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <div class="border-top mt-auto pt-2 pb-3 px-1" aria-label="Session">
+      <ul class="nav sidebar-menu flex-column mb-0">
+        <li class="nav-item">
+          <a
+            href="#"
+            class="nav-link text-danger"
+            id="admin-logout-btn"
+            role="button"
+          >
+            <i class="nav-icon bi bi-box-arrow-right" aria-hidden="true"></i>
+            <p>Sign out</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</aside>
+{{ end }}

@@ -1,0 +1,77 @@
+{{ define "client-footer" }}
+<footer class="site-footer site-footer--extended{{ if eq .homepage_layout "tirtayasa" }} site-footer--tirtayasa{{ end }}">
+  <div class="site-footer-inner">
+    <div class="footer-grid">
+      <div class="footer-col footer-col--brand">
+        <a class="site-logo site-logo--news footer-logo" href="{{ .public_base }}/">
+          {{ if .logo_url }}
+          <span class="site-logo-img-wrap">
+            <span class="site-logo-text site-logo-text--fallback" aria-hidden="true">{{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}</span>
+            <img
+              class="site-logo-img site-logo-img--pending"
+              src="{{ .logo_url }}"
+              alt="{{ if .site_name }}{{ .site_name }}{{ else }}Beranda{{ end }}"
+              width="160"
+              height="40"
+              decoding="async"
+              loading="lazy"
+            />
+          </span>
+          {{ else }}
+          <span class="site-logo-text">{{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}</span>
+          {{ end }}
+        </a>
+        <p class="footer-subhead">Media sosial</p>
+        <div class="footer-social" aria-label="Media sosial">
+          {{ if .social_facebook_url }}
+          <a class="social-btn social-fb" href="{{ .social_facebook_url }}" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook">
+            <i class="bi bi-facebook" aria-hidden="true"></i>
+          </a>
+          {{ end }}
+          {{ if .social_x_url }}
+          <a class="social-btn social-x" href="{{ .social_x_url }}" target="_blank" rel="noopener noreferrer" title="X" aria-label="X">
+            <i class="bi bi-twitter-x" aria-hidden="true"></i>
+          </a>
+          {{ end }}
+          {{ if .social_instagram_url }}
+          <a class="social-btn social-ig" href="{{ .social_instagram_url }}" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram">
+            <i class="bi bi-instagram" aria-hidden="true"></i>
+          </a>
+          {{ end }}
+          {{ if .social_youtube_url }}
+          <a class="social-btn social-yt" href="{{ .social_youtube_url }}" target="_blank" rel="noopener noreferrer" title="YouTube" aria-label="YouTube">
+            <i class="bi bi-youtube" aria-hidden="true"></i>
+          </a>
+          {{ end }}
+          {{ if .social_tiktok_url }}
+          <a class="social-btn social-tt" href="{{ .social_tiktok_url }}" target="_blank" rel="noopener noreferrer" title="TikTok" aria-label="TikTok">
+            <i class="bi bi-tiktok" aria-hidden="true"></i>
+          </a>
+          {{ end }}
+          <a class="social-btn social-rss" href="{{ .public_base }}/rss-feeds" title="RSS" aria-label="RSS Feeds">
+            <i class="bi bi-rss-fill" aria-hidden="true"></i>
+          </a>
+        </div>
+        <p class="footer-copy">{{ if .footer_copy }}{{ .footer_copy }}{{ else }}© {{ .current_year }} {{ if .site_name }}{{ .site_name }}{{ else }}Blog{{ end }}{{ end }}</p>
+      </div>
+
+      <div class="footer-col footer-col--pages">
+        <h2 class="footer-heading">Halaman</h2>
+        {{ $isMulti := false }}
+        {{ with .client_pages }}
+          {{ if gt (len .) 4 }}
+            {{ $isMulti = true }}
+          {{ end }}
+        {{ end }}
+        <ul class="footer-page-list{{ if $isMulti }} footer-page-list--multi{{ end }}">
+          {{ range .client_pages }}
+          <li><a href="{{ $.public_base }}/{{ .Slug }}">{{ .Title }}</a></li>
+          {{ else }}
+          <li><span class="muted">Belum ada halaman</span></li>
+          {{ end }}
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+{{ end }}

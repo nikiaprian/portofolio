@@ -1,0 +1,476 @@
+{{- define "layouts-client-app" -}}
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      {{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}
+    </title>
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="tirtayasa-sidebar-list-limit-popular" content="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}" />
+    <meta name="tirtayasa-sidebar-list-limit-latest" content="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}" />
+    {{ .scraper_guard_meta }}
+    <meta name="title" content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"/>
+    {{ if .meta_description }}<meta name="description" content="{{ .meta_description }}" />{{ end }}
+    {{ if .meta_keywords }}<meta name="keywords" content="{{ .meta_keywords }}" />{{ end }}
+    {{ if .meta_author }}<meta name="author" content="{{ .meta_author }}" />
+    {{ else if .site_name }}<meta name="author" content="{{ .site_name }}" />{{ end }}
+    {{ if and .meta_author (eq .og_type "article") }}<meta property="article:author" content="{{ .meta_author }}" />{{ end }}
+    {{ if .theme_color }}<meta name="theme-color" content="{{ .theme_color }}" />{{ end }}
+    {{ if or .verify_google .verify_bing .verify_yandex .verify_ahrefs}}
+      {{ if .verify_google }}<meta name="google-site-verification" content="{{ .verify_google }}" />{{ end }} 
+      {{ if .verify_bing }}<meta name="msvalidate.01" content="{{ .verify_bing }}" />{{ end }} 
+      {{ if .verify_yandex }}<meta name="yandex-verification" content="{{ .verify_yandex }}" />{{ end }} 
+      {{ if .verify_ahrefs }}<meta name="ahrefs-site-verification" content="{{ .verify_ahrefs }}" />{{ end }}
+    {{ end }}
+    <meta property="og:title" content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"/>
+    {{ if .meta_description }}<meta property="og:description" content="{{ .meta_description }}" />{{ end }}
+    {{ if .site_name }}<meta property="og:site_name" content="{{ .site_name }}" />{{ end }}
+    <meta property="og:type" content="{{ if .og_type }}{{ .og_type }}{{ else }}website{{ end }}"/>
+    {{ if .current_url }}<meta property="og:url" content="{{ .current_url }}" />{{ end }}
+    {{ if .current_url }}<link rel="canonical" href="{{ .current_url }}" />{{ end }}
+    {{ if .meta_image }}
+    <meta property="og:image" content="{{ .meta_image }}" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="1024" />
+    {{ end }}
+    {{ if false -}}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "{{ js .site_name }}",
+        "url": "{{ .public_base_root_jsstr }}"
+      }
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": "{{ .current_webpage_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "{{ js .post_title }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}{{ js .post_title }}{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          }{{ if .meta_image }},
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": "{{ .meta_image_jsstr }}"
+          }{{ end }}
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "{{ if .article_schema_type }}{{ .article_schema_type }}{{ else }}Article{{ end }}",
+          "@id": "{{ .current_article_id_jsstr }}",
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ .current_webpage_id_jsstr }}"
+          },
+          "url": "{{ .current_url_jsstr }}",
+          "headline": "{{ js .post_title }}",
+          "name": "{{ js .post_title }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}{{ js .post_title }}{{ end }}",
+          "inLanguage": "id-ID",
+          "datePublished": "{{ .post_created_at_iso }}",
+          "dateModified": "{{ .post_updated_at_iso }}"{{ if .meta_image }},
+          "image": [
+            "{{ .meta_image_jsstr }}"
+          ],
+          "thumbnailUrl": "{{ .meta_image_jsstr }}"{{ end }}{{ if .cat_name }},
+          "articleSection": "{{ js .cat_name }}"{{ end }},
+          "author": {
+            "@type": "Person",
+            "name": "{{ js .author_name }}"{{ if .author_path }},
+            "url": "{{ .author_path_jsstr }}"{{ end }}
+          },
+          "publisher": {
+            "@type": "Organization",
+            "@id": "{{ .organization_id_jsstr }}",
+            "name": "{{ js .site_name }}"{{ if .logo_url }},
+            "logo": {
+              "@type": "ImageObject",
+              "url": "{{ .logo_url_jsstr }}"
+            }{{ end }}
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            }{{ if and .cat_slug .cat_name }},
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "{{ js .cat_name }}",
+              "item": "{{ .cat_url_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "{{ js .post_title }}",
+              "item": "{{ .current_url_jsstr }}"
+            }{{ else }},
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "{{ js .post_title }}",
+              "item": "{{ .current_url_jsstr }}"
+            }{{ end }}
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    {{ $schemaCategoryTitle := .category_name }}{{ with .schema_category_title }}{{ $schemaCategoryTitle = . }}{{ end -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": "{{ .current_collection_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "{{ js $schemaCategoryTitle }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}Kumpulan artikel kategori {{ js $schemaCategoryTitle }}{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          },
+          "about": {
+            "@type": "Thing",
+            "name": "{{ js $schemaCategoryTitle }}"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "{{ js $schemaCategoryTitle }}",
+              "item": "{{ .current_url_jsstr }}"
+            }
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": "{{ .current_collection_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "Tag: {{ js .tag_name }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}Kumpulan artikel dengan tag {{ js .tag_name }}{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          },
+          "about": {
+            "@type": "Thing",
+            "name": "{{ js .tag_name }}"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Tag",
+              "item": "{{ .tag_index_url_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "{{ js .tag_name }}",
+              "item": "{{ .current_url_jsstr }}"
+            }
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          "@id": "{{ .current_profile_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "Author: {{ js .author_name }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}Kumpulan artikel dari author {{ js .author_name }}{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          },
+          "mainEntity": {
+            "@type": "Person",
+            "name": "{{ js .author_name }}"{{ if .author_bio }},
+            "description": "{{ js .author_bio }}"{{ end }}{{ if .author_img }},
+            "image": "{{ .author_img_jsstr }}"{{ end }},
+            "url": "{{ .current_url_jsstr }}"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Author",
+              "item": "{{ .author_index_url_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "{{ js .author_name }}",
+              "item": "{{ .current_url_jsstr }}"
+            }
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": "{{ .current_collection_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "{{ js .title }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}Daftar semua artikel yang dipublikasikan.{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "{{ js .title }}",
+              "item": "{{ .current_url_jsstr }}"
+            }
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ if false -}}
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": "{{ .current_webpage_id_jsstr }}",
+          "url": "{{ .current_url_jsstr }}",
+          "name": "{{ js .page_title }} - {{ js .site_name }}",
+          "description": "{{ if .meta_description }}{{ js .meta_description }}{{ else }}{{ js .page_title }}{{ end }}",
+          "inLanguage": "id-ID",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "{{ js .site_name }}",
+            "url": "{{ .public_base_jsstr }}"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "{{ js .site_name }}",
+              "item": "{{ .public_base_jsstr }}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "{{ js .page_title }}",
+              "item": "{{ .current_url_jsstr }}"
+            }
+          ]
+        }
+      ]
+    </script>
+    {{ end -}}
+    {{ .json_ld_html }}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"/>
+    {{ if .meta_description }}<meta name="twitter:description" content="{{ .meta_description }}" />{{ end }}
+    {{ if .meta_image }}<meta name="twitter:image" content="{{ .meta_image }}" />{{ end }}
+    {{ if .favicon_url }}<link rel="icon" href="{{ .favicon_url }}" />{{ end }}
+    <link rel="preload" href="{{ .public_base }}/static/css/style.min.css{{ if .static_version }}?v={{ .static_version }}{{ end }}" as="style"/>
+    <link rel="stylesheet" href="{{ .public_base }}/static/css/style.min.css{{ if .static_version }}?v={{ .static_version }}{{ end }}"/>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --bg: {{ with .background_secondary }}{{ . }}{{ else }}#ffffff{{ end }};
+        --surface: {{ with .background_primary }}{{ . }}{{ else }}#ffffff{{ end }};
+        --text: {{ with .text_primary }}{{ . }}{{ else }}#1f2937{{ end }};
+        --muted: {{ with .text_secondary }}{{ . }}{{ else }}#64748b{{ end }};
+        --border: {{ with .border_color }}{{ . }}{{ else }}#e5e7eb{{ end }};
+        --accent: {{ with .accent_color }}{{ . }}{{ else }}#c62828{{ end }};
+        --accent-hover: {{ with .accent_color }}{{ . }}{{ else }}#b71c1c{{ end }};
+        --font: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+        --content-font-size: {{ with .content_font_size }}{{ . }}{{ else }}17px{{ end }};
+        --sidebar-font-size: {{ with .sidebar_font_size }}{{ . }}{{ else }}14px{{ end }};
+        --nav-blue: var(--accent);
+        --nav-active: #ffffff;
+      }
+      .site-body input:not([type="hidden"])::placeholder,
+      .site-body textarea::placeholder {
+        color: var(--muted);
+        opacity: 1;
+      }
+      .header-social .social-btn i {
+        display: block;
+        font-size: 18px;
+        line-height: 1;
+      }
+      .site-ad {
+        display: block;
+        width: 100%;
+        max-width: 970px;
+        margin: 16px auto;
+        padding: 0 12px;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+      .site-ad > * {
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .site-ad ins, .site-ad iframe, .site-ad img { max-width: 100%; height: auto; }
+      /* AdSense: <ins> default inline — hindari availableWidth=0 saat push bawaan */
+      .site-ad ins.adsbygoogle,
+      .blog-article-body ins.adsbygoogle {
+        display: block !important;
+        width: 100% !important;
+        min-height: 90px;
+        box-sizing: border-box;
+      }
+      .site-ad--top { margin-top: 12px; margin-bottom: 12px; }
+      .site-ad--bottom { margin-top: 24px; margin-bottom: 12px; }
+      .site-ad--inarticle { margin: 24px auto; }
+      .site-ad--inlist { margin: 14px auto; }
+      .site-ad--inhome { margin: 18px auto; }
+      /* Hindari kolaps tinggi 0 pada slot sebelum AdSense mengukur */
+      .site-ad.site-ad--top,
+      .site-ad.site-ad--bottom,
+      .site-ad.site-ad--inhome {
+        min-height: 1px;
+      }
+    </style>
+    {{- if .header_script }}{{ .header_script }}{{ end -}}
+  </head>
+  <body class="site-body{{ if eq .homepage_layout "detik" }} site-layout-detik{{ end }}{{ if eq .homepage_layout "neo" }} site-layout-neo{{ end }}{{ if eq .homepage_layout "tirtayasa" }} site-layout-tirtayasa{{ end }}{{ if eq .homepage_layout "magazine" }} site-layout-magazine{{ end }}">
+    {{- template "client-header" . -}}
+    {{- if .ads_top }}<div class="site-ad site-ad--top" aria-label="Iklan">{{ .ads_top }}</div>{{ end -}}
+
+    <main class="site-main">{{- block "client-content" . -}}{{- end -}}</main>
+
+    {{- if .ads_bottom }}<div class="site-ad site-ad--bottom" aria-label="Iklan">{{ .ads_bottom }}</div>{{ end -}}
+    {{- template "client-footer" . -}}
+    <script>
+      window.TirtayasaPublicConfig = window.TirtayasaPublicConfig || {};
+      window.TirtayasaPublicConfig.localTimezone = "{{ with .local_timezone }}{{ . }}{{ else }}Asia/Jakarta{{ end }}";
+      window.TirtayasaPublicConfig.loginHref = "{{ if .login_href }}{{ js .login_href }}{{ else }}/login{{ end }}";
+      window.TirtayasaPublicConfig.articleSlugMode = {{ if .article_slug_mode }}{{ printf "%q" .article_slug_mode }}{{ else }}"direct"{{ end }};
+      window.TirtayasaPublicConfig.siteName = "{{ js .site_name }}";
+      window.TirtayasaPublicConfig.publicBase = "{{ js .public_base }}";
+      window.TirtayasaPublicConfig.fontFamily = "{{ if .font_family }}{{ js .font_family }}{{ else }}system-ui, -apple-system, \"Segoe UI\", Roboto, Ubuntu, \"Helvetica Neue\", sans-serif{{ end }}";
+      try {
+        if (window.TirtayasaPublicConfig.fontFamily) {
+          document.documentElement.style.setProperty("--font", window.TirtayasaPublicConfig.fontFamily);
+        }
+      } catch (e) {}
+      window.TirtayasaPublicConfig.imageCaptionEnabled = {{ if .image_caption_enabled }}true{{ else }}false{{ end }};
+      window.TirtayasaPublicConfig.imageCaptionMode = {{ printf "%q" .image_caption_mode }};
+      window.TirtayasaPublicConfig.imageCaptionTemplate = {{ printf "%q" .image_caption_template }};
+      window.TirtayasaPublicConfig.imageResizeEnabled = {{ if .image_resize_enabled }}true{{ else }}false{{ end }};
+      window.TirtayasaPublicConfig.imgResizeEnabled = {{ if .img_resize_enabled }}true{{ else }}false{{ end }};
+      window.TirtayasaPublicConfig.imageResizePath = "/img";
+      window.TirtayasaPublicConfig.imgResizeWidth = {{ if .img_resize_width }}{{ printf "%q" .img_resize_width }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.imgResizeHeight = {{ if .img_resize_height }}{{ printf "%q" .img_resize_height }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.imgResizeQuality = {{ if .img_resize_quality }}{{ printf "%q" .img_resize_quality }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.cloudflareImageResizeWidth = {{ if .image_resize_width }}{{ printf "%q" .image_resize_width }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.cloudflareImageResizeQuality = {{ if .image_resize_quality }}{{ printf "%q" .image_resize_quality }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.avatarResizeWidth = {{ if .avatar_resize_width }}{{ printf "%q" .avatar_resize_width }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.avatarResizeQuality = {{ if .avatar_resize_quality }}{{ printf "%q" .avatar_resize_quality }}{{ else }}""{{ end }};
+      window.TirtayasaPublicConfig.adsLazyLoadEnabled = {{ if .ads_lazy_load_enabled }}true{{ else }}false{{ end }};
+      window.TirtayasaPublicConfig.alsoReadEnabled = {{ if .also_read_enabled }}true{{ else }}false{{ end }};
+      window.TirtayasaPublicConfig.alsoReadMaxInserts = {{ .also_read_max_inserts }};
+      window.__PUBLIC_ADS_CENTER_HTML__ = {{ if .ads_center_json }}{{ .ads_center_json }}{{ else }}null{{ end }};
+    </script>
+    <script src="{{ .public_base }}/static/js/img-bind.min.js{{- if .static_version -}}?v={{ .static_version }}{{- end -}}" defer></script>
+    <script src="{{ .public_base }}/static/js/api.min.js{{- if .static_version -}}?v={{ .static_version }}{{- end -}}" defer></script>
+    <script src="{{ .public_base }}/static/js/site-header.min.js{{- if .static_version -}}?v={{ .static_version }}{{- end -}}" defer></script>
+    {{- if .load_app_js }}<script src="{{ .public_base }}/static/js/app.min.js{{- if .static_version -}}?v={{ .static_version }}{{- end -}}" defer></script>{{ end }}
+    {{- if .load_post_js }} <script src="{{ .public_base }}/static/js/post.min.js{{- if .static_version -}}?v={{ .static_version }}{{- end -}}" defer></script>{{ end }}
+  </body>
+</html>
+{{- end -}}

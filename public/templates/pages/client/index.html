@@ -1,0 +1,27 @@
+{{ define "client-content" }}
+<div class="page-home{{ if ne .homepage_layout "tirtayasa" }} page-topic{{ end }}">
+  <div class="blog-home-layout{{ if ne .homepage_layout "tirtayasa" }} blog-topic-layout{{ end }}{{ if eq .homepage_layout "detik" }} home-layout-detik{{ end }}{{ if eq .homepage_layout "neo" }} home-layout-neo neo-mag-home{{ end }}{{ if eq .homepage_layout "tirtayasa" }} home-layout-tirtayasa{{ end }}">
+    <div
+      id="public-root"
+      class="public-root blog-home-main"
+      {{- if .home_ssr }} data-home-ssr="1"{{ end }}
+      data-home-layout="{{ .homepage_layout }}"
+    >
+      {{ if .home_ssr }}
+        {{ if eq .homepage_layout "detik" }}
+          {{ template "client-home-ssr-detik" . }}
+        {{ else if eq .homepage_layout "tirtayasa" }}
+          {{ template "client-home-ssr-tirtayasa" . }}
+        {{ else }}
+          {{ template "client-home-ssr" . }}
+        {{ end }}
+      {{ else }}
+        <p>Belum ada artikel.</p>
+      {{ end }}
+    </div>
+    {{ if not (and .is_homepage (or (eq .homepage_layout "neo") (eq .homepage_layout "tirtayasa"))) }}
+    {{ template "client-blog-sidebar-ssr" . }}
+    {{ end }}
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,19 @@
+{{ define "client-content" }}
+<main
+  style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem"
+>
+  <section style="max-width: 680px; width: 100%; text-align: center; margin: 0 auto">
+    <div style="font-weight: 800; color: var(--accent); line-height: 1; font-size: clamp(4.5rem, 15vw, 9rem)">
+      {{ .error_code }}
+    </div>
+    <h1 style="margin: 0.5rem 0 0.75rem; font-size: clamp(1.25rem, 3.2vw, 1.9rem)">
+      {{ .error_title }}
+    </h1>
+    <p style="margin: 0 0 1.25rem; color: #6b7280">{{ .error_description }}</p>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center">
+      <a href="{{ .public_base }}/" class="btn btn-primary">Kembali ke beranda</a>
+      <a href="{{ .public_base }}/posts" class="btn btn-light border">Lihat semua artikel</a>
+    </div>
+  </section>
+</main>
+{{ end }}

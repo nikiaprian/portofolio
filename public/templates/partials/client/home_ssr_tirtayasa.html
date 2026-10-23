@@ -1,0 +1,65 @@
+{{ define "client-home-ssr-tirtayasa" }}
+<section class="ty-home">
+  {{ with .home_latest }}
+  <article class="ty-lead">
+    <div class="ty-lead-copy">
+      {{ if .has_cat }}<a class="ty-kicker" href="{{ .cat_href }}">{{ .cat_name }}</a>{{ end }}
+      <h1 class="ty-lead-title"><a href="{{ .href }}">{{ .title }}</a></h1>
+      {{ if .excerpt }}<p class="ty-lead-excerpt">{{ .excerpt }}</p>{{ end }}
+      <p class="ty-meta">
+        {{ if .author_name }}<span>{{ .author_name }}</span>{{ end }}
+        {{ if .date_label }}<time>{{ .date_label }}</time>{{ end }}
+      </p>
+    </div>
+    {{ if .thumb }}
+    <a class="ty-lead-media" href="{{ .href }}">
+      <img src="{{ .thumb }}" alt="" decoding="async" />
+    </a>
+    {{ end }}
+  </article>
+  {{ end }}
+
+  {{ if .home_slides }}
+  <div class="ty-support">
+    {{ range $i, $s := .home_slides }}
+      {{ if lt $i 3 }}
+      <article class="ty-support-card">
+        {{ if $s.thumb }}
+        <a class="ty-support-media" href="{{ $s.href }}">
+          <img src="{{ $s.thumb }}" alt="" decoding="async" loading="lazy" />
+        </a>
+        {{ end }}
+        <div class="ty-support-copy">
+          {{ if $s.has_cat }}<a class="ty-kicker" href="{{ $s.cat_href }}">{{ $s.cat_name }}</a>{{ end }}
+          <h2 class="ty-support-title"><a href="{{ $s.href }}">{{ $s.title }}</a></h2>
+          {{ if $s.excerpt }}<p class="ty-support-excerpt">{{ $s.excerpt }}</p>{{ end }}
+        </div>
+      </article>
+      {{ end }}
+    {{ end }}
+  </div>
+  {{ end }}
+
+  {{ if and .home_feed (gt (len .home_feed) 3) }}
+  <section class="ty-reading" aria-labelledby="ty-reading-heading">
+    <h2 class="ty-reading-heading" id="ty-reading-heading">Bacaan terbaru</h2>
+    <ol class="ty-reading-list">
+      {{ range $i, $row := .home_feed }}
+        {{ if ge $i 3 }}
+        <li class="ty-reading-item">
+          <a class="ty-reading-link" href="{{ $row.href }}">{{ $row.title }}</a>
+          {{ if $row.excerpt }}<p class="ty-reading-excerpt">{{ $row.excerpt }}</p>{{ end }}
+          <p class="ty-meta">
+            {{ if $row.cat_name }}
+              {{ if $row.has_cat_slug }}<a href="{{ $row.cat_href }}">{{ $row.cat_name }}</a>{{ else }}<span>{{ $row.cat_name }}</span>{{ end }}
+            {{ end }}
+            {{ if $row.date_label }}<time>{{ $row.date_label }}</time>{{ end }}
+          </p>
+        </li>
+        {{ end }}
+      {{ end }}
+    </ol>
+  </section>
+  {{ end }}
+</section>
+{{ end }}

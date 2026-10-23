@@ -1,0 +1,74 @@
+{{ define "client-article-more-sections" }}
+{{ if .article_related_posts }}
+<section class="blog-otherlatest" aria-label="Artikel terkait">
+  <div class="blog-otherlatest-head">
+    <h2 class="blog-section-title blog-section-title--feed">
+      <span class="blog-section-title-bar" aria-hidden="true"></span>
+      Artikel terkait
+    </h2>
+  </div>
+  <div class="blog-posts-list blog-otherlatest-list" data-lazy-list data-batch-size="{{ .article_related_batch_size }}">
+    {{ range $i, $p := .article_related_posts }}
+    <a
+      class="blog-posts-item{{ if ge $i $.article_related_batch_size }} is-lazy-hidden{{ end }}"
+      href="{{ $p.href }}"
+      {{ if ge $i $.article_related_batch_size }}hidden{{ end }}
+      data-lazy-item
+    >
+      <span class="blog-posts-thumb" aria-hidden="true">
+        <img src="{{ $p.thumb }}" alt="" width="88" height="66" loading="lazy" decoding="async" />
+      </span>
+      <span class="blog-posts-text">
+        <span class="blog-posts-title">{{ $p.title }}</span>
+        {{ if $p.time }}<span class="blog-posts-time">{{ $p.time }}</span>{{ end }}
+      </span>
+    </a>
+    {{ end }}
+  </div>
+  {{ if gt (len .article_related_posts) .article_related_batch_size }}
+  <div class="blog-feed-loadmore">
+    <button type="button" class="btn btn-ghost blog-feed-loadmore-btn" data-lazy-loadmore>
+      <span class="blog-feed-loadmore-inner">
+        <span class="blog-feed-loadmore-label">Muat lagi</span>
+        <svg class="blog-feed-loadmore-arrow" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+          <path fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5"/>
+        </svg>
+      </span>
+    </button>
+  </div>
+  {{ end }}
+</section>
+{{ end }}
+{{ if .article_recommend_posts }}
+<section class="blog-mostviewed" aria-label="Rekomendasi">
+  <div class="blog-mostviewed-head">
+    <h2 class="blog-section-title blog-section-title--feed">
+      <span class="blog-section-title-bar" aria-hidden="true"></span>
+      Rekomendasi
+    </h2>
+  </div>
+  <div class="blog-mostviewed-slider">
+    <button type="button" class="blog-mostviewed-nav blog-mostviewed-nav--prev" aria-label="Slide sebelumnya">‹</button>
+    <div class="blog-mostviewed-track-wrap">
+      <div class="blog-mostviewed-track">
+        {{ range .article_recommend_posts }}
+        <article class="blog-mostviewed-item">
+          <a class="blog-mostviewed-card" href="{{ .href }}">
+            <div class="blog-mostviewed-media">
+              <img src="{{ .thumb }}" alt="" loading="lazy" decoding="async" />
+            </div>
+            <div class="blog-mostviewed-body">
+              {{ if .cat_name }}<span class="blog-mostviewed-cat">{{ .cat_name }}</span>{{ end }}
+              <p class="blog-mostviewed-title">{{ .title }}</p>
+              {{ if .time }}<p class="blog-mostviewed-time">{{ .time }}</p>{{ end }}
+            </div>
+          </a>
+        </article>
+        {{ end }}
+      </div>
+    </div>
+    <button type="button" class="blog-mostviewed-nav blog-mostviewed-nav--next" aria-label="Slide berikutnya">›</button>
+  </div>
+</section>
+{{ end }}
+{{ end }}

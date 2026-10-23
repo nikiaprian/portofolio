@@ -1,0 +1,82 @@
+{{ define "client-content" }}
+<div class="page-home page-topic">
+  <div class="blog-home-layout blog-topic-layout{{ if eq .homepage_layout "detik" }} home-layout-detik home-layout-detik--inner{{ end }}{{ if eq .homepage_layout "neo" }} home-layout-neo home-layout-neo--inner{{ end }}">
+    <div id="public-root" class="public-root blog-home-main">
+      <div class="blog-feed-head">
+        <h1 class="blog-section-title blog-section-title--feed">
+          <span class="blog-section-title-bar" aria-hidden="true"></span>
+          Semua postingan
+        </h1>
+      </div>
+      {{ if .posts }}
+      {{ template "client-topic-posts-list" . }}
+      {{ template "client-pagination" . }}
+      {{ else }}
+      <p>Belum ada artikel yang dipublikasikan.</p>
+      {{ end }}
+    </div>
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</div>
+<script>
+  (function () {
+    function toHourRelativeText(raw) {
+      var orig = String(raw || "").trim();
+      if (!orig) return "";
+      var s = orig.toLowerCase();
+      if (/\d+\s*hari lalu/i.test(orig)) return orig;
+      if (/\d+\s*bulan lalu/i.test(orig)) return orig;
+      if (/\d+\s*tahun lalu/i.test(orig)) return orig;
+      var m = s.match(/^(\d+)\s*menit/);
+      if (m) return m[1] + " menit lalu";
+      m = s.match(/^(\d+)\s*jam/);
+      if (m) {
+        var h = parseInt(m[1], 10);
+        if (h >= 24) {
+          var d = Math.max(1, Math.floor(h / 24));
+          return d + " hari lalu";
+        }
+        return h + " jam lalu";
+      }
+      return orig;
+    }
+
+    function normalizeTimeLabels(scope) {
+      var root = scope || document;
+      var times = root.querySelectorAll(".blog-posts-time, .blog-popular-meta");
+      times.forEach(function (el) {
+        el.textContent = toHourRelativeText(el.textContent);
+      });
+    }
+
+    var list = document.querySelector("#public-root .blog-posts-list");
+    normalizeTimeLabels(document);
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.TirtayasaBindPageImages) {
+      window.TirtayasaBindPageImages(list);
+    }
+  })();
+</script>
+{{ end }}

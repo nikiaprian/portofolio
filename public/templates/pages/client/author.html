@@ -1,0 +1,93 @@
+{{ define "client-content" }}
+<div class="page-home page-topic">
+  <div class="blog-home-layout blog-topic-layout{{ if eq .homepage_layout "detik" }} home-layout-detik home-layout-detik--inner{{ end }}{{ if eq .homepage_layout "neo" }} home-layout-neo home-layout-neo--inner{{ end }}">
+    <div id="public-root" class="public-root blog-home-main">
+      <section class="blog-author-card" aria-label="Profil author">
+        <div class="blog-author-card-banner" aria-hidden="true"></div>
+        <div class="blog-author-card-body">
+          <div class="blog-author-card-avatar">
+            {{ if .author_img }}
+            <img
+              class="blog-author-card-img"
+              src="{{ .author_img }}"
+              alt="{{ .author_name }}"
+              loading="lazy"
+              decoding="async"
+              width="120"
+              height="120"
+            />
+            {{ else }}
+            <span class="blog-author-card-img blog-author-card-img--fallback" aria-hidden="true"
+              >{{ .author_avatar_letter }}</span
+            >
+            {{ end }}
+          </div>
+          <div class="blog-author-card-main">
+            <h1 class="blog-author-card-name">{{ .author_name }}</h1>
+            <p class="blog-author-card-headline">{{ .author_role_label }}</p>
+            {{ if .author_bio }}
+            <p class="blog-author-card-bio">{{ .author_bio }}</p>
+            {{ else }}
+            <p class="blog-author-card-bio blog-author-card-bio--empty">
+              Belum ada deskripsi profil.
+            </p>
+            {{ end }}
+            <p class="blog-author-card-metric">
+              <strong>{{ .author_posts_count }}</strong> artikel dipublikasikan
+            </p>
+            <div class="blog-author-card-actions">
+              <a class="blog-author-card-btn blog-author-card-btn--primary" href="#author-posts"
+                >Lihat artikel</a
+              >
+              <a class="blog-author-card-btn blog-author-card-btn--outline" href="{{ .public_base }}/">Beranda</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {{ if .posts }}
+      <div id="author-posts" class="blog-author-posts-anchor">
+        <h2 class="blog-author-posts-title">Artikel</h2>
+      </div>
+      {{ template "client-topic-posts-list" . }}
+      {{ template "client-pagination" . }}
+      {{ else }}
+      <p id="author-posts" class="blog-author-empty" tabindex="-1">Belum ada artikel dari author ini.</p>
+      {{ end }}
+    </div>
+
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</div>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.TirtayasaBindPageImages) {
+      window.TirtayasaBindPageImages(list);
+    }
+  })();
+</script>
+{{ end }}

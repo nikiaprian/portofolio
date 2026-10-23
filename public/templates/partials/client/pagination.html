@@ -1,0 +1,17 @@
+{{ define "client-pagination" }}
+{{ if .pagination_links }}
+<nav class="blog-pagination" aria-label="Navigasi halaman">
+  <div class="blog-pagination-inner">
+    {{ range .pagination_links }}
+      {{ if eq .kind "ellipsis" }}
+        <span class="blog-pagination-ellipsis" aria-hidden="true">{{ .label }}</span>
+      {{ else if .disabled }}
+        <span class="blog-pagination-btn is-disabled" aria-disabled="true">{{ .label }}</span>
+      {{ else }}
+        <a class="blog-pagination-btn{{ if .active }} is-active{{ end }}" href="{{ .href }}">{{ .label }}</a>
+      {{ end }}
+    {{ end }}
+  </div>
+</nav>
+{{ end }}
+{{ end }}

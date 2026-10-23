@@ -1,0 +1,1923 @@
+{{ define "layouts-admin-app" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      {{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}
+    </title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="title"
+      content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"
+    />
+    {{ if .meta_description }}
+    <meta name="description" content="{{ .meta_description }}" />
+    {{ end }} {{ if .meta_keywords }}
+    <meta name="keywords" content="{{ .meta_keywords }}" />
+    {{ end }} {{ if .site_name }}
+    <meta name="author" content="{{ .site_name }}" />
+    {{ end }} {{ if .theme_color }}
+    <meta name="theme-color" content="{{ .theme_color }}" />
+    {{ end }} {{ if or .verify_google .verify_bing .verify_yandex
+    .verify_ahrefs}} {{ if .verify_google }}
+    <meta name="google-site-verification" content="{{ .verify_google }}" />
+    {{ end }} {{ if .verify_bing }}
+    <meta name="msvalidate.01" content="{{ .verify_bing }}" />
+    {{ end }} {{ if .verify_yandex }}
+    <meta name="yandex-verification" content="{{ .verify_yandex }}" />
+    {{ end }} {{ if .verify_ahrefs }}
+    <meta name="ahrefs-site-verification" content="{{ .verify_ahrefs }}" />
+    {{ end }} {{ end }}
+    <meta
+      property="og:title"
+      content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"
+    />
+    {{ if .meta_description }}
+    <meta property="og:description" content="{{ .meta_description }}" />
+    {{ end }} {{ if .site_name }}
+    <meta property="og:site_name" content="{{ .site_name }}" />
+    {{ end }}
+    <meta
+      property="og:type"
+      content="{{ if .og_type }}{{ .og_type }}{{ else }}website{{ end }}"
+    />
+    {{ if .current_url }}
+    <meta property="og:url" content="{{ .current_url }}" />
+    {{ end }} {{ if .meta_image }}
+    <meta property="og:image" content="{{ .meta_image }}" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="1024" />
+    {{ end }}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="{{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}"
+    />
+    {{ if .meta_description }}
+    <meta name="twitter:description" content="{{ .meta_description }}" />
+    {{ end }} {{ if .meta_image }}
+    <meta name="twitter:image" content="{{ .meta_image }}" />
+    {{ end }} {{ if .favicon_url }}
+    <link rel="icon" type="image/x-icon" href="{{ .favicon_url }}" />
+    {{ end }}
+    <script>
+      window.TIRTAYASA_LOGIN_URL = {{ if .login_href }}{{ printf "%q" .login_href }}{{ else }}"/login"{{ end }};
+    </script>
+    <script>
+      window.TirtayasaAdminConfig = window.TirtayasaAdminConfig || {};
+      window.TirtayasaAdminConfig.localePrefix =
+        "{{ if .locale_prefix }}{{ js .locale_prefix }}{{ else }}{{ end }}";
+      (function () {
+        var lp = String(window.TirtayasaAdminConfig.localePrefix || "").trim();
+        if (lp && lp.charAt(0) !== "/") {
+          lp = "/" + lp;
+        }
+        lp = lp.replace(/\/+$/, "");
+        window.TirtayasaAdminConfig.localePrefix = lp;
+        window.TirtayasaAdminConfig.apiPrefix = (lp || "") + "/api/v1";
+      })();
+    </script>
+    <script>
+      (function () {
+        var nativeFetch = window.fetch;
+        if (typeof nativeFetch !== "function") return;
+        var apiPrefix =
+          (window.TirtayasaAdminConfig && window.TirtayasaAdminConfig.apiPrefix) ||
+          "/api/v1";
+        function rewriteURL(input) {
+          if (typeof input !== "string") return input;
+          if (input === "/api/v1" || input.indexOf("/api/v1/") === 0) {
+            return apiPrefix + input.slice("/api/v1".length);
+          }
+          return input;
+        }
+        window.fetch = function (input, init) {
+          if (typeof input === "string") {
+            return nativeFetch.call(this, rewriteURL(input), init);
+          }
+          if (input instanceof Request) {
+            var nextURL = rewriteURL(input.url);
+            if (nextURL !== input.url) {
+              return nativeFetch.call(this, new Request(nextURL, input), init);
+            }
+          }
+          return nativeFetch.call(this, input, init);
+        };
+      })();
+    </script>
+    <script>
+      (function () {
+        try {
+          var user = null;
+          var rawS = sessionStorage.getItem("tirtayasa_user");
+          if (rawS) user = JSON.parse(rawS);
+          if (!user) {
+            var rawL = localStorage.getItem("tirtayasa_user");
+            if (rawL) user = JSON.parse(rawL);
+          }
+          var role = user && user.role ? String(user.role).toLowerCase() : "";
+          var root = document.documentElement;
+          root.classList.remove("role-admin", "role-writer");
+          if (role === "admin" || role === "writer") {
+            root.classList.add("role-" + role);
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
+    <style>
+      :root {
+        --admin-text-primary: {{ with .text_primary }}{{ . }}{{ else }}#1f2937{{ end }};
+        --admin-text-secondary: {{ with .text_secondary }}{{ . }}{{ else }}#64748b{{ end }};
+        --admin-bg-primary: {{ with .background_primary }}{{ . }}{{ else }}#ffffff{{ end }};
+        --admin-bg-secondary: {{ with .background_secondary }}{{ . }}{{ else }}#ffffff{{ end }};
+        --admin-btn-primary: {{ with .primary_button }}{{ . }}{{ else }}#0d6efd{{ end }};
+        --admin-btn-primary-text: #ffffff;
+        --admin-btn-secondary: {{ with .secondary_button }}{{ . }}{{ else }}#6c757d{{ end }};
+        --admin-accent: {{ with .accent_color }}{{ . }}{{ else }}#c62828{{ end }};
+        --admin-border: {{ with .border_color }}{{ . }}{{ else }}#e5e7eb{{ end }};
+        --bs-primary: var(--admin-btn-primary);
+        --bs-secondary: var(--admin-btn-secondary);
+        --bs-body-color: var(--admin-text-primary);
+        --bs-secondary-color: var(--admin-text-secondary);
+        --bs-body-bg: var(--admin-bg-primary);
+        --bs-tertiary-bg: var(--admin-bg-secondary);
+        --bs-border-color: var(--admin-border);
+        --bs-link-color: var(--admin-accent);
+      }
+      .admin-only {
+        display: none !important;
+      }
+      html.role-admin li.admin-only {
+        display: list-item !important;
+      }
+      /* admin-only is sidebar-focused above; unhide role-gated blocks in main content for admins */
+      html.role-admin .app-main .admin-only {
+        display: block !important;
+      }
+      .writer-or-admin-visible {
+        display: none !important;
+      }
+      html.role-admin li.writer-or-admin-visible,
+      html.role-writer li.writer-or-admin-visible {
+        display: list-item !important;
+      }
+      html.role-admin .app-main .writer-or-admin-visible,
+      html.role-writer .app-main .writer-or-admin-visible {
+        display: block !important;
+      }
+      .app-header.navbar {
+        background: var(--admin-bg-secondary) !important;
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--admin-text-secondary) 25%, transparent);
+      }
+      .app-header .nav-link,
+      .app-header .navbar-brand,
+      .app-header .navbar-text {
+        color: var(--admin-text-primary) !important;
+      }
+      .app-header .nav-link:hover,
+      .app-header .nav-link:focus {
+        color: var(--admin-text-secondary) !important;
+      }
+      .app-sidebar {
+        background: var(--admin-bg-primary) !important;
+        border-right: 1px solid
+          color-mix(in srgb, var(--admin-text-secondary) 22%, transparent);
+      }
+      .app-sidebar .sidebar-brand {
+        background: var(--admin-bg-secondary) !important;
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--admin-text-secondary) 22%, transparent);
+      }
+      .app-sidebar .brand-link,
+      .app-sidebar .brand-link .brand-text,
+      .app-sidebar .sidebar-menu .nav-link,
+      .app-sidebar .sidebar-menu .nav-link .nav-icon,
+      .app-sidebar .sidebar-menu .nav-link p {
+        color: var(--admin-text-primary) !important;
+      }
+      .app-sidebar .sidebar-menu .nav-link:hover {
+        background: color-mix(
+          in srgb,
+          var(--admin-bg-secondary) 88%,
+          var(--admin-bg-primary)
+        ) !important;
+      }
+      .app-sidebar .sidebar-menu .nav-link.active,
+      .app-sidebar .sidebar-menu .nav-link[aria-current="page"] {
+        background: color-mix(
+          in srgb,
+          var(--admin-text-primary) 12%,
+          var(--admin-bg-primary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      /* Admin content border system: unify table and content outlines. */
+      .app-main .card,
+      .app-main .small-box,
+      .app-main .info-box,
+      .app-main .callout,
+      .app-main .alert,
+      .app-main .dropdown-menu,
+      .app-main .list-group-item,
+      .app-main .accordion-item,
+      .app-main .modal-content,
+      .app-main .offcanvas,
+      .app-main pre,
+      .app-main code {
+        border-color: var(--admin-border) !important;
+      }
+      .app-main .table {
+        --bs-table-border-color: var(--admin-border);
+        border-color: var(--admin-border);
+      }
+      .app-main .table > :not(caption) > * > * {
+        border-bottom-color: var(--admin-border) !important;
+      }
+      .app-main .table-bordered > :not(caption) > * {
+        border-width: 1px 0;
+      }
+      .app-main .table-bordered > :not(caption) > * > * {
+        border-width: 0 1px;
+      }
+      .app-main .form-control,
+      .app-main .form-select,
+      .app-main .input-group-text,
+      .app-main .form-check-input,
+      .app-main .btn,
+      .app-main .nav-tabs,
+      .app-main .nav-tabs .nav-link,
+      .app-main .pagination .page-link {
+        border-color: var(--admin-border);
+      }
+    </style>
+    <script>
+      (function () {
+        var THEME_CACHE_KEY = "tirtayasa_admin_theme";
+
+        function getToken() {
+          try {
+            return (
+              sessionStorage.getItem("tirtayasa_token") ||
+              localStorage.getItem("tirtayasa_token") ||
+              ""
+            );
+          } catch (e) {
+            return "";
+          }
+        }
+
+        function nonEmpty(v, fallback) {
+          var s = v == null ? "" : String(v).trim();
+          return s || fallback;
+        }
+
+        function pickTextColorForBackground(hexColor) {
+          var hex = String(hexColor || "")
+            .trim()
+            .replace(/^#/, "");
+          if (!/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(hex)) return "#ffffff";
+          if (hex.length === 3) {
+            hex = hex
+              .split("")
+              .map(function (c) {
+                return c + c;
+              })
+              .join("");
+          }
+          var r = parseInt(hex.slice(0, 2), 16);
+          var g = parseInt(hex.slice(2, 4), 16);
+          var b = parseInt(hex.slice(4, 6), 16);
+          // Relative luminance approximation (YIQ) for contrast pick.
+          var yiq = (r * 299 + g * 587 + b * 114) / 1000;
+          return yiq >= 160 ? "#111827" : "#ffffff";
+        }
+
+        function applyAdminThemeColors(data) {
+          if (!data) return;
+          var root = document.documentElement;
+          var textPrimary = nonEmpty(data.text_primary, "#1f2937");
+          var textSecondary = nonEmpty(data.text_secondary, "#64748b");
+          var bgPrimary = nonEmpty(data.background_primary, "#ffffff");
+          var bgSecondary = nonEmpty(data.background_secondary, "#ffffff");
+          var btnPrimary = nonEmpty(data.primary_button, "#0d6efd");
+          var btnPrimaryText = pickTextColorForBackground(btnPrimary);
+          var btnSecondary = nonEmpty(data.secondary_button, "#6c757d");
+          var accent = nonEmpty(data.accent_color, "#c62828");
+          var border = nonEmpty(data.border_color, "#e5e7eb");
+
+          root.style.setProperty("--admin-text-primary", textPrimary);
+          root.style.setProperty("--admin-text-secondary", textSecondary);
+          root.style.setProperty("--admin-bg-primary", bgPrimary);
+          root.style.setProperty("--admin-bg-secondary", bgSecondary);
+          root.style.setProperty("--admin-btn-primary", btnPrimary);
+          root.style.setProperty("--admin-btn-primary-text", btnPrimaryText);
+          root.style.setProperty("--admin-btn-secondary", btnSecondary);
+          root.style.setProperty("--admin-accent", accent);
+          root.style.setProperty("--admin-border", border);
+
+          root.style.setProperty("--bs-primary", btnPrimary);
+          root.style.setProperty("--bs-secondary", btnSecondary);
+          root.style.setProperty("--bs-body-color", textPrimary);
+          root.style.setProperty("--bs-secondary-color", textSecondary);
+          root.style.setProperty("--bs-body-bg", bgPrimary);
+          root.style.setProperty("--bs-tertiary-bg", bgSecondary);
+          root.style.setProperty("--bs-border-color", border);
+          root.style.setProperty("--bs-link-color", accent);
+        }
+
+        function readCachedTheme() {
+          try {
+            var raw = localStorage.getItem(THEME_CACHE_KEY);
+            if (!raw) return null;
+            var parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== "object") return null;
+            return parsed;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function cacheTheme(data) {
+          try {
+            localStorage.setItem(
+              THEME_CACHE_KEY,
+              JSON.stringify({
+                text_primary: data.text_primary || "",
+                text_secondary: data.text_secondary || "",
+                background_primary: data.background_primary || "",
+                background_secondary: data.background_secondary || "",
+                primary_button: data.primary_button || "",
+                secondary_button: data.secondary_button || "",
+                accent_color: data.accent_color || "",
+                border_color: data.border_color || "",
+              })
+            );
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        // Apply cached theme as early as possible to avoid flash on page navigation.
+        var cachedTheme = readCachedTheme();
+        if (cachedTheme) applyAdminThemeColors(cachedTheme);
+
+        (async function () {
+          var token = getToken();
+          if (!token) return;
+          try {
+            var res = await fetch("/api/v1/admin/site-setting", {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token,
+              },
+            });
+            if (!res.ok) return;
+            var data = await res.json();
+            applyAdminThemeColors(data);
+            cacheTheme(data);
+          } catch (e) {
+            /* ignore */
+          }
+        })();
+      })();
+    </script>
+
+    <link
+      rel="preload"
+      href="{{ if .public_base }}{{ .public_base }}{{ end }}/static/css/adminlte.min.css?v={{ .asset_version }}"
+      as="style"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
+      integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q="
+      crossorigin="anonymous"
+      media="print"
+      onload="this.media = 'all'"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ if .public_base }}{{ .public_base }}{{ end }}/static/css/adminlte.min.css?v={{ .asset_version }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ if .public_base }}{{ .public_base }}{{ end }}/static/css/admin/crud.css?v={{ .asset_version }}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      crossorigin="anonymous"
+    />
+    <style>
+      /* Keep this block after CSS links so it wins over theme defaults. */
+      body.layout-fixed,
+      .app-wrapper,
+      .app-main,
+      .app-main .app-content-header,
+      .app-main .app-content {
+        background-color: var(--admin-bg-secondary) !important;
+        color: var(--admin-text-primary);
+      }
+
+      /* Breadcrumb “Admin” link: match Primary button from Site settings. */
+      .app-main .app-content-header .breadcrumb a {
+        color: var(--admin-btn-primary) !important;
+      }
+      .app-main .app-content-header .breadcrumb a:hover,
+      .app-main .app-content-header .breadcrumb a:focus {
+        color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 82%,
+          #000000
+        ) !important;
+      }
+
+      .app-header,
+      .app-header.navbar {
+        background-color: var(--admin-bg-primary) !important;
+        border-bottom: 1px solid var(--admin-border) !important;
+      }
+      .app-header .nav-link,
+      .app-header .navbar-brand,
+      .app-header .navbar-text {
+        color: var(--admin-text-primary) !important;
+      }
+      .app-header .nav-link:hover,
+      .app-header .nav-link:focus {
+        color: var(--admin-accent) !important;
+      }
+
+      .app-sidebar {
+        background-color: var(--admin-bg-primary) !important;
+        border-right: 1px solid var(--admin-border);
+        --lte-sidebar-color: var(--admin-text-primary);
+        --lte-sidebar-hover-color: var(--admin-text-primary);
+        --lte-sidebar-active-color: var(--admin-text-primary);
+        --lte-sidebar-menu-active-color: var(--admin-text-primary);
+        --lte-sidebar-submenu-color: var(--admin-text-secondary);
+        --lte-sidebar-submenu-hover-color: var(--admin-text-primary);
+        --lte-sidebar-submenu-active-color: var(--admin-text-primary);
+        --lte-sidebar-header-color: var(--admin-text-secondary);
+        --lte-sidebar-hover-bg: var(--admin-bg-secondary);
+        --lte-sidebar-menu-active-bg: var(--admin-bg-secondary);
+        --lte-sidebar-submenu-hover-bg: var(--admin-bg-secondary);
+        --lte-sidebar-submenu-active-bg: var(--admin-bg-secondary);
+      }
+      .app-sidebar .sidebar-brand {
+        background: var(--admin-bg-primary) !important;
+        border-bottom: 1px solid var(--admin-border) !important;
+      }
+      .app-sidebar .sidebar-menu .nav-link.active,
+      .app-sidebar .sidebar-menu .nav-link[aria-current="page"] {
+        box-shadow: inset 3px 0 0 var(--admin-accent);
+      }
+
+      /* Flat cards and form controls */
+      .card,
+      .admin-crud .admin-crud-card {
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-border) !important;
+      }
+      .admin-crud .admin-crud-card .card-header,
+      .admin-crud-modal .modal-header,
+      .site-settings-admin .card-header {
+        background: var(--admin-bg-primary) !important;
+        background-image: none !important;
+        border-bottom-color: var(--admin-border) !important;
+      }
+      /* Site settings: tab bar (card-header-tabs) follows dynamic admin theme */
+      .site-settings-admin .nav.nav-tabs.card-header-tabs {
+        border-bottom: 1px solid var(--admin-border) !important;
+      }
+      .site-settings-admin .nav.nav-tabs.card-header-tabs .nav-link {
+        color: var(--admin-text-secondary) !important;
+        background-color: transparent !important;
+        border-color: transparent transparent var(--admin-border) !important;
+      }
+      .site-settings-admin .nav.nav-tabs.card-header-tabs .nav-link i {
+        color: inherit !important;
+      }
+      .site-settings-admin .nav.nav-tabs.card-header-tabs .nav-link:hover,
+      .site-settings-admin .nav.nav-tabs.card-header-tabs .nav-link:focus {
+        color: var(--admin-text-primary) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--admin-bg-secondary) 85%,
+          var(--admin-bg-primary)
+        ) !important;
+        border-color: var(--admin-border) var(--admin-border) transparent !important;
+      }
+      .site-settings-admin
+        .nav.nav-tabs.card-header-tabs
+        .nav-link:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem
+          color-mix(in srgb, var(--admin-accent) 35%, transparent) !important;
+      }
+      .site-settings-admin .nav.nav-tabs.card-header-tabs .nav-link.active {
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-border) var(--admin-border)
+          var(--admin-bg-primary) !important;
+        font-weight: 600;
+      }
+      .admin-crud .card-body.bg-body-tertiary,
+      .admin-crud .bg-body-tertiary,
+      .admin-crud .bg-body {
+        background-color: var(--admin-bg-primary) !important;
+      }
+
+      .admin-crud .text-secondary,
+      .admin-crud .admin-crud-meta,
+      .admin-crud i.text-secondary {
+        color: var(--admin-text-secondary) !important;
+      }
+      /* Ensure log/table body text never falls back to dark defaults on custom dark themes. */
+      .admin-crud .table > :not(caption) > * > *,
+      .admin-crud .table td,
+      .admin-crud .table th {
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud .table thead th,
+      .admin-crud .table .small.text-secondary {
+        color: var(--admin-text-secondary) !important;
+      }
+      .admin-crud .form-control,
+      .admin-crud .form-select,
+      .admin-crud .input-group-text {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: var(--admin-border) !important;
+      }
+
+      .btn-primary {
+        background-color: var(--admin-btn-primary) !important;
+        border-color: var(--admin-btn-primary) !important;
+        color: var(--admin-btn-primary-text) !important;
+      }
+      .btn-outline-secondary {
+        color: var(--admin-btn-secondary) !important;
+        border-color: var(--admin-btn-secondary) !important;
+      }
+      .btn-outline-secondary:hover,
+      .btn-outline-secondary:focus {
+        color: #fff !important;
+        background-color: var(--admin-btn-secondary) !important;
+        border-color: var(--admin-btn-secondary) !important;
+      }
+
+      .admin-crud .badge.bg-body-secondary,
+      .admin-crud .badge.text-body-secondary,
+      .admin-crud .admin-crud-avatar {
+        background-color: var(--admin-bg-secondary) !important;
+        color: var(--admin-text-secondary) !important;
+        border-color: var(--admin-border) !important;
+      }
+      /* Logs often use Bootstrap "light" badges (e.g. category tags). Make them theme-aware. */
+      .admin-crud .badge.text-bg-light,
+      .admin-crud .badge.bg-light {
+        background-color: var(--admin-bg-secondary) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: var(--admin-border) !important;
+      }
+
+      .admin-crud .admin-crud-actions .btn,
+      .admin-crud .admin-crud-actions .btn.btn-light {
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud .admin-crud-actions .btn:hover,
+      .admin-crud .admin-crud-actions .btn:focus {
+        border-color: var(--admin-accent) !important;
+      }
+      .admin-crud .admin-crud-actions .btn.text-danger {
+        color: #dc3545 !important;
+      }
+
+      /* TinyMCE: border + chrome from site settings (--admin-*). Never force svg fill/stroke. */
+      .admin-crud-card .tox-tinymce {
+        border-radius: 0.5rem !important;
+        border-color: var(--admin-border) !important;
+        background-color: var(--admin-bg-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-editor-container {
+        background-color: var(--admin-bg-primary) !important;
+      }
+      /* Toolbar / header: dynamic “abu” → background_secondary from site setting */
+      .admin-crud-card .tox-tinymce .tox-editor-header,
+      .admin-crud-card .tox-tinymce .tox-toolbar-overrides,
+      .admin-crud-card .tox-tinymce .tox-toolbar,
+      .admin-crud-card .tox-tinymce .tox-toolbar__primary,
+      .admin-crud-card .tox-tinymce .tox-anchorbar {
+        background-color: var(--admin-bg-secondary) !important;
+        background-image: none !important;
+        border-color: var(--admin-border) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-editor-header {
+        border-bottom: 1px solid var(--admin-border) !important;
+        box-shadow: none !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-toolbar__group {
+        background: transparent !important;
+      }
+      /* Tombol toolbar: hilangkan kotak abu/biru bawaan skin; ikon ikut --admin-text-primary */
+      .admin-crud-card .tox-tinymce .tox-toolbar .tox-tbtn,
+      .admin-crud-card .tox-tinymce .tox-toolbar__primary .tox-tbtn,
+      .admin-crud-card .tox-tinymce .tox-anchorbar .tox-tbtn {
+        background-color: transparent !important;
+        background: transparent !important;
+        color: var(--admin-text-primary) !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn svg,
+      .admin-crud-card .tox-tinymce .tox-tbtn svg path,
+      .admin-crud-card .tox-tinymce .tox-tbtn svg circle,
+      .admin-crud-card .tox-tinymce .tox-tbtn svg rect,
+      .admin-crud-card .tox-tinymce .tox-tbtn svg line {
+        fill: currentColor !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn__select-label {
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn__select-chevron svg,
+      .admin-crud-card .tox-tinymce .tox-tbtn__select-chevron svg path {
+        fill: currentColor !important;
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-split-button {
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-split-button .tox-tbtn {
+        background: transparent !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn--disabled,
+      .admin-crud-card .tox-tinymce .tox-tbtn:disabled {
+        color: var(--admin-text-secondary) !important;
+        opacity: 0.5 !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn:hover:not(:disabled),
+      .admin-crud-card .tox-tinymce .tox-tbtn:focus:not(:disabled),
+      .admin-crud-card
+        .tox-tinymce
+        .tox-split-button
+        .tox-tbtn:hover:not(:disabled) {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 22%,
+          var(--admin-bg-secondary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-tbtn--enabled,
+      .admin-crud-card .tox-tinymce .tox-tbtn--enabled:hover {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 28%,
+          var(--admin-bg-secondary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-split-button:hover {
+        box-shadow: none !important;
+      }
+      /* Dropdown “Paragraph” / listbox di toolbar */
+      .admin-crud-card .tox-tinymce .tox-listboxfield .tox-listbox--select,
+      .admin-crud-card .tox-tinymce .tox-listboxfield button {
+        background-color: transparent !important;
+        color: var(--admin-text-primary) !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-listbox__select-label {
+        color: var(--admin-text-primary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-edit-area::before {
+        border-color: var(--admin-border) !important;
+      }
+      /* Status bar */
+      .admin-crud-card .tox-tinymce .tox-statusbar {
+        background-color: var(--admin-bg-secondary) !important;
+        border-top: 1px solid var(--admin-border) !important;
+        color: var(--admin-text-secondary) !important;
+      }
+      .admin-crud-card .tox-tinymce .tox-statusbar__path-item,
+      .admin-crud-card .tox-tinymce .tox-statusbar__wordcount,
+      .admin-crud-card .tox-tinymce .tox-statusbar__branding a {
+        color: var(--admin-text-secondary) !important;
+      }
+      /* Menus & dialogs dipasang di body (sink TinyMCE), bukan di dalam kartu */
+      body.layout-fixed .tox-tinymce-aux .tox-menu,
+      body.layout-fixed .tox-silver-sink .tox-menu,
+      body.layout-fixed .tox-tinymce-aux .tox-pop,
+      body.layout-fixed .tox-silver-sink .tox-pop,
+      body.layout-fixed .tox-tinymce-aux .tox-dialog,
+      body.layout-fixed .tox-silver-sink .tox-dialog {
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__header,
+      body.layout-fixed .tox-silver-sink .tox-dialog__header,
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__footer,
+      body.layout-fixed .tox-silver-sink .tox-dialog__footer {
+        background-color: var(--admin-bg-secondary) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__title,
+      body.layout-fixed .tox-silver-sink .tox-dialog__title {
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__close-btn,
+      body.layout-fixed .tox-silver-sink .tox-dialog__close-btn {
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__close-btn svg,
+      body.layout-fixed .tox-silver-sink .tox-dialog__close-btn svg,
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__close-btn svg path,
+      body.layout-fixed .tox-silver-sink .tox-dialog__close-btn svg path {
+        fill: currentColor !important;
+      }
+      /* Isi modal (Insert image, link, dll.): body + sidebar “General / Upload” */
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__body,
+      body.layout-fixed .tox-silver-sink .tox-dialog__body {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__body-nav,
+      body.layout-fixed .tox-silver-sink .tox-dialog__body-nav {
+        background-color: var(--admin-bg-secondary) !important;
+        border-right: 1px solid var(--admin-border) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__body-content,
+      body.layout-fixed .tox-silver-sink .tox-dialog__body-content {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-nav__item,
+      body.layout-fixed .tox-silver-sink .tox-nav__item {
+        color: var(--admin-text-secondary) !important;
+        background: transparent !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-nav__item--active,
+      body.layout-fixed .tox-silver-sink .tox-nav__item--active,
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-nav__item:hover:not(.tox-nav__item--active),
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-nav__item:hover:not(.tox-nav__item--active) {
+        color: var(--admin-text-primary) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 14%,
+          var(--admin-bg-secondary)
+        ) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-nav__item--active,
+      body.layout-fixed .tox-silver-sink .tox-nav__item--active {
+        border-bottom-color: var(--admin-accent) !important;
+      }
+      /* Form di dalam dialog */
+      body.layout-fixed .tox-tinymce-aux .tox-form,
+      body.layout-fixed .tox-silver-sink .tox-form,
+      body.layout-fixed .tox-tinymce-aux .tox-form__group,
+      body.layout-fixed .tox-silver-sink .tox-form__group {
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-label,
+      body.layout-fixed .tox-silver-sink .tox-label,
+      body.layout-fixed .tox-tinymce-aux .tox-form__label,
+      body.layout-fixed .tox-silver-sink .tox-form__label {
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-form__group--stretched,
+      body.layout-fixed .tox-silver-sink .tox-form__group--stretched {
+        border-color: var(--admin-border) !important;
+      }
+      /* Input / textarea di dialog */
+      body.layout-fixed .tox-tinymce-aux .tox-textfield,
+      body.layout-fixed .tox-silver-sink .tox-textfield {
+        background-color: var(--admin-bg-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-textfield input,
+      body.layout-fixed .tox-silver-sink .tox-textfield input,
+      body.layout-fixed .tox-tinymce-aux .tox-textarea,
+      body.layout-fixed .tox-silver-sink .tox-textarea,
+      body.layout-fixed .tox-tinymce-aux textarea.tox-textarea,
+      body.layout-fixed .tox-silver-sink textarea.tox-textarea {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: 0.375rem !important;
+        box-shadow: none !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-textfield input:focus,
+      body.layout-fixed .tox-silver-sink .tox-textfield input:focus,
+      body.layout-fixed .tox-tinymce-aux .tox-textarea:focus,
+      body.layout-fixed .tox-silver-sink .tox-textarea:focus {
+        border-color: var(--admin-accent) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 2px
+          color-mix(in srgb, var(--admin-accent) 35%, transparent) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-listboxfield .tox-listbox--select,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-listboxfield
+        .tox-listbox--select {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border: 1px solid var(--admin-border) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-selectfield select,
+      body.layout-fixed .tox-silver-sink .tox-selectfield select {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border: 1px solid var(--admin-border) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dropzone,
+      body.layout-fixed .tox-silver-sink .tox-dropzone {
+        background-color: var(--admin-bg-secondary) !important;
+        border: 1px dashed var(--admin-border) !important;
+        color: var(--admin-text-secondary) !important;
+      }
+      /* Tombol footer: Cancel + Save */
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button--secondary,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button--secondary,
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button.tox-button--secondary,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button.tox-button--secondary {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: 0.375rem !important;
+      }
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button--secondary:hover,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button--secondary:hover {
+        background-color: var(--admin-bg-secondary) !important;
+        border-color: var(--admin-accent) !important;
+      }
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button--primary,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button--primary,
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button.tox-button--primary,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button.tox-button--primary {
+        background-color: var(--admin-btn-primary) !important;
+        color: #fff !important;
+        border: 1px solid var(--admin-btn-primary) !important;
+        border-radius: 0.375rem !important;
+      }
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-dialog__footer
+        .tox-button--primary:hover,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button--primary:hover {
+        filter: brightness(1.08) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-dialog__footer .tox-button--naked,
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-dialog__footer
+        .tox-button--naked {
+        color: var(--admin-text-primary) !important;
+        background: transparent !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-collection__item,
+      body.layout-fixed .tox-silver-sink .tox-collection__item {
+        color: var(--admin-text-primary) !important;
+      }
+      body.layout-fixed .tox-tinymce-aux .tox-collection__item--active,
+      body.layout-fixed .tox-silver-sink .tox-collection__item--active,
+      body.layout-fixed .tox-tinymce-aux .tox-collection__item--enabled,
+      body.layout-fixed .tox-silver-sink .tox-collection__item--enabled,
+      body.layout-fixed .tox-tinymce-aux .tox-collection__item:focus,
+      body.layout-fixed .tox-silver-sink .tox-collection__item:focus {
+        background-color: var(--admin-bg-secondary) !important;
+      }
+      body.layout-fixed
+        .tox-tinymce-aux
+        .tox-collection__item:hover:not(.tox-collection__item--state-disabled),
+      body.layout-fixed
+        .tox-silver-sink
+        .tox-collection__item:hover:not(.tox-collection__item--state-disabled) {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 15%,
+          var(--admin-bg-primary)
+        ) !important;
+      }
+
+      /* Full-page form surfaces (create/edit page) */
+      .admin-crud-card .card-body,
+      .admin-crud-card .form-control,
+      .admin-crud-card .form-select,
+      .admin-crud-card .input-group-text {
+        background-color: var(--admin-bg-primary) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: var(--admin-border) !important;
+      }
+      .admin-crud-card .form-text,
+      .admin-crud-card .text-secondary {
+        color: var(--admin-text-secondary) !important;
+      }
+      .admin-info-note-source {
+        display: none !important;
+      }
+      .app-main [data-admin-info-note],
+      .app-main .form-text {
+        display: none !important;
+      }
+      .app-main .admin-info-note-inline {
+        display: block !important;
+      }
+      .admin-info-note-btn {
+        color: var(--admin-text-secondary) !important;
+        text-decoration: none !important;
+        vertical-align: baseline;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        width: auto;
+        height: auto;
+        min-width: 0;
+        min-height: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .admin-info-note-btn:hover,
+      .admin-info-note-btn:focus {
+        color: var(--admin-accent) !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      .admin-info-note-heading {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .admin-info-note-modal-body {
+        line-height: 1.55;
+      }
+      #admin-info-note-modal .modal-header {
+        padding: 1.25rem 1.5rem !important;
+      }
+      #admin-info-note-modal .modal-body {
+        padding: 1.25rem 1.9rem 1.5rem !important;
+      }
+      #admin-info-note-modal .modal-footer {
+        padding: 1rem 1.5rem 1.25rem !important;
+      }
+      #admin-info-note-modal .btn-close {
+        --bs-btn-close-bg: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        color: var(--admin-text-primary) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--admin-bg-secondary) 75%,
+          transparent
+        ) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: 0.75rem;
+        opacity: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #admin-info-note-modal .btn-close::before {
+        content: "\F62A";
+        font-family: "bootstrap-icons";
+        font-size: 1.25rem;
+        line-height: 1;
+      }
+      #admin-info-note-modal .btn-close:hover,
+      #admin-info-note-modal .btn-close:focus {
+        color: var(--admin-accent) !important;
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 0 0 0.2rem
+          color-mix(in srgb, var(--admin-accent) 26%, transparent);
+      }
+      .admin-info-note-modal-body > *:first-child {
+        margin-top: 0 !important;
+      }
+      .admin-info-note-modal-body > *:last-child {
+        margin-bottom: 0 !important;
+      }
+      .admin-info-note-modal-body p,
+      .admin-info-note-modal-body ul,
+      .admin-info-note-modal-body ol {
+        margin-bottom: 0.75rem;
+      }
+      /* File inputs: filename line + native picker button follow admin theme */
+      .admin-crud-card input[type="file"].form-control,
+      .admin-crud-card input[type="file"].form-control-sm,
+      .admin-crud input[type="file"].form-control,
+      .admin-crud input[type="file"].form-control-sm {
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-primary) !important;
+      }
+      .admin-crud-card input[type="file"].form-control::file-selector-button,
+      .admin-crud-card input[type="file"].form-control-sm::file-selector-button,
+      .admin-crud input[type="file"].form-control::file-selector-button,
+      .admin-crud input[type="file"].form-control-sm::file-selector-button,
+      .admin-crud-card
+        input[type="file"].form-control::-webkit-file-upload-button,
+      .admin-crud-card
+        input[type="file"].form-control-sm::-webkit-file-upload-button,
+      .admin-crud input[type="file"].form-control::-webkit-file-upload-button,
+      .admin-crud
+        input[type="file"].form-control-sm::-webkit-file-upload-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin-right: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        font: inherit;
+        font-weight: 500;
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-secondary) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: var(--bs-border-radius, 0.375rem);
+        cursor: pointer;
+      }
+      .admin-crud-card input[type="file"].form-control-sm::file-selector-button,
+      .admin-crud-card
+        input[type="file"].form-control-sm::-webkit-file-upload-button,
+      .admin-crud input[type="file"].form-control-sm::file-selector-button,
+      .admin-crud
+        input[type="file"].form-control-sm::-webkit-file-upload-button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+      .admin-crud-card
+        input[type="file"].form-control:hover::file-selector-button,
+      .admin-crud-card
+        input[type="file"].form-control-sm:hover::file-selector-button,
+      .admin-crud input[type="file"].form-control:hover::file-selector-button,
+      .admin-crud
+        input[type="file"].form-control-sm:hover::file-selector-button,
+      .admin-crud-card
+        input[type="file"].form-control:hover::-webkit-file-upload-button,
+      .admin-crud-card
+        input[type="file"].form-control-sm:hover::-webkit-file-upload-button,
+      .admin-crud
+        input[type="file"].form-control:hover::-webkit-file-upload-button,
+      .admin-crud
+        input[type="file"].form-control-sm:hover::-webkit-file-upload-button {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 14%,
+          var(--admin-bg-secondary)
+        ) !important;
+      }
+      .admin-crud-card input[type="file"].form-control:focus,
+      .admin-crud-card input[type="file"].form-control-sm:focus,
+      .admin-crud input[type="file"].form-control:focus,
+      .admin-crud input[type="file"].form-control-sm:focus {
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 0 0 0.2rem
+          color-mix(in srgb, var(--admin-accent) 28%, transparent) !important;
+      }
+
+      /*
+       * Site settings: Upload / URL toggles + file rows.
+       * Bootstrap forces .btn-check:checked + .btn-outline-secondary to fixed grey (#6c757d) + white text — override.
+       * File input: use secondary track when primary is a strong brand color so the field is never “empty red”.
+       */
+      .site-settings-admin
+        .btn-check:not(:checked)
+        + .btn.btn-outline-secondary {
+        color: var(--admin-text-primary) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--admin-bg-secondary) 72%,
+          var(--admin-bg-primary)
+        ) !important;
+        border-color: var(--admin-border) !important;
+      }
+      .site-settings-admin
+        .btn-check:not(:checked)
+        + .btn.btn-outline-secondary:hover {
+        color: var(--admin-text-primary) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 20%,
+          var(--admin-bg-secondary)
+        ) !important;
+        border-color: var(--admin-border) !important;
+      }
+      .site-settings-admin .btn-check:checked + .btn.btn-outline-secondary,
+      .site-settings-admin .btn-check:active + .btn.btn-outline-secondary {
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-secondary) !important;
+        border-color: var(--admin-accent) !important;
+        box-shadow: inset 0 0 0 1px var(--admin-accent) !important;
+      }
+      .site-settings-admin
+        .btn-check:focus-visible
+        + .btn.btn-outline-secondary {
+        box-shadow: 0 0 0 0.2rem
+          color-mix(in srgb, var(--admin-accent) 38%, transparent) !important;
+      }
+
+      .site-settings-admin .admin-crud-card input[type="file"].form-control,
+      .site-settings-admin .admin-crud-card input[type="file"].form-control-sm {
+        color: var(--admin-text-primary) !important;
+        background-color: var(--admin-bg-secondary) !important;
+        border: 1px solid var(--admin-border) !important;
+      }
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control::file-selector-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control-sm::file-selector-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control::-webkit-file-upload-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control-sm::-webkit-file-upload-button {
+        color: #fff !important;
+        background-color: var(--admin-btn-primary) !important;
+        border: 1px solid var(--admin-btn-primary) !important;
+      }
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control:hover::file-selector-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control-sm:hover::file-selector-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control:hover::-webkit-file-upload-button,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control-sm:hover::-webkit-file-upload-button {
+        filter: brightness(1.06) !important;
+        background-color: var(--admin-btn-primary) !important;
+      }
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control:focus,
+      .site-settings-admin
+        .admin-crud-card
+        input[type="file"].form-control-sm:focus {
+        background-color: var(--admin-bg-secondary) !important;
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 0 0 0.2rem
+          color-mix(in srgb, var(--admin-accent) 28%, transparent) !important;
+      }
+
+      .admin-crud-card .post-form-actions {
+        background-color: var(--admin-bg-primary) !important;
+        border-top-color: var(--admin-border) !important;
+      }
+      .admin-crud-card .post-form-actions .btn.btn-light {
+        background-color: var(--admin-bg-primary) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text-primary) !important;
+      }
+
+      /* Placeholders: text_secondary from site_setting (DB → --admin-text-secondary) */
+      body.layout-fixed .form-control::placeholder,
+      body.layout-fixed .form-control-plaintext::placeholder {
+        color: var(--admin-text-secondary) !important;
+        opacity: 1 !important;
+      }
+      body.layout-fixed .form-floating > .form-control::placeholder,
+      body.layout-fixed .form-floating > .form-control-plaintext::placeholder {
+        color: transparent !important;
+      }
+      /* Back to list (“All pages” / “All posts”): site text + background primary */
+      .app-main a.admin-back-to-list {
+        --bs-btn-color: var(--admin-text-primary);
+        --bs-btn-bg: var(--admin-bg-primary);
+        --bs-btn-border-color: var(--admin-border);
+        --bs-btn-hover-color: var(--admin-text-primary);
+        --bs-btn-hover-bg: var(--admin-bg-secondary);
+        --bs-btn-hover-border-color: var(--admin-border);
+        --bs-btn-active-color: var(--admin-text-primary);
+        --bs-btn-active-bg: var(--admin-bg-secondary);
+        --bs-btn-active-border-color: var(--admin-border);
+        --bs-btn-focus-shadow-rgb: 108, 117, 125;
+      }
+
+      /* SweetAlert2 (toast + modal): bg/text/timer/buttons from site_setting → --admin-* */
+      body.layout-fixed {
+        --swal2-background: var(--admin-bg-primary);
+        --swal2-color: var(--admin-text-primary);
+        --swal2-timer-progress-bar-background: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 70%,
+          var(--admin-text-secondary)
+        );
+        --swal2-confirm-button-background-color: var(--admin-btn-primary);
+        --swal2-deny-button-background-color: var(--admin-accent);
+        --swal2-cancel-button-background-color: var(--admin-btn-secondary);
+        --swal2-close-button-color: var(--admin-text-secondary);
+        --swal2-toast-border: 1px solid
+          color-mix(in srgb, var(--admin-border) 88%, transparent);
+        --swal2-input-border: 1px solid var(--admin-border);
+        --swal2-input-focus-border: 1px solid var(--admin-accent);
+        --swal2-input-focus-box-shadow: 0 0 0 3px
+          color-mix(in srgb, var(--admin-accent) 38%, transparent);
+        --swal2-validation-message-background: var(--admin-bg-secondary);
+        --swal2-validation-message-color: var(--admin-text-primary);
+        --swal2-footer-border-color: var(--admin-border);
+      }
+
+      body.layout-fixed div:where(.swal2-icon).swal2-success,
+      body.layout-fixed .swal2-toast .swal2-icon.swal2-success {
+        border-color: var(--admin-btn-primary) !important;
+        color: var(--admin-btn-primary) !important;
+      }
+      body.layout-fixed
+        div:where(.swal2-icon).swal2-success
+        .swal2-success-ring {
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 35%,
+          transparent
+        ) !important;
+      }
+      body.layout-fixed
+        div:where(.swal2-icon).swal2-success
+        [class^="swal2-success-line"] {
+        background-color: var(--admin-btn-primary) !important;
+      }
+      body.layout-fixed .swal2-toast .swal2-success {
+        border-color: var(--admin-btn-primary) !important;
+      }
+
+      body.layout-fixed div:where(.swal2-icon).swal2-error {
+        border-color: var(--admin-accent) !important;
+        color: var(--admin-accent) !important;
+      }
+      body.layout-fixed
+        div:where(.swal2-icon).swal2-error
+        [class^="swal2-x-mark-line"] {
+        background-color: var(--admin-accent) !important;
+      }
+
+      body.layout-fixed div:where(.swal2-icon).swal2-warning {
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-secondary) 45%,
+          #d97706
+        ) !important;
+        color: color-mix(
+          in srgb,
+          var(--admin-btn-secondary) 35%,
+          #d97706
+        ) !important;
+      }
+      body.layout-fixed
+        div:where(.swal2-icon).swal2-warning
+        .swal2-icon-content {
+        color: inherit !important;
+      }
+
+      body.layout-fixed div:where(.swal2-icon).swal2-info {
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 55%,
+          var(--admin-text-secondary)
+        ) !important;
+        color: var(--admin-btn-primary) !important;
+      }
+      body.layout-fixed div:where(.swal2-icon).swal2-info .swal2-icon-content {
+        color: inherit !important;
+      }
+
+      body.layout-fixed div:where(.swal2-icon).swal2-question {
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 40%,
+          var(--admin-text-secondary)
+        ) !important;
+        color: var(--admin-text-secondary) !important;
+      }
+      body.layout-fixed
+        div:where(.swal2-icon).swal2-question
+        .swal2-icon-content {
+        color: inherit !important;
+      }
+
+      /* Bootstrap alerts inside admin main: tinted from site_setting */
+      body.layout-fixed .app-main .alert-success {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 16%,
+          var(--admin-bg-primary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 38%,
+          var(--admin-border)
+        ) !important;
+      }
+      body.layout-fixed .app-main .alert-success .alert-link {
+        color: var(--admin-btn-primary) !important;
+      }
+
+      body.layout-fixed .app-main .alert-danger {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-accent) 14%,
+          var(--admin-bg-primary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: color-mix(
+          in srgb,
+          var(--admin-accent) 35%,
+          var(--admin-border)
+        ) !important;
+      }
+      body.layout-fixed .app-main .alert-danger .alert-link {
+        color: var(--admin-accent) !important;
+      }
+
+      body.layout-fixed .app-main .alert-warning {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-btn-secondary) 12%,
+          color-mix(in srgb, #ffc107 25%, var(--admin-bg-primary))
+        ) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: color-mix(
+          in srgb,
+          #d97706 28%,
+          var(--admin-border)
+        ) !important;
+      }
+      body.layout-fixed .app-main .alert-warning .alert-link {
+        color: color-mix(
+          in srgb,
+          var(--admin-accent) 40%,
+          var(--admin-btn-primary)
+        ) !important;
+      }
+
+      body.layout-fixed .app-main .alert-info {
+        background-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 12%,
+          var(--admin-bg-primary)
+        ) !important;
+        color: var(--admin-text-primary) !important;
+        border-color: color-mix(
+          in srgb,
+          var(--admin-btn-primary) 30%,
+          var(--admin-border)
+        ) !important;
+      }
+      body.layout-fixed .app-main .alert-info .alert-link {
+        color: var(--admin-btn-primary) !important;
+      }
+    </style>
+    {{/* Load before page-specific scripts in app-content (e.g. user.js,
+    category.js) */}}
+    <script
+      defer
+      src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/crud.min.js?v={{ .asset_version }}"
+    ></script>
+    <script
+      defer
+      src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/name_slug_crud.js?v={{ .asset_version }}"
+    ></script>
+  </head>
+  <body
+    class="layout-fixed sidebar-expand-lg bg-body-tertiary"
+    {{-
+    if
+    .admin_public_site_origin
+    }}
+    data-public-site-origin="{{ .admin_public_site_origin }}"
+    {{-
+    end
+    }}
+    data-article-slug-mode="{{ with .article_slug_mode }}{{ . }}{{ else }}direct{{ end }}"
+  >
+    <div class="app-wrapper">
+      {{ template "admin-navbar" . }} {{ template "admin-sidebar" . }}
+
+      <main class="app-main">
+        <div class="app-content-header">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="mb-0">{{ .title }}</h3>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item">
+                    <a
+                      href="{{ if .public_base }}{{ .public_base }}{{ end }}/admin/dashboard"
+                      >Admin</a
+                    >
+                  </li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    {{ .title }}
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-content">{{ template "admin-content" . }}</div>
+      </main>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/api.min.js?v={{ .asset_version }}"></script>
+    <script src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/admin/crud.min.js?v={{ .asset_version }}"></script>
+    <script src="{{ if .public_base }}{{ .public_base }}{{ end }}/static/js/adminlte.min.js?v={{ .asset_version }}"></script>
+    <script>
+      const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+      const Default = {
+        scrollbarTheme: "os-theme-light",
+        scrollbarAutoHide: "leave",
+        scrollbarClickScroll: true,
+      };
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+
+        // Disable OverlayScrollbars on mobile devices to prevent touch interference
+        const isMobile = window.innerWidth <= 992;
+
+        if (
+          sidebarWrapper &&
+          OverlayScrollbarsGlobal?.OverlayScrollbars !== undefined &&
+          !isMobile
+        ) {
+          OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+            scrollbars: {
+              theme: Default.scrollbarTheme,
+              autoHide: Default.scrollbarAutoHide,
+              clickScroll: Default.scrollbarClickScroll,
+            },
+          });
+        }
+      });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      (function () {
+        var modalEl = null;
+        var modalTitleEl = null;
+        var modalBodyEl = null;
+
+        function ensureModal() {
+          if (modalEl) return modalEl;
+          modalEl = document.createElement("div");
+          modalEl.className =
+            "modal fade admin-crud-modal admin-info-note-modal";
+          modalEl.id = "admin-info-note-modal";
+          modalEl.tabIndex = -1;
+          modalEl.setAttribute(
+            "aria-labelledby",
+            "admin-info-note-modal-label"
+          );
+          modalEl.setAttribute("aria-hidden", "true");
+          modalEl.innerHTML =
+            '<div class="modal-dialog modal-dialog-centered">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header align-items-start">' +
+            '<div class="d-flex gap-3 pe-2">' +
+            '<div class="admin-crud-modal__icon admin-crud-modal__icon--primary" aria-hidden="true">' +
+            '<i class="bi bi-info-circle-fill"></i>' +
+            "</div>" +
+            "<div>" +
+            '<h5 class="modal-title" id="admin-info-note-modal-label">Catatan</h5>' +
+            '<p class="small text-secondary mb-0 mt-1 lh-sm">Informasi tambahan untuk field ini.</p>' +
+            "</div>" +
+            "</div>" +
+            '<button type="button" class="btn-close ms-auto flex-shrink-0 mt-1" data-bs-dismiss="modal" aria-label="Tutup"></button>' +
+            "</div>" +
+            '<div class="modal-body"></div>' +
+            '<div class="modal-footer">' +
+            '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mengerti</button>' +
+            "</div>" +
+            "</div>" +
+            "</div>";
+          document.body.appendChild(modalEl);
+          modalTitleEl = modalEl.querySelector("#admin-info-note-modal-label");
+          modalBodyEl = modalEl.querySelector(".modal-body");
+          return modalEl;
+        }
+
+        function textOf(el) {
+          return ((el && (el.textContent || el.innerText)) || "")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        function isDynamicOrAlreadyHandled(note) {
+          if (!note || note.dataset.adminInfoModal === "false") return true;
+          if (note.closest(".modal")) return true;
+          if (note.querySelector(".admin-info-note-btn")) return true;
+          var id = note.id || "";
+          var cls = note.className || "";
+          var txt = textOf(note);
+          var explicitInfoNote = note.hasAttribute("data-admin-info-note");
+          if (/\b(text-end|text-muted)\b/.test(cls)) return true;
+          if (/(^|-)count($|-)|empty|source/.test(id)) return true;
+          if (
+            !explicitInfoNote &&
+            (/^(get your|used for|optional\. public|tidak memerlukan api key\b)/i.test(
+              txt
+            ) ||
+              /\b(verification code|api key|access key|search console)\b/i.test(
+                txt
+              ))
+          ) {
+            return true;
+          }
+          return txt.length < 2;
+        }
+
+        function shouldKeepInline(note) {
+          if (!note || note.dataset.adminInfoModal === "false") return true;
+          if (note.closest(".modal")) return false;
+          var id = note.id || "";
+          var cls = note.className || "";
+          var txt = textOf(note);
+          var explicitInfoNote = note.hasAttribute("data-admin-info-note");
+          if (/\b(text-end|text-muted)\b/.test(cls)) return true;
+          if (/(^|-)count($|-)|empty|source/.test(id)) return true;
+          return (
+            !explicitInfoNote &&
+            (/^(get your|used for|optional\. public|tidak memerlukan api key\b)/i.test(
+              txt
+            ) ||
+              /\b(verification code|api key|access key|search console)\b/i.test(
+                txt
+              ))
+          );
+        }
+
+        function labelText(label) {
+          return textOf(label).replace(/\s*\*+\s*$/, "") || "Field";
+        }
+
+        function noteTitle(note, label) {
+          var custom = note ? note.getAttribute("data-admin-info-title") : "";
+          return textOf({ textContent: custom }) || labelText(label);
+        }
+
+        function noteContent(note) {
+          var body = note ? note.querySelector(".accordion-body") : null;
+          return (body || note).innerHTML;
+        }
+
+        function findLabel(note) {
+          var forId = "";
+          var group = note.parentElement;
+          if (!group) return null;
+          if (note.hasAttribute("data-admin-info-note")) {
+            var prev = note.previousElementSibling;
+            while (prev) {
+              if (/^(LABEL|H1|H2|H3|H4|H5|H6)$/i.test(prev.tagName)) {
+                return prev;
+              }
+              prev = prev.previousElementSibling;
+            }
+          }
+          var field = group.querySelector(
+            "input[id], select[id], textarea[id]"
+          );
+          if (field && field.id) forId = field.id;
+          if (forId) {
+            var esc =
+              window.CSS && typeof window.CSS.escape === "function"
+                ? window.CSS.escape(forId)
+                : String(forId).replace(/"/g, '\\"');
+            var direct = document.querySelector('label[for="' + esc + '"]');
+            if (direct) return direct;
+          }
+          return group.querySelector(
+            "label.form-label, label.form-check-label, label"
+          );
+        }
+
+        function insertButton(label, note) {
+          if (!label || note.dataset.adminInfoNoteReady === "1") return;
+          note.dataset.adminInfoNoteReady = "1";
+          if (/^H[1-6]$/i.test(label.tagName)) {
+            label.classList.add("admin-info-note-heading");
+          }
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "admin-info-note-btn btn btn-sm btn-link text-secondary p-0 lh-1 ms-1";
+          btn.setAttribute(
+            "aria-label",
+            "Tampilkan catatan " + noteTitle(note, label)
+          );
+          btn.title = "Tampilkan catatan " + noteTitle(note, label);
+          btn.innerHTML =
+            '<i class="bi bi-info-circle" aria-hidden="true"></i>';
+          btn.addEventListener("click", function () {
+            ensureModal();
+            modalTitleEl.textContent = "Catatan " + noteTitle(note, label);
+            modalBodyEl.innerHTML =
+              '<div class="admin-info-note-modal-body small text-secondary">' +
+              noteContent(note) +
+              "</div>";
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+          });
+          if (/^H[1-6]$/i.test(label.tagName)) {
+            btn.classList.remove("ms-1");
+            label.appendChild(btn);
+          } else {
+            label.insertAdjacentElement("afterend", btn);
+          }
+        }
+
+        function convertNotes() {
+          document
+            .querySelectorAll(
+              ".app-main .form-text, .app-main [data-admin-info-note]"
+            )
+            .forEach(function (note) {
+              if (isDynamicOrAlreadyHandled(note)) {
+                if (shouldKeepInline(note)) {
+                  note.classList.add("admin-info-note-inline");
+                }
+                return;
+              }
+              var label = findLabel(note);
+              if (!label) {
+                note.classList.add("admin-info-note-inline");
+                return;
+              }
+              insertButton(label, note);
+              note.classList.add("admin-info-note-source");
+              note.setAttribute("aria-hidden", "true");
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          convertNotes();
+          var main = document.querySelector(".app-main");
+          if (!main || typeof MutationObserver !== "function") return;
+          var pending = false;
+          var observer = new MutationObserver(function () {
+            if (pending) return;
+            pending = true;
+            window.setTimeout(function () {
+              pending = false;
+              convertNotes();
+            }, 0);
+          });
+          observer.observe(main, { childList: true, subtree: true });
+        });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        var sortRoot = document.querySelector(".connectedSortable");
+        if (!sortRoot || typeof Sortable === "undefined") return;
+        new Sortable(sortRoot, {
+          group: "shared",
+          handle: ".card-header",
+        });
+        document
+          .querySelectorAll(".connectedSortable .card-header")
+          .forEach(function (cardHeader) {
+            cardHeader.style.cursor = "move";
+          });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        try {
+          var raw = sessionStorage.getItem("tirtayasa_login_flash");
+          if (!raw) return;
+          sessionStorage.removeItem("tirtayasa_login_flash");
+          var info = JSON.parse(raw);
+          var who =
+            (info && info.name && String(info.name).trim()) ||
+            (info && info.email && String(info.email).trim()) ||
+            "Admin";
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "success",
+              title: "Welcome back",
+              text: "You are signed in as " + who + ".",
+              confirmButtonText: "OK",
+            });
+          } else {
+            window.alert("Welcome back. You are signed in as " + who + ".");
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
+
+    <script>
+      (function () {
+        function getStoredUser() {
+          try {
+            var rawS = sessionStorage.getItem("tirtayasa_user");
+            if (rawS) return JSON.parse(rawS);
+            var rawL = localStorage.getItem("tirtayasa_user");
+            if (rawL) return JSON.parse(rawL);
+          } catch (e) {}
+          return null;
+        }
+
+        function getToken() {
+          try {
+            return (
+              sessionStorage.getItem("tirtayasa_token") ||
+              localStorage.getItem("tirtayasa_token") ||
+              ""
+            );
+          } catch (e) {
+            return "";
+          }
+        }
+
+        function applyRoleToSidebar(role) {
+          var isWriter = String(role || "").toLowerCase() === "writer";
+          document.querySelectorAll(".admin-only").forEach(function (el) {
+            el.style.display = isWriter ? "none" : "";
+          });
+        }
+
+        function applyUserInfo(user) {
+          if (!user) return;
+          var defaultAvatar =
+            "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23e9ecef'/%3E%3Ccircle cx='32' cy='24' r='12' fill='%2399a1aa'/%3E%3Cpath d='M12 54c3-10 12-16 20-16s17 6 20 16' fill='%2399a1aa'/%3E%3C/svg%3E";
+          function normalizeImageSrc(src) {
+            var s = src != null ? String(src).trim() : "";
+            return s || defaultAvatar;
+          }
+          var nameEl = document.querySelector(".user-menu .d-none.d-md-inline");
+          if (nameEl && user.name) nameEl.textContent = user.name;
+          var imgs = document.querySelectorAll(".user-menu img");
+          if (imgs && imgs.length) {
+            imgs.forEach(function (img) {
+              img.onerror = function () {
+                img.src = defaultAvatar;
+              };
+              img.src = normalizeImageSrc(user.image);
+            });
+          }
+        }
+
+        async function bootstrapRoleUI() {
+          var user = getStoredUser();
+          if (user && user.role) {
+            applyRoleToSidebar(user.role);
+          }
+
+          var token = getToken();
+          if (!token) return;
+
+          try {
+            var res = await fetch("/api/v1/admin/profile", {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token,
+              },
+            });
+            if (!res.ok) return;
+            var me = await res.json();
+            if (!me) return;
+            try {
+              sessionStorage.setItem("tirtayasa_user", JSON.stringify(me));
+            } catch (e) {}
+            applyRoleToSidebar(me.role);
+            applyUserInfo(me);
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        bootstrapRoleUI();
+      })();
+    </script>
+
+    <script>
+      (function () {
+        var btn = document.getElementById("admin-logout-btn");
+        if (!btn) return;
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          var token = null;
+          try {
+            token = localStorage.getItem("tirtayasa_token");
+          } catch (err) {
+            /* ignore */
+          }
+          var headers = { Accept: "application/json" };
+          if (token) headers["Authorization"] = "Bearer " + token;
+          fetch("/api/v1/auth/logout", {
+            method: "POST",
+            headers: headers,
+          }).catch(function () {});
+          try {
+            localStorage.removeItem("tirtayasa_token");
+            localStorage.removeItem("tirtayasa_user_id");
+            sessionStorage.removeItem("tirtayasa_token");
+            sessionStorage.removeItem("tirtayasa_user");
+            document.cookie = "tirtayasa_token=; Path=/; Max-Age=0; SameSite=Lax";
+          } catch (err) {
+            /* ignore */
+          }
+          window.location.href =
+            {{ if .login_href }}{{ printf "%q" .login_href }}{{ else }}"/login"{{ end }};
+        });
+      })();
+    </script>
+  </body>
+</html>
+{{ end }}

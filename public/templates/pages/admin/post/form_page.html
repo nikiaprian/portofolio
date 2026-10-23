@@ -1,0 +1,662 @@
+{{ define "admin-content" }}
+
+<link
+  rel="stylesheet"
+  href="/static/vendor/tom-select/css/tom-select.bootstrap5.min.css?v={{ .asset_version }}"
+/>
+
+<div
+  class="container-fluid pb-4"
+  id="admin-post-form-root"
+  data-mode="{{ .post_form_mode }}"
+  data-requester-role="{{ .post_form_requester_role }}"
+  data-requester-id="{{ .post_form_requester_id }}"
+  {{- if eq .post_form_mode "edit" }} data-post-id="{{ .post_id }}"{{ end }}
+>
+  <div class="mb-3">
+    <a
+      href="/admin/posts"
+      class="btn btn-sm border text-decoration-none admin-back-to-list"
+    >
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+      Semua post
+    </a>
+  </div>
+
+  <div class="card admin-crud-card shadow-sm">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex flex-column gap-1">
+        <h5 class="mb-0 fw-semibold lh-sm">{{ .title }}</h5>
+        <p class="small text-secondary mb-0 lh-sm">
+          {{- if eq .post_form_mode "create" }}
+          Judul, slug, taksonomi, dan isi rich-text.
+          {{- else }}
+          Perbarui kolom dan isi rich-text.
+          {{- end }}
+        </p>
+      </div>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <div
+        id="post-form-error"
+        class="alert alert-danger d-none py-2 small"
+        role="alert"
+      ></div>
+
+      <form id="form-post-admin" class="admin-crud-post-form" novalidate>
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">Dasar</h6>
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <label for="pf-title" class="form-label">
+                Judul <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pf-title"
+                  name="title"
+                  required
+                  minlength="3"
+                  maxlength="200"
+                  placeholder="Judul artikel"
+                  autocomplete="off"
+                  aria-describedby="pf-title-count"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+                  id="pf-title-regenerate-btn"
+                  title="Buat ulang judul dengan AI"
+                >
+                  <span
+                    class="spinner-border spinner-border-sm d-none"
+                    id="pf-title-regenerate-spinner"
+                    aria-hidden="true"
+                  ></span>
+                  <i class="bi bi-arrow-repeat" id="pf-title-regenerate-icon" aria-hidden="true"></i>
+                  <span id="pf-title-regenerate-label">Buat ulang</span>
+                </button>
+              </div>
+              <div id="pf-title-count" class="form-text text-end">
+                0/200 karakter
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <label for="pf-status" class="form-label">
+                Status <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="pf-status" name="status" required>
+                <option value="published" selected>Terbit</option>
+                <option value="draft">Draf</option>
+                <option value="scheduled">Terjadwal</option>
+              </select>
+            </div>
+            <div class="col-12 d-none" id="pf-publish-at-wrap">
+              <label for="pf-publish-at" class="form-label">
+                Waktu terbit <span class="text-danger">*</span>
+              </label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="pf-publish-at"
+                name="publish_at"
+                autocomplete="off"
+                step="60"
+                aria-describedby="pf-publish-at-help"
+              />
+              <div class="form-text" id="pf-publish-at-help">
+                Menggunakan waktu lokal perangkat Anda. Post otomatis menjadi terbit
+                sekitar waktu ini (server mengecek sekitar satu menit sekali).
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="pf-slug" class="form-label">
+                Slug <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="pf-slug"
+                name="slug"
+                required
+                minlength="3"
+                maxlength="255"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+                placeholder="article-slug"
+                autocomplete="off"
+              />
+              <div class="form-text">
+                Mengedit judul akan memperbarui slug. Mengosongkan slug akan
+                mengosongkan judul. Mengedit slug tidak mengubah judul. Gunakan
+                huruf kecil, angka, dan tanda hubung saja. Mengubah slug post
+                yang sudah terbit dapat merusak tautan lama.
+              </div>
+            </div>
+            {{- if eq .post_form_requester_role "admin" }}
+            <div class="col-12 col-lg-8">
+              <label for="pf-author" class="form-label">
+                Penulis <span class="text-danger">*</span>
+              </label>
+              <select
+                class="form-select"
+                id="pf-author"
+                name="author_id"
+                required
+                autocomplete="off"
+              >
+                <option value="">Pilih penulis</option>
+                {{- range .post_form_authors }}
+                <option
+                  value="{{ .ID }}"
+                  {{- if eq $.post_form_requester_id .ID }} selected{{ end -}}
+                >
+                  {{- .Name }} ({{ .Email -}})
+                </option>
+                {{- end }}
+              </select>
+              <div class="form-text" id="pf-author-help">
+                Penulis yang ditampilkan untuk post ini (akun admin atau penulis).
+              </div>
+            </div>
+            {{- end }}
+          </div>
+        </div>
+
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">Taksonomi</h6>
+          <div class="row g-3 align-items-start">
+            <div class="col-md-6">
+              <label for="pf-category" class="form-label">
+                Kategori <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="pf-category" required></select>
+            </div>
+            <div class="col-md-6">
+              <label for="pf-tags" class="form-label">
+                Tag <span class="text-secondary fw-normal small">(opsional)</span>
+              </label>
+              <select
+                id="pf-tags"
+                name="tags"
+                multiple
+                autocomplete="off"
+                aria-describedby="pf-tags-help"
+              ></select>
+              <div id="pf-tags-help" class="form-text">
+                Opsional. Cari tag; jika tidak ada yang cocok, gunakan baris
+                <strong>+</strong> di bawah pencarian untuk membuat tag baru.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">
+            SEO <span class="text-secondary fw-normal small">(opsional)</span>
+          </h6>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="pf-meta-desc" class="form-label">Meta deskripsi</label>
+              <textarea
+                class="form-control"
+                id="pf-meta-desc"
+                name="meta_description"
+                rows="3"
+                maxlength="500"
+                placeholder="Ringkasan singkat untuk mesin pencari dan pratinjau sosial"
+                aria-describedby="pf-meta-desc-help"
+              ></textarea>
+              <div id="pf-meta-desc-help" class="form-text">
+                Panjang ideal sekitar 150-160 karakter. Kosongkan untuk diisi otomatis dari isi artikel.
+              </div>
+              <div id="pf-meta-desc-count" class="form-text text-end">
+                0/500 karakter
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="pf-meta-kw" class="form-label">Meta kata kunci</label>
+              <input
+                type="text"
+                class="form-control"
+                id="pf-meta-kw"
+                name="meta_keywords"
+                maxlength="500"
+                placeholder="keyword one, keyword two"
+                autocomplete="off"
+                aria-describedby="pf-meta-kw-help"
+              />
+              <div id="pf-meta-kw-help" class="form-text">
+                Frasa dipisahkan koma. Kosongkan untuk memakai tag dan nama kategori.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">Konten</h6>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="pf-image-file" class="form-label">
+                Gambar sampul <span class="text-danger">*</span>
+              </label>
+              <div class="btn-group btn-group-sm mb-2" role="group" aria-label="Sumber gambar sampul">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pf-image-mode"
+                  id="pf-image-mode-upload"
+                  value="upload"
+                  autocomplete="off"
+                  checked
+                />
+                <label class="btn btn-outline-secondary" for="pf-image-mode-upload">Unggah file</label>
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pf-image-mode"
+                  id="pf-image-mode-url"
+                  value="url"
+                  autocomplete="off"
+                />
+                <label class="btn btn-outline-secondary" for="pf-image-mode-url">URL gambar</label>
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pf-image-mode"
+                  id="pf-image-mode-web-search"
+                  value="web_search"
+                  autocomplete="off"
+                />
+                <label class="btn btn-outline-secondary" for="pf-image-mode-web-search">Cari web</label>
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pf-image-mode"
+                  id="pf-image-mode-generate"
+                  value="generate"
+                  autocomplete="off"
+                />
+                <label class="btn btn-outline-secondary" for="pf-image-mode-generate">Buat AI</label>
+              </div>
+              <div id="pf-image-upload-wrap">
+              <input
+                type="file"
+                class="form-control"
+                id="pf-image-file"
+                name="image_file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+              />
+              </div>
+              <div id="pf-image-url-wrap" class="mt-2 d-none">
+                <input
+                  type="url"
+                  class="form-control"
+                  id="pf-image-url"
+                  name="image_url"
+                  placeholder="https://example.com/image.jpg"
+                  autocomplete="off"
+                />
+              </div>
+              <div id="pf-image-web-search-wrap" class="mt-2 d-none">
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-7">
+                    <div class="form-text mb-0">
+                      Menggunakan judul post untuk mencari gambar web publik, lalu mengunduh gambar terpilih ke penyimpanan post.
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="pf-image-web-search-source" class="form-label">Sumber</label>
+                    <select class="form-select" id="pf-image-web-search-source">
+                      <option value="auto" selected>Auto (Pexels dulu)</option>
+                      <option value="pexels">Pexels</option>
+                      <option value="unsplash">Unsplash</option>
+                      <option value="pixabay">Pixabay</option>
+                      <option value="openverse">Openverse</option>
+                      <option value="wikimedia">Wikimedia</option>
+                      <option value="wordpress">WordPress</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2 d-grid">
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
+                      id="pf-image-web-search-btn"
+                    >
+                      <span class="spinner-border spinner-border-sm d-none" id="pf-image-web-search-spinner" aria-hidden="true"></span>
+                      <i class="bi bi-search" id="pf-image-web-search-icon" aria-hidden="true"></i>
+                      <span id="pf-image-web-search-label">Cari</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="pf-image-generate-wrap" class="mt-2 d-none">
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-3">
+                    <label for="pf-image-ai-provider" class="form-label">Penyedia AI</label>
+                    <select class="form-select" id="pf-image-ai-provider">
+                      <option value="auto" selected>Auto</option>
+                      <option value="openai">OpenAI</option>
+                      <option value="gemini">Gemini</option>
+                    </select>
+                  </div>
+                  <div class="col-md-7">
+                    <label for="pf-image-ai-prompt" class="form-label">Prompt gambar (opsional)</label>
+                    <textarea
+                      class="form-control"
+                      id="pf-image-ai-prompt"
+                      rows="1"
+                      placeholder="Kosong = sampul memakai template “Generate image (cover)”; sisip ke konten memakai “Generate image (in-content)” dari pengaturan AI. Atau tulis prompt khusus."
+                    ></textarea>
+                  </div>
+                  <div class="col-md-2 d-grid">
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2"
+                      id="pf-image-ai-generate-btn"
+                    >
+                      <span class="spinner-border spinner-border-sm d-none" id="pf-image-ai-spinner" aria-hidden="true"></span>
+                      <i class="bi bi-stars" id="pf-image-ai-icon" aria-hidden="true"></i>
+                      <span id="pf-image-ai-label">Buat</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" id="pf-image" name="image" />
+              <div class="form-text">
+                Pilih salah satu: unggah file (JPG/PNG/WebP/GIF, maks 5 MB), isi URL gambar (http/https), cari web, atau buat gambar AI.
+              </div>
+              <div id="pf-image-source-wrap" class="small text-secondary mt-2 d-none">
+                Sumber:
+                <a id="pf-image-source-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+              </div>
+              <div id="pf-image-preview-wrap" class="mt-2 d-none">
+                <img
+                  id="pf-image-preview"
+                  alt="Sampul terpilih"
+                  class="img-fluid rounded border"
+                  style="max-height: 220px"
+                />
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="pf-source" class="form-label">URL sumber (opsional)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="pf-source"
+                name="source"
+                maxlength="500"
+                placeholder="https://example.com/original-article"
+                autocomplete="off"
+              />
+              <div class="form-check form-switch mt-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="pf-include-source"
+                />
+                <label class="form-check-label" for="pf-include-source">
+                  Tampilkan sumber di halaman terbit
+                </label>
+              </div>
+            </div>
+          <div class="row g-3 mb-1">
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="pf-ai-enable"
+                  {{- if eq .post_form_mode "create" }} checked{{ end }}
+                />
+                <label class="form-check-label" for="pf-ai-enable">
+                  Aktifkan pembuatan konten AI
+                </label>
+              </div>
+              <div class="form-text">
+                Aktifkan untuk memilih penyedia dan template prompt, lalu buat draf konten dari
+                <a href="/admin/ai-setting" class="text-decoration-none">pengaturan AI</a>.
+              </div>
+            </div>
+          </div>
+          <div class="row g-3 mb-1 d-none" id="pf-ai-controls">
+            <div class="col-12">
+              {{ if not .ai_configured }}
+              <div
+                class="alert alert-warning py-2 small mb-0"
+                role="alert"
+                id="pf-ai-key-warning"
+              >
+                API key AI belum terdeteksi. Anda tetap bisa klik Buat; jika gagal, tambahkan key di
+                <a href="/admin/ai-setting" class="alert-link">pengaturan AI</a>.
+              </div>
+              {{ end }}
+            </div>
+            <div class="col-md-3">
+              <label for="pf-ai-provider" class="form-label">Penyedia AI</label>
+              <select class="form-select" id="pf-ai-provider" disabled>
+                <option value="auto" selected>Auto</option>
+                <option value="gemini">Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="groq">Groq</option>
+                <option value="claude">Claude</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="pf-ai-prompt-variant" class="form-label">Prompt konten</label>
+              <select class="form-select" id="pf-ai-prompt-variant" disabled>
+                <option value="1" selected>{{ .prompt_content_name_1 }}</option>
+                <option value="2">{{ .prompt_content_name_2 }}</option>
+                <option value="3">{{ .prompt_content_name_3 }}</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button
+                type="button"
+                class="btn btn-outline-primary w-100 d-inline-flex align-items-center justify-content-center gap-2"
+                id="pf-ai-generate-btn"
+                disabled
+              >
+                <span class="spinner-border spinner-border-sm d-none" id="pf-ai-spinner" aria-hidden="true"></span>
+                <i class="bi bi-stars" id="pf-ai-icon" aria-hidden="true"></i>
+                <span id="pf-ai-label">Buat</span>
+              </button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button
+                type="button"
+                class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2"
+                id="pf-ai-generate-image-btn"
+                disabled
+              >
+                <span
+                  class="spinner-border spinner-border-sm d-none"
+                  id="pf-ai-image-spinner"
+                  aria-hidden="true"
+                ></span>
+                <i class="bi bi-image" id="pf-ai-image-icon" aria-hidden="true"></i>
+                <span id="pf-ai-generate-image-label">Gambar ke konten</span>
+              </button>
+            </div>
+          </div>
+            <div class="col-12">
+              <div
+                class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2"
+              >
+                <label class="form-label mb-0" for="pf-content">
+                  Isi <span class="text-danger">*</span>
+                  <span class="text-secondary fw-normal small d-none d-md-inline ms-1"
+                    >(post manual)</span
+                  >
+                </label>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
+                  id="pf-content-normalize-rows-btn"
+                  title="Normalisasi HTML: ubah &lt;br&gt;/baris baru menjadi blok &lt;p&gt;; hapus &lt;br&gt; liar; rapikan spasi antar tag; pecah &lt;p&gt; sangat panjang (~2 kalimat per blok). Heading, gambar, tabel, dan blok lain tidak diubah."
+                >
+                  <i class="bi bi-text-wrap" aria-hidden="true"></i>
+                  <span>Normalisasi baris</span>
+                </button>
+              </div>
+              <textarea
+                id="pf-content"
+                class="form-control post-tinymce-source"
+                rows="14"
+                aria-label="Isi post"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-2 border-top border-opacity-50 position-sticky py-2 bg-body shadow-sm"
+          style="bottom: 0; z-index: 1020"
+        >
+          <button
+            type="submit"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            id="pf-submit"
+            data-label-default="{{ if eq .post_form_mode "create" }}Simpan post{{ else }}Simpan perubahan{{ end }}"
+            data-label-busy="Menyimpan..."
+          >
+            <span class="spinner-border spinner-border-sm d-none" id="pf-submit-spinner" aria-hidden="true"></span>
+            <i class="bi bi-check-lg pf-submit-icon" aria-hidden="true"></i>
+            <span id="pf-submit-label"
+              >{{- if eq .post_form_mode "create" }}Simpan post{{ else }}Simpan perubahan{{ end -}}</span
+            >
+          </button>
+          <a href="/admin/posts" class="btn btn-light border">Batal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade admin-crud-modal"
+  id="pf-tag-modal"
+  tabindex="-1"
+  aria-labelledby="pf-tag-modal-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-tag-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="pf-tag-modal-label">Tag baru</h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Buat tag, lalu tag tersebut akan dipilih untuk post ini.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <form id="pf-tag-modal-form" novalidate>
+        <div class="modal-body pt-0">
+          <div
+            id="pf-tag-modal-error"
+            class="alert alert-danger d-none py-2 small"
+            role="alert"
+          ></div>
+          <div class="mb-3">
+            <label for="pf-tag-modal-name" class="form-label">
+              Nama <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-tag"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                id="pf-tag-modal-name"
+                autocomplete="off"
+                required
+                minlength="3"
+                maxlength="100"
+                placeholder="contoh: Berita teknologi"
+              />
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="pf-tag-modal-slug" class="form-label">
+              Slug <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-link-45deg"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0 font-monospace"
+                id="pf-tag-modal-slug"
+                autocomplete="off"
+                required
+                minlength="3"
+                maxlength="150"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+                placeholder="tech-news"
+              />
+            </div>
+            <div class="form-text">
+              Diisi dari nama; edit jika perlu. Gunakan huruf kecil, angka, dan tanda hubung saja.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal">
+            Batal
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            id="pf-tag-modal-submit"
+          >
+            <span
+              class="spinner-border spinner-border-sm d-none"
+              id="pf-tag-modal-spinner"
+              aria-hidden="true"
+            ></span>
+            <i class="bi bi-check-lg" id="pf-tag-modal-check" aria-hidden="true"></i>
+            <span>Buat &amp; pilih</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/tinymce/tinymce.min.js?v={{ .asset_version }}"></script>
+<script src="/static/js/admin/tinymce.min.js?v={{ .asset_version }}"></script>
+<script
+  defer
+  src="/static/vendor/tom-select/js/tom-select.complete.min.js?v={{ .asset_version }}"
+></script>
+<script defer src="/static/js/admin/name_slug_crud.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/post_form.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

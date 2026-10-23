@@ -1,0 +1,262 @@
+{{ define "admin-user-create" }}
+
+<div
+  class="modal fade admin-crud-modal"
+  id="modalUserCreate"
+  tabindex="-1"
+  aria-labelledby="modalUserCreateLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-person-plus-lg"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="modalUserCreateLabel">
+              Tambah User
+            </h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Tambahkan akun admin baru ke sistem.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <form id="form-user-create">
+        <div class="modal-body pt-0 mt-3">
+          <div
+            id="user-create-error"
+            class="alert alert-danger d-none py-2 small mb-3"
+            role="alert"
+          ></div>
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-center mb-1">
+                <img
+                  id="uc-image-preview"
+                  src=""
+                  alt="Pratinjau profil"
+                  class="rounded-circle border"
+                  style="width: 88px; height: 88px; object-fit: cover"
+                />
+              </div>
+              <div class="border rounded overflow-hidden">
+                <ul
+                  class="nav nav-tabs border-bottom-0 px-2 pt-2 mb-0 gap-1 flex-nowrap"
+                  id="uc-image-tabs"
+                  role="tablist"
+                >
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link active small py-2 px-3"
+                      id="uc-image-upload-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#uc-image-upload-pane"
+                      type="button"
+                      role="tab"
+                      aria-controls="uc-image-upload-pane"
+                      aria-selected="true"
+                    >
+                      Unggah
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link small py-2 px-3"
+                      id="uc-image-url-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#uc-image-url-pane"
+                      type="button"
+                      role="tab"
+                      aria-controls="uc-image-url-pane"
+                      aria-selected="false"
+                    >
+                      URL
+                    </button>
+                  </li>
+                </ul>
+                <div
+                  class="tab-content border-top p-3 bg-body-tertiary bg-opacity-25"
+                >
+                  <div
+                    class="tab-pane fade show active"
+                    id="uc-image-upload-pane"
+                    role="tabpanel"
+                    aria-labelledby="uc-image-upload-tab"
+                    tabindex="0"
+                  >
+                    <label for="uc-image-file" class="form-label"
+                      >Unggah gambar</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="uc-image-file"
+                      name="image_file"
+                      accept="image/*"
+                    />
+                  </div>
+                  <div
+                    class="tab-pane fade"
+                    id="uc-image-url-pane"
+                    role="tabpanel"
+                    aria-labelledby="uc-image-url-tab"
+                    tabindex="0"
+                  >
+                    <label for="uc-image" class="form-label">URL gambar</label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      id="uc-image"
+                      name="image"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="uc-name" class="form-label">
+                Nama lengkap <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0">
+                  <i class="bi bi-person"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="uc-name"
+                  name="name"
+                  placeholder="Jane Doe"
+                  required
+                  autocomplete="name"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="uc-email" class="form-label">
+                Email <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0">
+                  <i class="bi bi-envelope"></i>
+                </span>
+                <input
+                  type="email"
+                  class="form-control border-start-0 ps-0"
+                  id="uc-email"
+                  name="email"
+                  placeholder="name@example.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="uc-username" class="form-label">Nama pengguna</label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0">
+                  <i class="bi bi-at"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0 ps-0"
+                  id="uc-username"
+                  name="username"
+                  placeholder="jane-doe"
+                  autocomplete="username"
+                />
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label for="uc-role" class="form-label">
+                Peran <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="uc-role" name="role" required>
+                <option value="writer" selected>Penulis</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <div class="form-check form-switch mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="uc-enabled"
+                  checked
+                />
+                <label class="form-check-label" for="uc-enabled">Aktif</label>
+                <div class="form-text">Pengguna nonaktif tidak bisa masuk.</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="uc-profile" class="form-label">Profil</label>
+              <textarea
+                class="form-control"
+                id="uc-profile"
+                name="profile"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="col-12">
+              <label for="uc-password" class="form-label">
+                Kata sandi <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0">
+                  <i class="bi bi-key"></i>
+                </span>
+                <input
+                  type="password"
+                  class="form-control border-start-0 ps-0"
+                  id="uc-password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  minlength="6"
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  data-tirtayasa-pw-toggle="uc-password"
+                  aria-label="Tampilkan kata sandi"
+                >
+                  <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="form-text">Minimal 6 karakter.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button
+            type="button"
+            class="btn btn-light border"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg me-1"></i> Tambah
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{ end }}

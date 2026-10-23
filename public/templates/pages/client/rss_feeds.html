@@ -1,0 +1,35 @@
+{{ define "client-content" }}
+<div class="blog-rss-feeds">
+  <h1 class="blog-rss-title">RSS Feeds</h1>
+  <p class="blog-rss-lead muted">Daftar feed RSS yang tersedia berdasarkan kategori.</p>
+
+  <div class="blog-rss-card">
+    <table class="blog-rss-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .rss_rows }}
+        <tr>
+          <td>{{ .Type }}</td>
+          <td>
+            <span class="blog-rss-name">{{ .Name }}</span>
+            <span class="blog-rss-sep" aria-hidden="true"> · </span>
+            <a
+              class="blog-rss-feed-link"
+              href="{{ .URL }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ .URL }}</a
+            >
+          </td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{ end }}

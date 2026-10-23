@@ -1,0 +1,61 @@
+{{ define "client-content" }}
+<div class="page-home page-topic">
+  <div class="blog-home-layout blog-topic-layout{{ if eq .homepage_layout "detik" }} home-layout-detik home-layout-detik--inner{{ end }}{{ if eq .homepage_layout "neo" }} home-layout-neo home-layout-neo--inner{{ end }}">
+    <div id="public-root" class="public-root blog-home-main">
+      <div class="blog-feed-head">
+        {{ if .category_parent_name }}
+        <nav class="blog-topic-breadcrumb small text-secondary mb-2" aria-label="Breadcrumb">
+          <ol class="blog-article-breadcrumb-list mb-0">
+            <li><a href="{{ .public_base }}/">Home</a></li>
+            <li><a href="{{ .category_parent_href }}">{{ .category_parent_name }}</a></li>
+            <li><span aria-current="page">{{ .category_name }}</span></li>
+          </ol>
+        </nav>
+        {{ end }}
+        <h1 class="blog-section-title blog-section-title--feed">
+          <span class="blog-section-title-bar" aria-hidden="true"></span>
+          {{ .category_name }}
+        </h1>
+      </div>
+      {{ if .posts }}
+      {{ template "client-topic-posts-list" . }}
+      {{ template "client-pagination" . }}
+      {{ else }}
+      <p>Belum ada artikel pada kategori ini.</p>
+      {{ end }}
+    </div>
+    {{ template "client-blog-sidebar-ssr" . }}
+  </div>
+</div>
+<script>
+  (function () {
+    var list = document.querySelector("#public-root .blog-posts-list");
+    if (!list) return;
+    function bindThumbSkeleton(scope) {
+      var root = scope || list;
+      root.querySelectorAll("[data-thumb-skeleton]").forEach(function (thumb) {
+        var img = thumb.querySelector("img");
+        if (!img) {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+          return;
+        }
+        function done() {
+          thumb.classList.remove("blog-posts-thumb--loading");
+          thumb.classList.remove("blog-media--img-loading");
+        }
+        if (img.complete) {
+          done();
+          return;
+        }
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
+    bindThumbSkeleton(list);
+    if (window.TirtayasaBindPageImages) {
+      window.TirtayasaBindPageImages(list);
+    }
+  })();
+</script>
+{{ end }}

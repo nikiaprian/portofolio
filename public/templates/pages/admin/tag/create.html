@@ -1,0 +1,105 @@
+{{ define "admin-tag-create" }}
+
+<div
+  class="modal fade admin-crud-modal"
+  id="modalTagCreate"
+  tabindex="-1"
+  aria-labelledby="modalTagCreateLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header align-items-start">
+        <div class="d-flex gap-3 pe-2">
+          <div
+            class="admin-crud-modal__icon admin-crud-modal__icon--primary"
+            aria-hidden="true"
+          >
+            <i class="bi bi-tag-fill"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" id="modalTagCreateLabel">Tambah Tag</h5>
+            <p class="small text-secondary mb-0 mt-1 lh-sm">
+              Tambahkan tag untuk menandai artikel.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-auto flex-shrink-0 mt-1"
+          data-bs-dismiss="modal"
+          aria-label="Tutup"
+        ></button>
+      </div>
+      <form id="form-tag-create">
+        <div class="modal-body pt-0">
+          <div
+            id="tag-create-error"
+            class="alert alert-danger d-none py-2 small"
+            role="alert"
+          ></div>
+          <div class="mb-3">
+            <label for="tgc-name" class="form-label">
+              Nama <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-tag"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                id="tgc-name"
+                name="name"
+                placeholder="Tutorial"
+                required
+                minlength="3"
+                maxlength="100"
+              />
+            </div>
+          </div>
+          <div class="mb-0">
+            <label for="tgc-slug" class="form-label">
+              Slug <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text border-end-0">
+                <i class="bi bi-link-45deg"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0 font-monospace"
+                id="tgc-slug"
+                name="slug"
+                placeholder="tutorial"
+                required
+                minlength="3"
+                maxlength="150"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+              />
+            </div>
+            <div class="form-text">
+              Otomatis diisi dari nama; bisa diedit kapan saja. Gunakan huruf
+              kecil, angka, dan tanda hubung saja.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button
+            type="button"
+            class="btn btn-light border"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg me-1"></i> Tambah
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{ end }}

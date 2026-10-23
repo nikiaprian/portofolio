@@ -1,0 +1,26 @@
+{{ define "client-tag-popular-strip" }}
+{{ if .home_tags }}
+<div class="blog-tag-popular">
+  <span class="blog-tag-popular-label">Tag populer</span>
+  <button
+    type="button"
+    class="blog-tag-scroll-btn blog-tag-scroll-btn--prev"
+    aria-label="Geser tag ke kiri"
+  >
+    ‹
+  </button>
+  <div class="blog-tag-popular-strip">
+    {{ range .home_tags }}
+    <a class="blog-tag-popular-pill" href="{{ .href }}">{{ .name }}</a>
+    {{ end }}
+  </div>
+  <button
+    type="button"
+    class="blog-tag-scroll-btn blog-tag-scroll-btn--next"
+    aria-label="Geser tag ke kanan"
+  >
+    ›
+  </button>
+</div>
+{{ end }}
+{{ end }}

@@ -1,0 +1,1020 @@
+{{ define "admin-content" }}
+<div class="container-fluid pb-4" id="admin-ai-setting-root">
+  <div
+    id="ai-setting-error"
+    class="alert alert-danger d-none py-2 small"
+    role="alert"
+  ></div>
+
+  <style>
+    .ai-settings-tabs-card .nav-tabs .nav-link {
+      color: var(--admin-text-primary);
+      border-color: transparent;
+    }
+    .ai-settings-tabs-card .nav-tabs .nav-link:hover,
+    .ai-settings-tabs-card .nav-tabs .nav-link:focus {
+      color: var(--admin-text-secondary);
+      border-color: var(--bs-border-color) var(--bs-border-color) transparent;
+    }
+    .ai-settings-tabs-card .nav-tabs .nav-link.active {
+      color: var(--admin-text-primary);
+      background-color: var(--bs-body-bg);
+      border-color: var(--bs-border-color) var(--bs-border-color)
+        var(--bs-body-bg);
+    }
+  </style>
+
+  <div class="card admin-crud-card shadow-sm ai-settings-tabs-card">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex flex-column gap-1">
+        <h5 class="mb-0 fw-semibold lh-sm">Pengaturan AI</h5>
+        <p
+          class="small text-secondary mb-0 lh-sm"
+          data-admin-info-note
+          data-admin-info-title="Pengaturan AI"
+        >
+          API key penyedia dan prompt untuk parafrase scraper serta pembuatan
+          bulk post. Key disimpan di tabel <code>ai_setting</code>. Minimal satu
+          key diperlukan untuk fitur Buat dengan AI. Nama model memakai
+          dropdown; biarkan &quot;Default&quot; atau pilih preset. Jika DB
+          berisi ID yang tidak ada di daftar, nilainya akan muncul sebagai opsi
+          custom setelah dimuat.
+        </p>
+      </div>
+    </div>
+    <div class="card-header py-0 px-0 bg-body-tertiary bg-opacity-25">
+      <ul
+        class="nav nav-tabs card-header-tabs flex-nowrap flex-md-wrap mx-2 mx-md-3 mb-0 mt-2 gap-1 gap-md-0"
+        id="ai-settings-tabs"
+        role="tablist"
+      >
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active rounded-top px-3 py-2"
+            id="ais-tab-api-key"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-api-key"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-api-key"
+            aria-selected="true"
+          >
+            <i class="bi bi-key me-1" aria-hidden="true"></i>
+            API Key AI
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ais-tab-scraper-prompt"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-scraper-prompt"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-scraper-prompt"
+            aria-selected="false"
+          >
+            <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>
+            Prompt scraper
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link rounded-top px-3 py-2"
+            id="ais-tab-generate-prompt"
+            data-bs-toggle="tab"
+            data-bs-target="#ais-pane-generate-prompt"
+            type="button"
+            role="tab"
+            aria-controls="ais-pane-generate-prompt"
+            aria-selected="false"
+          >
+            <i class="bi bi-magic me-1" aria-hidden="true"></i>
+            Prompt generate
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <form id="form-ai-setting" class="admin-crud-post-form" novalidate>
+        <div class="tab-content" id="ai-settings-tab-content">
+          <div
+            class="tab-pane fade show active"
+            id="ais-pane-api-key"
+            role="tabpanel"
+            aria-labelledby="ais-tab-api-key"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <h6 class="post-form-section__title">API key &amp; model</h6>
+              <div class="row g-3">
+                <div class="col-12 col-lg-3">
+                  <label for="ais-gemini" class="form-label">
+                    API key Gemini {{ with .ai_setting }}{{ if not .Gemini
+                    }}<span class="text-danger ms-2">(Belum ada key)</span>{{
+                    end }}{{ end }}
+                  </label>
+                  <div class="form-text mt-0 mb-1">
+                    <a
+                      href="https://aistudio.google.com/api-keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Ambil API key Gemini</a
+                    >
+                  </div>
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-gemini"
+                    name="gemini"
+                    rows="2"
+                    autocomplete="off"
+                    placeholder="Key Google AI Studio"
+                  >
+{{- with .ai_setting }}{{ .Gemini }}{{ end -}}</textarea>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-openai" class="form-label">
+                    API key OpenAI {{ with .ai_setting }}{{ if not .OpenAI
+                    }}<span class="text-danger ms-2">(Belum ada key)</span>{{
+                    end }}{{ end }}
+                  </label>
+                  <div class="form-text mt-0 mb-1">
+                    <a
+                      href="https://platform.openai.com/settings/organization/api-keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Ambil API key OpenAI</a
+                    >
+                  </div>
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-openai"
+                    name="openai"
+                    rows="2"
+                    autocomplete="off"
+                    placeholder="sk-..."
+                  >
+{{- with .ai_setting }}{{ .OpenAI }}{{ end -}}</textarea>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-groq" class="form-label">
+                    API key Groq {{ with .ai_setting }}{{ if not .Groq }}<span
+                      class="text-danger ms-2"
+                      >(Belum ada key)</span
+                    >{{ end }}{{ end }}
+                  </label>
+                  <div class="form-text mt-0 mb-1">
+                    <a
+                      href="https://console.groq.com/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Ambil API key Groq</a
+                    >
+                  </div>
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-groq"
+                    name="groq"
+                    rows="2"
+                    autocomplete="off"
+                    placeholder="gsk_..."
+                  >
+{{- with .ai_setting }}{{ .Groq }}{{ end -}}</textarea>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-claude" class="form-label">
+                    API key Claude {{ with .ai_setting }}{{ if not .Claude
+                    }}<span class="text-danger ms-2">(Belum ada key)</span>{{
+                    end }}{{ end }}
+                  </label>
+                  <div class="form-text mt-0 mb-1">
+                    <a
+                      href="https://console.anthropic.com/settings/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Ambil API key Claude</a
+                    >
+                  </div>
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-claude"
+                    name="claude"
+                    rows="2"
+                    autocomplete="off"
+                    placeholder="sk-ant-api03-..."
+                  >
+{{- with .ai_setting }}{{ .Claude }}{{ end -}}</textarea>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-gemini-model" class="form-label"
+                    >Model Gemini (opsional)</label
+                  >
+                  <select
+                    class="form-select font-monospace small"
+                    id="ais-gemini-model"
+                    name="gemini_model"
+                    autocomplete="off"
+                  >
+                    <option value="">Default (penyedia)</option>
+                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                    <option value="gemini-2.5-flash-preview">
+                      gemini-2.5-flash-preview
+                    </option>
+                    <option value="gemini-2.5-pro-preview">
+                      gemini-2.5-pro-preview
+                    </option>
+                    <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                    <option value="gemini-3-flash-preview">
+                      gemini-3-flash-preview
+                    </option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-openai-model" class="form-label"
+                    >Model OpenAI (opsional)</label
+                  >
+                  <select
+                    class="form-select font-monospace small"
+                    id="ais-openai-model"
+                    name="openai_model"
+                    autocomplete="off"
+                  >
+                    <option value="">Default (penyedia)</option>
+                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                    <option value="gpt-4o">gpt-4o</option>
+                    <option value="gpt-4-turbo">gpt-4-turbo</option>
+                    <option value="o1-mini">o1-mini</option>
+                    <option value="o3-mini">o3-mini</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-groq-model" class="form-label"
+                    >Model Groq (opsional)</label
+                  >
+                  <select
+                    class="form-select font-monospace small"
+                    id="ais-groq-model"
+                    name="groq_model"
+                    autocomplete="off"
+                  >
+                    <option value="">Default (penyedia)</option>
+                    <option value="llama-3.3-70b-versatile">
+                      llama-3.3-70b-versatile
+                    </option>
+                    <option value="llama-3.1-8b-instant">
+                      llama-3.1-8b-instant
+                    </option>
+                    <option value="mixtral-8x7b-32768">
+                      mixtral-8x7b-32768
+                    </option>
+                    <option value="gemma2-9b-it">gemma2-9b-it</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label for="ais-claude-model" class="form-label"
+                    >Model Claude (opsional)</label
+                  >
+                  <select
+                    class="form-select font-monospace small"
+                    id="ais-claude-model"
+                    name="claude_model"
+                    autocomplete="off"
+                  >
+                    <option value="">Default (penyedia)</option>
+                    <option value="claude-3-5-sonnet-20241022">
+                      claude-3-5-sonnet-20241022
+                    </option>
+                    <option value="claude-3-5-haiku-20241022">
+                      claude-3-5-haiku-20241022
+                    </option>
+                    <option value="claude-sonnet-4-20250514">
+                      claude-sonnet-4-20250514
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-api"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="ais-pane-scraper-prompt"
+            role="tabpanel"
+            aria-labelledby="ais-tab-scraper-prompt"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <h6 class="post-form-section__title">Parafrase AI scraper</h6>
+              <div
+                class="accordion accordion-flush mb-3"
+                id="ais-scraper-placeholders-accordion"
+                data-admin-info-note
+                data-admin-info-title="Placeholder prompt scraper"
+              >
+                <div class="accordion-item border rounded">
+                  <h2
+                    class="accordion-header"
+                    id="ais-scraper-placeholders-heading"
+                  >
+                    <button
+                      class="accordion-button collapsed py-2 px-3 small fw-semibold"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#ais-scraper-placeholders-body"
+                      aria-expanded="false"
+                      aria-controls="ais-scraper-placeholders-body"
+                    >
+                      Placeholder prompt scraper
+                    </button>
+                  </h2>
+                  <div
+                    id="ais-scraper-placeholders-body"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="ais-scraper-placeholders-heading"
+                    data-bs-parent="#ais-scraper-placeholders-accordion"
+                  >
+                    <div class="accordion-body small py-2 px-3">
+                      Token berikut diganti otomatis saat AI memparafrase
+                      artikel hasil scraper:
+                      <ul class="mb-0 mt-2 ps-3">
+                        <li>
+                          <code>{{"{{title}}"}}</code> — the source article
+                          judul artikel sumber (sebelum diparafrase).
+                        </li>
+                        <li>
+                          <code>{{"{{content}}"}}</code> — the source article
+                          isi artikel sumber sebagai teks polos (umumnya dipakai
+                          di prompt konten; bisa juga dipakai di prompt judul
+                          sebagai konteks tambahan).
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                  <label for="ais-scraper-provider" class="form-label"
+                    >Penyedia AI scraper</label
+                  >
+                  <select
+                    class="form-select small"
+                    id="ais-scraper-provider"
+                    name="scraper_ai_provider"
+                  >
+                    <option value="auto">Auto (terbaik yang tersedia)</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="groq">Groq</option>
+                    <option value="claude">Claude</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label for="ais-scraper-prompt-title" class="form-label"
+                    >Prompt judul scraper</label
+                  >
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-scraper-prompt-title"
+                    name="scraper_prompt_title"
+                    rows="8"
+                    placeholder="Prompt untuk memparafrase judul hasil scraper"
+                  >
+{{- with .ai_setting }}{{ .ScraperPromptTitle }}{{ end -}}</textarea>
+                  <div class="form-text">
+                    Sertakan <code>{{"{{title}}"}}</code> untuk judul sumber;
+                    opsional <code>{{"{{content}}"}}</code> jika instruksi perlu
+                    melihat teks artikel.
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label for="ais-scraper-prompt-content" class="form-label"
+                    >Prompt konten scraper</label
+                  >
+                  <textarea
+                    class="form-control font-monospace small"
+                    id="ais-scraper-prompt-content"
+                    name="scraper_prompt_content"
+                    rows="8"
+                    placeholder="Prompt untuk memparafrase konten artikel hasil scraper"
+                  >
+{{- with .ai_setting }}{{ .ScraperPromptContent }}{{ end -}}</textarea>
+                  <div class="form-text">
+                    Sertakan <code>{{"{{content}}"}}</code> untuk memasukkan
+                    teks sumber yang akan diparafrase;
+                    <code>{{"{{title}}"}}</code>
+                    untuk judul sumber (berguna dalam instruksi atau konteks).
+                  </div>
+                </div>
+              </div>
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-scraper"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tab-pane fade"
+            id="ais-pane-generate-prompt"
+            role="tabpanel"
+            aria-labelledby="ais-tab-generate-prompt"
+            tabindex="0"
+          >
+            <div class="post-form-section mb-0">
+              <h6 class="post-form-section__title">Prompt generate artikel</h6>
+              <div
+                class="accordion accordion-flush mb-3"
+                id="ais-generate-placeholders-accordion"
+                data-admin-info-note
+                data-admin-info-title="Placeholder bulk & generate artikel"
+              >
+                <div class="accordion-item border rounded">
+                  <h2
+                    class="accordion-header"
+                    id="ais-generate-placeholders-heading"
+                  >
+                    <button
+                      class="accordion-button collapsed py-2 px-3 small fw-semibold"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#ais-generate-placeholders-body"
+                      aria-expanded="false"
+                      aria-controls="ais-generate-placeholders-body"
+                    >
+                      Placeholder bulk &amp; generate artikel
+                    </button>
+                  </h2>
+                  <div
+                    id="ais-generate-placeholders-body"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="ais-generate-placeholders-heading"
+                    data-bs-parent="#ais-generate-placeholders-accordion"
+                  >
+                    <div class="accordion-body small py-2 px-3">
+                      Untuk template <em>isi artikel</em>,
+                      <em>meta deskripsi</em>, dan <em>kata kunci / SEO</em> di
+                      bawah, token dalam kurung seperti
+                      <code>{{"{{title}}"}}</code> akan diganti oleh sistem.
+                      Nama Inggris dan nama Indonesia lama dianggap sama:
+                      <ul class="mb-2 mt-2 ps-3">
+                        <li>
+                          <code>{{"{{title}}"}}</code> /
+                          <code>{{"{{judul}}"}}</code> — the article title being
+                          yang dibuat (satu baris dari daftar bulk, atau judul
+                          di form post).
+                        </li>
+                        <li>
+                          <code>{{"{{keywords}}"}}</code> /
+                          <code>{{"{{kata_kunci}}"}}</code> — in the
+                          <strong>template isi</strong>: kata kunci awal bulk
+                          (fallback ke judul jika kosong). Pada
+                          <strong>prompt meta setelah isi tersedia</strong>:
+                          nama tag terpilih, dipisahkan koma.
+                        </li>
+                        <li>
+                          <code>{{"{{content}}"}}</code> /
+                          <code>{{"{{isi}}"}}</code> — in the
+                          <strong>template isi</strong>: petunjuk singkat untuk
+                          AI (opsional dari API; jika kosong memakai teks
+                          default). Pada
+                          <strong
+                            >meta / keyword prompts after generation</strong
+                          >: kutipan teks polos dari HTML yang baru dibuat.
+                        </li>
+                        <li>
+                          <code>{{"{{meta_description}}"}}</code> /
+                          <code>{{"{{deskripsi}}"}}</code> — in the
+                          <strong>template isi</strong>: arahan untuk meta
+                          deskripsi (dari pengaturan atau default). Di prompt
+                          meta terpisah biasanya kosong.
+                        </li>
+                      </ul>
+                      <strong>Prompt judul (Saran judul)</strong> — tidak
+                      memakai placeholder di atas; sistem menambahkan kata kunci
+                      dan jumlah judul setelah teks Anda.<br />
+                      <strong>Prompt gambar (sampul &amp; dalam konten)</strong>
+                      — hanya <code>{{"{{title}}"}}</code> (judul artikel).
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <ul
+                    class="nav nav-tabs mb-3"
+                    id="ais-generate-sub-tabs"
+                    role="tablist"
+                  >
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link active"
+                        id="ais-generate-sub-tab-general"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-general"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-general"
+                        aria-selected="true"
+                      >
+                        Umum
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="ais-generate-sub-tab-prompt-123"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-prompt-123"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-prompt-123"
+                        aria-selected="false"
+                      >
+                        Prompt konten
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        id="ais-generate-sub-tab-image"
+                        data-bs-toggle="tab"
+                        data-bs-target="#ais-generate-sub-pane-image"
+                        type="button"
+                        role="tab"
+                        aria-controls="ais-generate-sub-pane-image"
+                        aria-selected="false"
+                      >
+                        Prompt gambar
+                      </button>
+                    </li>
+                  </ul>
+                  <div
+                    class="tab-content border rounded p-3"
+                    id="ais-generate-sub-tab-content"
+                  >
+                    <div
+                      class="tab-pane fade show active"
+                      id="ais-generate-sub-pane-general"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-general"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12 col-lg-4">
+                          <label for="ais-generate-provider" class="form-label"
+                            >Penyedia AI generate</label
+                          >
+                          <select
+                            class="form-select small"
+                            id="ais-generate-provider"
+                            name="generate_ai_provider"
+                          >
+                            <option value="auto">
+                              Auto (terbaik yang tersedia)
+                            </option>
+                            <option value="gemini">Gemini</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="groq">Groq</option>
+                            <option value="claude">Claude</option>
+                          </select>
+                        </div>
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-title"
+                            class="form-label"
+                            >Prompt judul generate (saran)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-title"
+                            name="generate_prompt_title"
+                            rows="4"
+                            placeholder="Instruksi untuk saran judul AI (kosongkan untuk default sistem)."
+                            aria-describedby="ais-generate-prompt-title-help ais-generate-prompt-title-count"
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptTitle }}{{ end -}}</textarea>
+                          <div
+                            id="ais-generate-prompt-title-help"
+                            class="form-text"
+                          >
+                            Gunakan instruksi umum saja —
+                            <code>{{"{{...}}"}}</code> tokens here are
+                            <strong>not</strong>
+                            diganti; sistem menambahkan kata kunci dan jumlah
+                            judul di akhir prompt. Bulk
+                            <strong>Buat ulang judul</strong> menambahkan teks
+                            yang sama di awal (lalu aturan jumlah baris tetap).
+                          </div>
+                          <div
+                            id="ais-generate-prompt-title-count"
+                            class="form-text text-end"
+                          >
+                            0 karakter
+                          </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                          <label for="ais-generate-meta-desc" class="form-label"
+                            >Prompt meta deskripsi generate</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-meta-desc"
+                            name="generate_prompt_meta_description"
+                            rows="3"
+                            placeholder="Arahan default untuk meta_description."
+                            aria-describedby="ais-generate-meta-desc-help ais-generate-meta-desc-count"
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptMetaDescription }}{{ end -}}</textarea>
+                          <div
+                            id="ais-generate-meta-desc-help"
+                            class="form-text"
+                          >
+                            Berjalan setelah isi HTML tersedia; arti
+                            <code>{{"{{keywords}}"}}</code> and
+                            <code>{{"{{content}}"}}</code> follow the reference
+                            mengikuti kotak referensi di atas.
+                          </div>
+                          <div
+                            id="ais-generate-meta-desc-count"
+                            class="form-text text-end"
+                          >
+                            0 karakter
+                          </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                          <label for="ais-generate-meta-kw" class="form-label"
+                            >Prompt kata kunci / SEO generate</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-meta-kw"
+                            name="generate_prompt_meta_keywords"
+                            rows="3"
+                            placeholder="Instruksi tambahan untuk kata kunci dan SEO."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptMetaKeywords }}{{ end -}}</textarea>
+                          <div class="form-text">
+                            Waktunya sama seperti meta deskripsi: isi sudah
+                            dibuat —
+                            <code>{{"{{title}}"}}</code>,
+                            <code>{{"{{keywords}}"}}</code> (tag names),
+                            <code>{{"{{content}}"}}</code> (body excerpt).
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="ais-generate-sub-pane-prompt-123"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-prompt-123"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <ul
+                            class="nav nav-tabs mb-3"
+                            id="ais-generate-content-tabs"
+                            role="tablist"
+                          >
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link active"
+                                id="ais-generate-content-tab-1"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-1"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-1"
+                                aria-selected="true"
+                              >
+                                Prompt konten 1
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link"
+                                id="ais-generate-content-tab-2"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-2"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-2"
+                                aria-selected="false"
+                              >
+                                Prompt konten 2
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button
+                                class="nav-link"
+                                id="ais-generate-content-tab-3"
+                                data-bs-toggle="tab"
+                                data-bs-target="#ais-generate-content-pane-3"
+                                type="button"
+                                role="tab"
+                                aria-controls="ais-generate-content-pane-3"
+                                aria-selected="false"
+                              >
+                                Prompt konten 3
+                              </button>
+                            </li>
+                          </ul>
+                          <div
+                            class="tab-content border rounded p-3"
+                            id="ais-generate-content-tab-content"
+                          >
+                            <div
+                              class="tab-pane fade show active"
+                              id="ais-generate-content-pane-1"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-1"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name"
+                                    class="form-label"
+                                    >Nama prompt konten 1</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name"
+                                    name="generate_prompt_content_name"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 1"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName }}{{ .GeneratePromptContentName }}{{ else }}Prompt konten 1{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content"
+                                    class="form-label"
+                                    >Prompt isi generate 1 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content"
+                                    name="generate_prompt_content"
+                                    rows="8"
+                                    placeholder="title, keywords, content, meta_description"
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Lihat kotak referensi di atas:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>
+                                    (plus legacy <code>judul</code> /
+                                    <code>kata_kunci</code> / <code>isi</code> /
+                                    <code>deskripsi</code>).
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade"
+                              id="ais-generate-content-pane-2"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-2"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name-2"
+                                    class="form-label"
+                                    >Nama prompt konten 2</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name-2"
+                                    name="generate_prompt_content_name_2"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 2"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName2 }}{{ .GeneratePromptContentName2 }}{{ else }}Prompt konten 2{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content-2"
+                                    class="form-label"
+                                    >Prompt isi generate 2 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content-2"
+                                    name="generate_prompt_content_2"
+                                    rows="8"
+                                    placeholder="Template alternatif untuk body artikel (pilihan 2)."
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent2 }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Placeholder sama dengan prompt 1:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade"
+                              id="ais-generate-content-pane-3"
+                              role="tabpanel"
+                              aria-labelledby="ais-generate-content-tab-3"
+                            >
+                              <div class="row g-3">
+                                <div class="col-12 col-lg-5">
+                                  <label
+                                    for="ais-generate-prompt-content-name-3"
+                                    class="form-label"
+                                    >Nama prompt konten 3</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="ais-generate-prompt-content-name-3"
+                                    name="generate_prompt_content_name_3"
+                                    maxlength="120"
+                                    placeholder="Prompt konten 3"
+                                    value="{{- with .ai_setting }}{{ if .GeneratePromptContentName3 }}{{ .GeneratePromptContentName3 }}{{ else }}Prompt konten 3{{ end }}{{ end -}}"
+                                  />
+                                </div>
+                                <div class="col-12">
+                                  <label
+                                    for="ais-generate-prompt-content-3"
+                                    class="form-label"
+                                    >Prompt isi generate 3 (template
+                                    artikel)</label
+                                  >
+                                  <textarea
+                                    class="form-control font-monospace small"
+                                    id="ais-generate-prompt-content-3"
+                                    name="generate_prompt_content_3"
+                                    rows="8"
+                                    placeholder="Template alternatif untuk body artikel (pilihan 3)."
+                                  >
+{{- with .ai_setting }}{{ .GeneratePromptContent3 }}{{ end -}}</textarea>
+                                  <div class="form-text">
+                                    Placeholder sama dengan prompt 1:
+                                    <code>{{"{{title}}"}}</code>,
+                                    <code>{{"{{keywords}}"}}</code>,
+                                    <code>{{"{{content}}"}}</code>,
+                                    <code>{{"{{meta_description}}"}}</code>.
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="ais-generate-sub-pane-image"
+                      role="tabpanel"
+                      aria-labelledby="ais-generate-sub-tab-image"
+                    >
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-image"
+                            class="form-label"
+                            >Prompt gambar generate (sampul)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-image"
+                            name="generate_prompt_image"
+                            rows="3"
+                            placeholder="Template prompt default untuk pembuatan gambar sampul AI."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptImage }}{{ end -}}</textarea>
+                          <p class="form-text mb-0">
+                            Pembuatan sampul memanggil Images API
+                            <strong>OpenAI</strong> (memerlukan API key OpenAI
+                            di atas). Untuk memakai Google, pilih
+                            <strong>Gemini</strong> di form post. Placeholder:
+                            <code>{{"{{title}}"}}</code> = judul artikel.
+                          </p>
+                        </div>
+                        <div class="col-12">
+                          <label
+                            for="ais-generate-prompt-image-to-content"
+                            class="form-label"
+                            >Prompt gambar generate (dalam konten)</label
+                          >
+                          <textarea
+                            class="form-control font-monospace small"
+                            id="ais-generate-prompt-image-to-content"
+                            name="generate_prompt_image_to_content"
+                            rows="3"
+                            placeholder="Template default saat menyisipkan gambar AI ke isi artikel (manual, bulk, scraper)."
+                          >
+{{- with .ai_setting }}{{ .GeneratePromptImageToContent }}{{ end -}}</textarea>
+                          <p class="form-text mb-0">
+                            Dipakai untuk gambar kedua saat “gambar ke konten”
+                            aktif, dan untuk aksi editor “buat gambar ke
+                            konten”. Placeholder:
+                            <code>{{"{{title}}"}}</code> = judul artikel.
+                          </p>
+                        </div>
+                        <div class="col-12">
+                          <label class="form-label d-block"
+                            >Sampul bulk post — template background</label
+                          >
+                          <p class="form-text mb-2">
+                            Dipakai saat membuat post secara bulk: teks judul
+                            digambar di atasnya. Jika kosong, sampul memakai
+                            gradasi <strong>warna aksen</strong> situs (dari
+                            Pengaturan site).
+                          </p>
+                          <div class="row g-2 align-items-end">
+                            <div class="col-12 col-md-5">
+                              <input
+                                type="file"
+                                class="form-control form-control-sm"
+                                id="ais-bulk-cover-bg-file"
+                                multiple
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                              />
+                            </div>
+                            <div class="col-12 col-md-7">
+                              <label
+                                for="ais-bulk-cover-bg-url"
+                                class="form-label small mb-0"
+                                >URL gambar (satu per baris)</label
+                              >
+                              <textarea
+                                class="form-control form-control-sm font-monospace"
+                                id="ais-bulk-cover-bg-url"
+                                name="bulk_cover_background_url"
+                                rows="4"
+                                maxlength="20000"
+                                placeholder="/static/uploads/bulk-covers/template-1.webp&#10;/static/uploads/bulk-covers/template-2.webp"
+                                autocomplete="off"
+                              >
+{{ with .ai_setting }}{{ .BulkCoverBackgroundURL }}{{ end }}</textarea>
+                            </div>
+                          </div>
+                          <div
+                            id="ais-bulk-cover-preview-list"
+                            class="row g-2 mt-1"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-opacity-50"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                  id="ais-submit-generate"
+                >
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script
+  defer
+  src="/static/js/admin/ai_setting.js?v={{ .asset_version }}"
+></script>
+{{ end }} {{ template "layouts-admin-app" . }}

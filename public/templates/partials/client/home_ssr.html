@@ -1,0 +1,438 @@
+{{ define "client-home-ssr" }}
+{{ if eq .homepage_layout "neo" }}
+  {{ template "client-home-ssr-neo-mag" . }}
+{{ else }}
+  {{ template "client-home-ssr-classic" . }}
+{{ end }}
+{{ end }}
+
+{{ define "client-home-ssr-classic" }}
+<div class="blog-home-feature-block">
+  {{ if .home_slides }}
+  <div
+    class="blog-feature-carousel"
+    role="region"
+    aria-label="Artikel unggulan"
+  >
+    <div class="blog-feature-viewport">
+      <div class="blog-feature-track">
+        {{ range $i, $s := .home_slides }}
+        <article
+          class="blog-feature-slide"
+          aria-hidden="{{ if eq $i 0 }}false{{ else }}true{{ end }}"
+        >
+          <div class="blog-feature-slide-media blog-media--img-loading">
+            <img
+              src="{{ $s.thumb }}"
+              alt=""
+              decoding="async"
+              loading="{{ if eq $i 0 }}eager{{ else }}lazy{{ end }}"
+            />
+            {{ if $s.breaking }}
+            <span
+              class="blog-feature-badge blog-feature-badge--breaking"
+              >BREAKING</span
+            >
+            {{ end }}
+            <span
+              class="blog-feature-slide-shade"
+              aria-hidden="true"
+            ></span>
+          </div>
+          <a class="blog-feature-slide-hit" href="{{ $s.href }}"
+            ><span class="blog-visually-hidden">{{ $s.title }}</span></a
+          >
+          <div class="blog-feature-slide-caption">
+            {{ if $s.has_cat }}
+            <span class="blog-feature-cat">{{ $s.cat_upper }}</span>
+            {{ end }}
+            <p class="blog-feature-slide-title">{{ $s.title }}</p>
+            {{ if $s.rel_time }}
+            <p class="blog-feature-slide-time">{{ $s.rel_time }}</p>
+            {{ end }}
+          </div>
+        </article>
+        {{ end }}
+      </div>
+    </div>
+    <button
+      type="button"
+      class="blog-feature-nav blog-feature-nav--prev"
+      aria-label="Slide sebelumnya"
+    >
+      <span class="blog-feature-nav-icon" aria-hidden="true">‹</span>
+    </button>
+    <button
+      type="button"
+      class="blog-feature-nav blog-feature-nav--next"
+      aria-label="Slide berikutnya"
+    >
+      <span class="blog-feature-nav-icon" aria-hidden="true">›</span>
+    </button>
+  </div>
+  {{ end }}
+  {{ template "client-tag-popular-strip" . }}
+  {{ if .home_latest }}
+  <section class="blog-latest-section">
+    <div class="blog-section-head">
+      <h2 class="blog-section-title">
+        <span class="blog-section-title-bar" aria-hidden="true"></span>
+        Postingan terbaru
+      </h2>
+      <a class="blog-section-more" href="{{ .public_base }}/posts"
+        >Lihat semua <span aria-hidden="true">→</span></a
+      >
+    </div>
+    <article class="blog-latest-card">
+      <div class="blog-latest-thumb blog-media--img-loading">
+        <img
+          src="{{ .home_latest.thumb }}"
+          alt=""
+          loading="eager"
+          decoding="async"
+          width="280"
+          height="180"
+        />
+      </div>
+      <div class="blog-latest-body">
+        {{ if .home_latest.has_cat }} {{ if .home_latest.has_cat_slug }}
+        <a class="blog-latest-cat" href="{{ .home_latest.cat_href }}"
+          >{{ .home_latest.cat_name }}</a
+        >
+        {{ else }}
+        <span class="blog-latest-cat">{{ .home_latest.cat_name }}</span>
+        {{ end }} {{ end }}
+        <h3 class="blog-latest-title">{{ .home_latest.title }}</h3>
+        {{ if .home_latest.rel_time }}
+        <p class="blog-latest-time">{{ .home_latest.rel_time }}</p>
+        {{ end }}
+      </div>
+      <a
+        class="blog-latest-overlay"
+        href="{{ .home_latest.href }}"
+        aria-label="{{ .home_latest.title }}"
+      ></a>
+    </article>
+  </section>
+  {{ end }}
+</div>
+{{ if .ads_center }}
+<div class="site-ad site-ad--center site-ad--inhome" aria-label="Iklan">{{ .ads_center }}</div>
+{{ end }}
+<div class="blog-feed-head" id="blog-article-feed">
+  <h2 class="blog-section-title blog-section-title--feed">
+    <span class="blog-section-title-bar" aria-hidden="true"></span>
+    Artikel terbaru
+  </h2>
+</div>
+<div class="blog-posts-list" id="blog-posts-list-ssr">
+  {{ range .home_feed }}
+  <a class="blog-posts-item" href="{{ .href }}">
+    <span class="blog-posts-thumb blog-posts-thumb--loading" aria-hidden="true" data-thumb-skeleton>
+      <img
+        src="{{ .thumb }}"
+        alt=""
+        width="88"
+        height="66"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+    <span class="blog-posts-text">
+      <span class="blog-posts-title">{{ .title }}</span>
+      {{ if .rel_time }}<span class="blog-posts-time">{{ .rel_time }}</span>{{ end }}
+    </span>
+  </a>
+  {{ end }}
+</div>
+{{ if gt .home_feed_total_pages 1 }}
+<div class="blog-feed-loadmore">
+  <button
+    type="button"
+    class="btn btn-ghost blog-feed-loadmore-btn"
+    data-home-feed-more
+    data-next-page="2"
+    data-total-pages="{{ .home_feed_total_pages }}"
+  >
+    <span class="blog-feed-loadmore-inner">
+      <span class="blog-feed-loadmore-label">Muat lagi</span>
+      <svg
+        class="blog-feed-loadmore-arrow"
+        viewBox="0 0 24 24"
+        width="17"
+        height="17"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m7 10 5 5 5-5"
+        />
+      </svg>
+    </span>
+  </button>
+</div>
+{{ end }}
+{{ end }}
+
+{{ define "client-home-ssr-neo-mag" }}
+<div class="blog-home-feature-block neo-mag-stack">
+  {{ if .home_slides }}
+  <div class="neo-mag-hero-shell">
+    <div
+      class="blog-feature-carousel neo-mag-hero-carousel"
+      role="region"
+      aria-label="Sorotan"
+    >
+      <div class="blog-feature-viewport">
+        <div class="blog-feature-track">
+          {{ range $i, $s := .home_slides }}
+          <article
+            class="blog-feature-slide neo-mag-hero-slide"
+            aria-hidden="{{ if eq $i 0 }}false{{ else }}true{{ end }}"
+          >
+            <div class="neo-mag-hero-slide-inner">
+              <div class="neo-mag-hero-media-col">
+                <div class="blog-feature-slide-media blog-media--img-loading neo-mag-hero-media">
+                  <img
+                    src="{{ $s.thumb }}"
+                    alt=""
+                    decoding="async"
+                    loading="{{ if eq $i 0 }}eager{{ else }}lazy{{ end }}"
+                  />
+                  {{ if $s.breaking }}
+                  <span class="blog-feature-badge blog-feature-badge--breaking">BREAKING</span>
+                  {{ end }}
+                </div>
+              </div>
+              <div class="neo-mag-hero-copy">
+                <svg class="neo-mag-hero-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                  <defs>
+                    <pattern id='neoHeroPat{{ $i }}' patternUnits='userSpaceOnUse' width='40' height='59.428' patternTransform='scale(3) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M0 70.975V47.881m20-1.692L8.535 52.808v13.239L20 72.667l11.465-6.62V52.808zm0-32.95l11.465-6.62V-6.619L20-13.24 8.535-6.619V6.619L20 13.24m8.535 4.927v13.238L40 38.024l11.465-6.62V18.166L40 11.546zM20 36.333L0 47.88m0 0v23.094m0 0l20 11.548 20-11.548V47.88m0 0L20 36.333m0 0l20 11.549M0 11.547l-11.465 6.619v13.239L0 38.025l11.465-6.62v-13.24L0 11.548v-23.094l20-11.547 20 11.547v23.094M20 36.333V13.24' stroke-linejoin='round' stroke-linecap='round' stroke-width='4.5' stroke='currentColor' fill='none'/></pattern>
+                  </defs>
+                  <rect width='100%' height='100%' fill='url(#neoHeroPat{{ $i }})'/>
+                </svg>
+                <div class="neo-mag-hero-copy-inner">
+                  {{ if $s.has_cat }}
+                  <ul class="neo-mag-hero-cats" aria-label="Kategori">
+                    <li><a href="{{ $s.cat_href }}">{{ $s.cat_name }}</a></li>
+                  </ul>
+                  {{ end }}
+                  <h2 class="neo-mag-hero-title"><a href="{{ $s.href }}">{{ $s.title }}</a></h2>
+                  {{ if $s.rel_time }}
+                  <p class="neo-mag-hero-meta">
+                    <span class="neo-mag-hero-meta-item neo-mag-hero-meta--date">{{ $s.rel_time }}</span>
+                  </p>
+                  {{ end }}
+                </div>
+              </div>
+            </div>
+            <a class="blog-feature-slide-hit neo-mag-hero-slide-hit" href="{{ $s.href }}">
+              <span class="blog-visually-hidden">{{ $s.title }}</span>
+            </a>
+          </article>
+          {{ end }}
+        </div>
+      </div>
+      <button
+        type="button"
+        class="blog-feature-nav blog-feature-nav--prev"
+        aria-label="Slide sebelumnya"
+      >
+        <span class="blog-feature-nav-icon" aria-hidden="true">‹</span>
+      </button>
+      <button
+        type="button"
+        class="blog-feature-nav blog-feature-nav--next"
+        aria-label="Slide berikutnya"
+      >
+        <span class="blog-feature-nav-icon" aria-hidden="true">›</span>
+      </button>
+    </div>
+    <div class="neo-mag-hero-dots" role="tablist" aria-label="Pilih slide sorotan">
+      {{ range $i, $_ := .home_slides }}
+      <button
+        type="button"
+        role="tab"
+        class="neo-mag-hero-dot{{ if eq $i 0 }} is-active{{ end }}"
+        data-feature-dot-index="{{ $i }}"
+        aria-label="Slide sorotan"
+        aria-current="{{ if eq $i 0 }}true{{ else }}false{{ end }}"
+      ></button>
+      {{ end }}
+    </div>
+  </div>
+  {{ end }}
+  {{ template "client-tag-popular-strip" . }}
+</div>
+
+<div class="neo-mag-twocol">
+  <div class="neo-mag-twocol-main">
+    {{ if .neo_featured_tabs }}
+    <div class="neo-mag-feattab-page-row">
+      <div class="neo-mag-feattab-maincol">
+        <div class="neo-mag-feattab-blocks" aria-label="Kategori Artikel">
+          {{ range $pi, $tab := .neo_featured_tabs }}
+          <section class="neo-mag-feattab-block">
+            <header class="neo-mag-boxheader">
+              <h2 class="neo-mag-boxheader-title">
+                <span class="neo-mag-title-accent-bar" aria-hidden="true"></span>
+                {{ $tab.name }}
+              </h2>
+              <a class="neo-mag-viewcat neo-mag-viewcat--header" href="{{ $tab.href }}"
+                >View All <span class="neo-mag-viewcat-ico" aria-hidden="true">›</span></a
+              >
+            </header>
+            <div class="neo-mag-featured-cat-wrap">
+              <div class="neo-mag-feat-col neo-mag-feat-col--lead">
+                <div class="neo-mag-feattab-lead">
+                  <article class="neo-mag-boxcard neo-mag-boxcard--lead">
+                    <div class="neo-mag-box-thumb">
+                      <a href="{{ $tab.featured.href }}" class="blog-media--img-loading">
+                        <img
+                          src="{{ $tab.featured.thumb }}"
+                          alt=""
+                          loading="{{ if eq $pi 0 }}eager{{ else }}lazy{{ end }}"
+                          decoding="async"
+                        />
+                      </a>
+                    </div>
+                    <div class="neo-mag-boxcard-content">
+                      <h3 class="neo-mag-box-title">
+                        <a href="{{ $tab.featured.href }}">{{ $tab.featured.title }}</a>
+                      </h3>
+                      <div class="neo-mag-box-meta neo-mag-box-meta--stacked">
+                        {{ if $tab.featured.author_name }}
+                        {{ end }}
+                        {{ if $tab.featured.rel_time }}
+                        <p class="neo-mag-meta-line">
+                          <span class="neo-mag-meta-time">{{ $tab.featured.rel_time }}</span>
+                        </p>
+                        {{ end }}
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              </div>
+              <div class="neo-mag-feat-col neo-mag-feat-col--stack">
+                <div class="neo-mag-feattab-stack">
+                  {{ range $tab.side_posts }}
+                  <article class="neo-mag-boxcard-list">
+                    <div class="neo-mag-boxcard-list-thumb-wrap">
+                      <a class="neo-mag-list-thumb-hit blog-media--img-loading" href="{{ .href }}" aria-hidden="true" tabindex="-1">
+                        <img src="{{ .thumb }}" alt="" loading="lazy" decoding="async" />
+                      </a>
+                    </div>
+                    <div class="neo-mag-boxcard-list-content">
+                      <h4 class="neo-mag-list-title">
+                        <a href="{{ .href }}">{{ .title }}</a>
+                      </h4>
+                      {{ if .rel_time }}
+                      <p class="neo-mag-list-meta-line">
+                        <span class="neo-mag-meta-time">{{ .rel_time }}</span>
+                      </p>
+                      {{ end }}
+                    </div>
+                  </article>
+                  {{ end }}
+                </div>
+              </div>
+            </div>
+          </section>
+          {{ end }}
+        </div>
+      </div>
+    </div>
+    {{ end }}
+
+    {{ if .ads_center }}
+    <div class="site-ad site-ad--center site-ad--inhome" aria-label="Iklan">{{ .ads_center }}</div>
+    {{ end }}
+
+    <div class="blog-feed-head neo-mag-feed-head" id="blog-article-feed">
+      <h2 class="blog-section-title blog-section-title--feed">
+        <span class="blog-section-title-bar" aria-hidden="true"></span>
+        Artikel terbaru
+      </h2>
+      <a class="blog-section-more" href="{{ .public_base }}/posts"
+        >Lihat semua <span aria-hidden="true">→</span></a
+      >
+    </div>
+    <div class="blog-posts-list neo-mag-feed-list" id="blog-posts-list-ssr">
+      {{ range .home_feed }}
+      <a class="blog-posts-item neo-mag-feed-item" href="{{ .href }}">
+        <span class="blog-posts-thumb neo-mag-feed-thumb blog-posts-thumb--loading blog-media--img-loading" aria-hidden="true" data-thumb-skeleton>
+          <img
+            src="{{ .thumb }}"
+            alt=""
+            width="88"
+            height="66"
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+        <span class="blog-posts-text neo-mag-feed-text">
+          <span class="blog-posts-title neo-mag-feed-title">{{ .title }}</span>
+          {{ if .rel_time }}
+          <span class="neo-mag-feed-byline">
+            <span class="neo-mag-feed-byline-i blog-posts-time">{{ .rel_time }}</span>
+          </span>
+          {{ end }}
+        </span>
+      </a>
+      {{ end }}
+    </div>
+    {{ if gt .home_feed_total_pages 1 }}
+    <div class="blog-feed-loadmore">
+      <button
+        type="button"
+        class="btn btn-ghost blog-feed-loadmore-btn"
+        data-home-feed-more
+        data-next-page="2"
+        data-total-pages="{{ .home_feed_total_pages }}"
+      >
+        <span class="blog-feed-loadmore-inner">
+          <span class="blog-feed-loadmore-label">Muat lagi</span>
+          <svg
+            class="blog-feed-loadmore-arrow"
+            viewBox="0 0 24 24"
+            width="17"
+            height="17"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.25"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m7 10 5 5 5-5"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+    {{ end }}
+  </div>
+
+  <aside
+    class="neo-mag-feattab-rail blog-popular-wrap blog-popular-wrap--neo-mag"
+    id="blog-popular-wrap"
+    aria-label="Terkini"
+    data-sidebar-ssr="1"
+    data-neo-feattab-rail="1"
+  >
+    <div hidden aria-hidden="true">
+      <ol id="blog-popular-list" class="blog-popular-list"></ol>
+      <ol id="blog-latest-list" class="blog-popular-list blog-popular-list--neo-mag"></ol>
+    </div>
+    {{ if .latest_posts }}{{ template "client-blog-sidebar-neo-terkini-rail" . }}{{ end }}
+  </aside>
+</div>
+
+{{ end }}

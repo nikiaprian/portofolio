@@ -1,0 +1,712 @@
+/**
+ * Shared admin CRUD layout (users, categories, posts, tags, …).
+ *
+ * List shell: {{ template "admin-crud-list" . }} with .crud from Go (CrudListView).
+ * Wrap custom content in .admin-crud when building markup by hand.
+ * Modals: class "admin-crud-modal" (+ "admin-crud-modal--danger" for delete).
+ */
+
+.admin-crud .admin-crud-table {
+  --admin-crud-row-pad-x: 1.25rem;
+  --admin-crud-row-pad-y: 0.85rem;
+}
+
+.admin-crud .admin-crud-table thead th {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  padding: 0.65rem var(--admin-crud-row-pad-x) 0.85rem;
+  white-space: nowrap;
+}
+
+.admin-crud .admin-crud-table tbody td {
+  padding: var(--admin-crud-row-pad-y) var(--admin-crud-row-pad-x);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.admin-crud .admin-crud-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-crud .admin-crud-table tbody tr {
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.admin-crud .admin-crud-table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--bs-primary) 5%, var(--bs-body-bg));
+  box-shadow: inset 3px 0 0 0 var(--bs-primary);
+}
+
+.admin-crud .admin-crud-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bs-primary) 16%, var(--bs-body-bg)),
+    color-mix(in srgb, var(--bs-primary) 5%, var(--bs-body-bg))
+  );
+  color: var(--bs-primary);
+  border: 1px solid
+    color-mix(in srgb, var(--bs-primary) 22%, var(--bs-border-color));
+}
+
+.admin-crud .admin-crud-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color-translucent);
+}
+
+.admin-crud .admin-crud-card .card-header {
+  background: linear-gradient(
+    180deg,
+    var(--bs-body-bg),
+    color-mix(in srgb, var(--bs-tertiary-bg) 65%, var(--bs-body-bg))
+  );
+}
+
+.admin-crud .admin-crud-header {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.admin-crud .admin-crud-header__title {
+  letter-spacing: -0.01em;
+}
+
+.admin-crud .admin-crud-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-crud .admin-crud-header__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 0.9rem;
+}
+
+.admin-crud .admin-crud-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-crud .admin-crud-header__bottom.admin-crud-header__bottom--post-filters {
+  align-items: flex-end;
+}
+
+.admin-crud .admin-crud-meta {
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+}
+
+/* Title links in list tables: default like normal text, accent on hover. */
+.admin-crud .admin-crud-table a.admin-crud-title-link {
+  color: var(--bs-body-color) !important;
+  text-decoration: none !important;
+}
+.admin-crud .admin-crud-table a.admin-crud-title-link:hover {
+  color: var(--bs-primary) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+
+.admin-crud .admin-crud-actions .btn {
+  border-radius: 2rem;
+  padding-inline: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  min-height: 2.25rem;
+}
+
+.admin-crud .admin-crud-actions .btn i {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.admin-crud .admin-crud-row-draggable {
+  cursor: grab;
+}
+
+.admin-crud .admin-crud-row-draggable.is-dragging {
+  opacity: 0.55;
+  cursor: grabbing;
+}
+
+.admin-crud .admin-crud-row-draggable.is-drop-target {
+  box-shadow: inset 0 -2px 0 0 var(--bs-primary);
+}
+
+.admin-crud .admin-crud-drag-handle {
+  cursor: grab;
+}
+
+.admin-crud .admin-crud-drag-saving {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.admin-crud .admin-crud-search {
+  width: min(24rem, 100%);
+}
+
+.admin-crud .admin-crud-search .form-control {
+  min-width: 12rem;
+}
+
+.admin-crud .admin-crud-header__meta .form-select {
+  border-color: var(--admin-border, var(--bs-border-color));
+}
+
+.admin-crud .admin-post-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.55rem 0.7rem;
+}
+
+.admin-crud .admin-post-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.admin-crud .admin-post-filter__label {
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+}
+
+.admin-crud .admin-post-filter__select {
+  min-width: 11.25rem;
+  max-width: 16rem;
+}
+
+.site-settings-admin .ss-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.2rem;
+  padding-top: 0.25rem;
+}
+
+.site-settings-admin .ss-section-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+.site-settings-admin .ss-section-divider__title {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.site-settings-admin .ss-subtabs-nav .nav-link {
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem 0.15rem;
+  margin-right: 1.25rem;
+  color: var(--bs-secondary-color);
+  background: transparent;
+}
+
+.site-settings-admin .ss-subtabs-nav .nav-link.active {
+  color: var(--bs-body-color);
+  border-bottom-color: var(--bs-primary);
+  background: transparent;
+}
+
+.site-settings-admin .ss-subtabs-nav .nav-link:hover,
+.site-settings-admin .ss-subtabs-nav .nav-link:focus {
+  color: var(--bs-body-color);
+  background: transparent;
+}
+
+@media (max-width: 767.98px) {
+  .admin-crud .admin-crud-header__top {
+    flex-wrap: wrap;
+  }
+
+  .admin-crud .admin-crud-header__top .btn {
+    width: 100%;
+  }
+
+  .admin-crud .admin-crud-header__bottom,
+  .admin-crud .admin-crud-header__meta {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-crud .admin-crud-search {
+    width: 100%;
+  }
+
+  .admin-crud .admin-crud-search .form-control {
+    min-width: 0;
+  }
+
+  .admin-crud .admin-post-filters {
+    width: 100%;
+  }
+
+  .admin-crud .admin-post-filter {
+    flex: 1 1 100%;
+  }
+
+  .admin-crud .admin-post-filter__select {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Modals (usable outside .admin-crud) */
+/* Default dialogs stay compact; post editor uses .modal-xl — do not cap those. */
+.admin-crud-modal
+  .modal-dialog:not(.modal-sm):not(.modal-lg):not(.modal-xl):not(
+    .modal-fullscreen
+  ) {
+  max-width: 440px;
+}
+
+.admin-crud-modal .modal-content {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.14),
+    0 0 0 1px color-mix(in srgb, var(--bs-border-color) 80%, transparent);
+}
+
+/*
+ * CRUD modals: header+body+footer often live inside <form>. Without this flex chain,
+ * .modal-body is not a direct flex child of .modal-content, so modal-dialog-scrollable
+ * never gives the body a max height — content is clipped at .modal-content instead.
+ */
+.admin-crud-modal .modal-content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-crud-modal .modal-content > form .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * Post editor: full-page (#admin-post-form-root) and quick-edit modal (.admin-crud-modal--post).
+ * Tom Select’s Bootstrap 5 skin hard-codes #343a40 on .ts-dropdown (loaded after this file),
+ * so we scope overrides with :is(...) and admin theme tokens for contrast on dark layouts.
+ */
+:is(.admin-crud-modal--post, #admin-post-form-root) .post-form-section__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .post-form-section
+  + .post-form-section {
+  margin-top: 1.35rem;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-wrapper {
+  width: 100%;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-wrapper.form-select,
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.single
+  .ts-control {
+  border-radius: 0.5rem;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-control {
+  min-height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  border-color: var(--bs-border-color);
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.multi
+  .ts-control {
+  padding: 0.35rem 0.5rem;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.focus
+  .ts-control {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--bs-primary) 22%, transparent);
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-control,
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.single
+  .ts-control
+  input,
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.multi
+  .ts-control
+  input {
+  color: var(--admin-text-primary, var(--bs-body-color));
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-control
+  input::placeholder {
+  color: var(--admin-text-secondary, var(--bs-secondary-color));
+  opacity: 1;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-dropdown {
+  color: var(--admin-text-primary, var(--bs-body-color)) !important;
+  background: var(--admin-bg-primary, var(--bs-body-bg)) !important;
+  border-color: var(--admin-border, var(--bs-border-color)) !important;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-dropdown .option {
+  color: var(--admin-text-primary, var(--bs-body-color));
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-dropdown .option.active,
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-dropdown .option:hover {
+  color: var(--admin-text-primary, var(--bs-body-color));
+  background: color-mix(
+    in srgb,
+    var(--bs-primary) 14%,
+    var(--admin-bg-primary, var(--bs-body-bg))
+  );
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-dropdown
+  .optgroup-header {
+  color: var(--admin-text-secondary, var(--bs-secondary-color));
+  background: var(--admin-bg-primary, var(--bs-body-bg));
+}
+
+/* Custom “no results” row: avoid Bootstrap .bg-body (needs --bs-body-bg-rgb; admin only sets --bs-body-bg) */
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-dropdown
+  .ts-dropdown-content {
+  background: transparent;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root) .ts-dropdown .pf-ts-hint {
+  color: var(--admin-text-secondary, var(--bs-secondary-color));
+  background: transparent;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-dropdown
+  .pf-ts-no-results {
+  background-color: var(--admin-bg-primary, var(--bs-body-bg)) !important;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-dropdown
+  .pf-ts-no-results__bar {
+  border-top-color: var(--admin-border, var(--bs-border-color)) !important;
+}
+
+/* Tom Select multi: tag chips default to #efefef / #343a40 */
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.multi
+  .ts-control
+  > div {
+  background: color-mix(
+    in srgb,
+    var(--admin-text-secondary) 16%,
+    var(--admin-bg-primary, var(--bs-body-bg))
+  ) !important;
+  color: var(--admin-text-primary, var(--bs-body-color)) !important;
+  border-color: var(--admin-border, var(--bs-border-color)) !important;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root)
+  .ts-wrapper.multi
+  .ts-control
+  > div.active {
+  background: var(--bs-primary) !important;
+  color: #fff !important;
+}
+
+/* Segmented tabs (cover mode, image source): inactive = neutral; active = solid theme primary + white text (dynamic --bs-primary). */
+:is(.admin-crud-modal--post, #admin-post-form-root, #admin-bulk-post-root)
+  .btn-group
+  .btn-outline-secondary {
+  color: var(--admin-text-primary, var(--bs-body-color));
+  border-color: var(--admin-border, var(--bs-border-color));
+  background-color: var(--admin-bg-primary, var(--bs-body-bg));
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root, #admin-bulk-post-root)
+  .btn-group
+  .btn-outline-secondary:hover {
+  color: var(--bs-primary);
+  border-color: color-mix(
+    in srgb,
+    var(--bs-primary) 45%,
+    var(--admin-border, var(--bs-border-color))
+  );
+  background-color: color-mix(
+    in srgb,
+    var(--bs-primary) 10%,
+    var(--admin-bg-primary, var(--bs-body-bg))
+  );
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root, #admin-bulk-post-root)
+  .btn-check:checked
+  + .btn-outline-secondary,
+:is(.admin-crud-modal--post, #admin-post-form-root, #admin-bulk-post-root)
+  .btn-check:active
+  + .btn-outline-secondary {
+  color: #fff !important;
+  border-color: var(--bs-primary) !important;
+  background-color: var(--bs-primary) !important;
+}
+
+:is(.admin-crud-modal--post, #admin-post-form-root, #admin-bulk-post-root)
+  .btn-check:focus-visible
+  + .btn-outline-secondary {
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--bs-primary) 38%, transparent);
+}
+
+.admin-crud-modal .modal-header {
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(
+    165deg,
+    var(--bs-body-bg) 0%,
+    color-mix(in srgb, var(--bs-tertiary-bg) 70%, var(--bs-body-bg)) 100%
+  );
+}
+
+.admin-crud-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.admin-crud-modal .modal-footer {
+  border-top: 1px solid var(--bs-border-color-translucent);
+  padding: 1rem 1.5rem 1.25rem;
+  gap: 0.5rem;
+  background: color-mix(in srgb, var(--bs-tertiary-bg) 35%, var(--bs-body-bg));
+}
+
+.admin-crud-modal .modal-title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.admin-crud-modal__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.admin-crud-modal__icon--primary {
+  background: color-mix(in srgb, var(--bs-primary) 16%, var(--bs-body-bg));
+  color: var(--bs-primary);
+  border: 1px solid color-mix(in srgb, var(--bs-primary) 22%, transparent);
+}
+
+.admin-crud-modal__icon--info {
+  background: color-mix(in srgb, var(--bs-info) 14%, var(--bs-body-bg));
+  color: var(--bs-info);
+  border: 1px solid color-mix(in srgb, var(--bs-info) 22%, transparent);
+}
+
+.admin-crud-modal__icon--danger {
+  background: color-mix(in srgb, var(--bs-danger) 12%, var(--bs-body-bg));
+  color: var(--bs-danger);
+  border: 1px solid color-mix(in srgb, var(--bs-danger) 22%, transparent);
+}
+
+.admin-crud-modal .form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.4rem;
+}
+
+.admin-crud-modal .form-control {
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.85rem;
+}
+
+.admin-crud-modal .form-control:focus {
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--bs-primary) 22%, transparent);
+}
+
+.admin-crud-modal .input-group-text {
+  border-radius: 0.5rem 0 0 0.5rem;
+  color: var(--bs-secondary-color);
+  background: var(--bs-body-bg);
+}
+
+.admin-crud-modal .input-group .form-control {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.admin-crud-modal .modal-footer .btn {
+  border-radius: 2rem;
+  padding-inline: 1.15rem;
+  font-weight: 600;
+}
+
+.admin-crud-modal .modal-footer .btn-primary {
+  box-shadow: 0 0.25rem 0.75rem
+    color-mix(in srgb, var(--bs-primary) 35%, transparent);
+}
+
+.admin-crud-modal--danger .modal-header {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--bs-danger) 10%, var(--bs-body-bg)),
+    var(--bs-body-bg)
+  );
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--bs-danger) 22%,
+    var(--bs-border-color-translucent)
+  );
+}
+
+.admin-crud-delete-summary {
+  border-radius: 0.75rem;
+  border: 1px solid var(--bs-border-color-translucent);
+  background: color-mix(in srgb, var(--bs-tertiary-bg) 55%, var(--bs-body-bg));
+  padding: 1rem 1.15rem;
+}
+
+.admin-crud-delete-summary > div + div {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--bs-border-color-translucent);
+}
+
+.admin-crud-delete-summary dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.admin-crud-delete-summary dd {
+  margin-bottom: 0;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* TinyMCE source textarea (hidden after editor inits; fallback if script fails) */
+.post-tinymce-source {
+  min-height: 280px;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.875rem;
+}
+
+/* Full-page admin forms (e.g. pages) using .post-form-section inside cards */
+.admin-crud-card .post-form-section__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.admin-crud-card .post-form-section + .post-form-section {
+  margin-top: 1.35rem;
+}
+
+/* Bulk post: failure list inside SweetAlert */
+.bulk-swal-fail-list {
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+#admin-bulk-post-root .admin-bulk-titles-area {
+  min-height: 14rem;
+}
+
+/* Sidebar: indent nested menu items (was in removed theme-primary-red.css). */
+.sidebar-wrapper .sidebar-menu .nav-treeview > .nav-item > .nav-link {
+  padding-left: 1.25rem !important;
+}
+.sidebar-wrapper
+  .sidebar-menu
+  .nav-treeview
+  > .nav-item
+  > .nav-link
+  > .nav-icon {
+  margin-left: 0.35rem;
+}
+.sidebar-wrapper .sidebar-menu .nav-treeview > .nav-item > .nav-link > p {
+  padding-left: 0.7rem;
+}
+.sidebar-wrapper
+  .sidebar-menu
+  .nav-treeview
+  .nav-treeview
+  > .nav-item
+  > .nav-link {
+  padding-left: 1.8rem !important;
+}

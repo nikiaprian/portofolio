@@ -1,0 +1,224 @@
+{{ define "client-blog-sidebar-neo-terkini-rail" }}
+<section class="neo-mag-rail-section neo-mag-rail-section--latest" aria-label="Artikel terkini">
+  <h3 class="neo-mag-rail-heading">Terkini</h3>
+  {{ range .latest_posts }}
+  <article class="neo-mag-mp-card">
+    <a class="neo-mag-mp-thumb-ring" href="{{ .href }}" aria-hidden="true" tabindex="-1">
+      <img src="{{ .thumb }}" alt="" width="72" height="72" loading="lazy" decoding="async" />
+    </a>
+    <div class="neo-mag-mp-text">
+      <h4 class="neo-mag-mp-title"><a href="{{ .href }}">{{ .title }}</a></h4>
+      {{ if .time }}
+      <p class="neo-mag-mp-meta-line">
+        <span class="neo-mag-meta-time">{{ .time }}</span>
+      </p>
+      {{ end }}
+    </div>
+  </article>
+  {{ end }}
+</section>
+{{ end }}
+
+{{ define "client-blog-sidebar-row" }}
+<li class="blog-popular-item">
+  <a class="blog-popular-link" href="{{ .href }}">
+    <span class="blog-popular-title">{{ .title }}</span>
+    {{ if .time }}<span class="blog-popular-meta">{{ .time }}</span>{{ end }}
+  </a>
+</li>
+{{ end }}
+
+{{ define "client-blog-sidebar-ssr" }}
+{{ if and (eq .homepage_layout "detik") .home_tags }}
+<aside
+  class="blog-popular-wrap blog-popular-wrap--detik-tags"
+  id="blog-popular-wrap"
+  aria-label="Tag terpopuler"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  <section class="blog-popular blog-popular--detik-tags" aria-label="Tag terpopuler">
+    <h2 class="blog-popular-heading">Tag terpopuler</h2>
+    <div class="blog-popular-tags-wrap">
+      {{ range .home_tags }}
+      <a class="blog-tag-popular-pill" href="{{ .href }}"># {{ .name }}</a>
+      {{ end }}
+    </div>
+  </section>
+  <section class="blog-popular blog-popular--latest" aria-label="Berita terpopuler">
+    <h2 class="blog-popular-heading">Berita terpopuler</h2>
+    <ol class="blog-popular-list" id="blog-popular-list">
+      {{ range .popular_posts }}{{ template "client-blog-sidebar-row" . }}{{ end }}
+    </ol>
+  </section>
+  <section class="blog-popular blog-popular--latest" aria-label="Rekomendasi">
+    <h2 class="blog-popular-heading">Rekomendasi</h2>
+    <ol class="blog-popular-list" id="blog-random-list">
+      {{ if .detik_recommend_posts }}
+        {{ range .detik_recommend_posts }}{{ template "client-blog-sidebar-row" . }}{{ end }}
+      {{ else }}
+        {{ range .latest_posts }}{{ template "client-blog-sidebar-row" . }}{{ end }}
+      {{ end }}
+    </ol>
+  </section>
+</aside>
+{{ else if eq .homepage_layout "neo" }}
+<aside
+  class="blog-popular-wrap blog-popular-wrap--neo-mag blog-popular-wrap--neo-mag-home-only-latest"
+  id="blog-popular-wrap"
+  aria-label="Artikel terkini"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  {{/* Populer di homepage ada di blok utama; halaman dalam hanya Terkini (layout sama dengan rail beranda). */}}
+  <div hidden aria-hidden="true">
+    <ol id="blog-popular-list" class="blog-popular-list"></ol>
+    <ol id="blog-latest-list" class="blog-popular-list blog-popular-list--neo-mag"></ol>
+  </div>
+  {{ if .latest_posts }}{{ template "client-blog-sidebar-neo-terkini-rail" . }}{{ end }}
+</aside>
+{{ else }}
+<aside
+  class="blog-popular-wrap"
+  id="blog-popular-wrap"
+  aria-label="Artikel populer"
+  data-sidebar-ssr="1"
+  data-sidebar-list-limit-popular="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+  data-sidebar-list-limit-latest="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}"
+>
+  <section class="blog-popular" aria-label="Artikel populer">
+    <h2 class="blog-popular-heading">Populer</h2>
+    <ol class="blog-popular-list" id="blog-popular-list">
+      {{ range .popular_posts }}{{ template "client-blog-sidebar-row" . }}{{ end }}
+    </ol>
+  </section>
+  <section
+    class="blog-popular blog-popular--latest"
+    aria-label="Artikel terkini"
+  >
+    <h2 class="blog-popular-heading">Terkini</h2>
+    <ol class="blog-popular-list" id="blog-latest-list">
+      {{ range .latest_posts }}{{ template "client-blog-sidebar-row" . }}{{ end }}
+    </ol>
+  </section>
+</aside>
+{{ end }}
+{{ end }}
+
+{{ define "client-blog-sidebar-skeleton" }}
+<aside
+  class="blog-popular-wrap"
+  id="blog-popular-wrap"
+  aria-label="Artikel populer"
+  aria-busy="true"
+>
+  <section class="blog-popular" aria-label="Artikel populer">
+    <h2 class="blog-popular-heading">
+      <span class="blog-popular-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3c1.7 2.2 2.7 3.6 2.7 5.1c0 1.2-.5 2.2-1.3 3c2.4.4 4.1 2.4 4.1 5c0 3-2.4 5.4-5.5 5.4s-5.5-2.4-5.5-5.4c0-2.2 1.2-4 3-4.8c-.2-.5-.3-1-.3-1.5c0-1.6 1-3.2 2.8-5.8Z" fill="currentColor"/>
+        </svg>
+      </span>
+      Populer
+    </h2>
+    <ol class="blog-popular-list blog-popular-list--skeleton" id="blog-popular-list">
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+    </ol>
+  </section>
+
+  <section class="blog-popular blog-popular--latest" aria-label="Artikel terkini">
+    <h2 class="blog-popular-heading">
+      <span class="blog-popular-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 7.5v5l3.4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Terkini
+    </h2>
+    <ol class="blog-popular-list blog-popular-list--skeleton" id="blog-latest-list">
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+      <li class="blog-popular-skeleton-item" aria-hidden="true">
+        <span class="blog-popular-skeleton-rank"></span>
+        <span class="blog-popular-skeleton-body">
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--title"></span>
+          <span class="blog-popular-skeleton-line blog-popular-skeleton-line--meta"></span>
+        </span>
+      </li>
+    </ol>
+  </section>
+</aside>
+{{ end }}

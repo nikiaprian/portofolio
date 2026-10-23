@@ -1,0 +1,148 @@
+{{ define "admin-content" }}
+
+<div
+  class="container-fluid pb-4"
+  id="admin-page-form-root"
+  data-mode="{{ .page_form_mode }}"
+  {{- if eq .page_form_mode "edit" }} data-page-id="{{ .page_id }}"{{ end }}
+>
+  <div class="mb-3">
+    <a
+      href="/admin/pages"
+      class="btn btn-sm border text-decoration-none admin-back-to-list"
+    >
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+      Semua Page
+    </a>
+  </div>
+
+  <div class="card admin-crud-card shadow-sm">
+    <div class="card-header border-bottom border-opacity-50 py-3 px-3 px-md-4">
+      <div class="d-flex flex-column gap-1">
+        <h5 class="mb-0 fw-semibold lh-sm">{{ .title }}</h5>
+        <p class="small text-secondary mb-0 lh-sm">
+          {{- if eq .page_form_mode "create" }}
+          Judul, slug, status, dan konten rich-text.
+          {{- else }}
+          Perbarui Page dan isinya.
+          {{- end }}
+        </p>
+      </div>
+    </div>
+    <div class="card-body px-3 px-md-4 py-4">
+      <div
+        id="page-form-error"
+        class="alert alert-danger d-none py-2 small"
+        role="alert"
+      ></div>
+
+      <form id="form-page-admin" class="admin-crud-post-form" novalidate>
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">Dasar</h6>
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <label for="pg-title" class="form-label">
+                Judul <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="pg-title"
+                name="title"
+                required
+                minlength="3"
+                maxlength="200"
+                placeholder="Judul Page"
+                autocomplete="off"
+              />
+            </div>
+            <div class="col-lg-4">
+              <label for="pg-status" class="form-label">
+                Status <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="pg-status" name="status" required>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label for="pg-slug" class="form-label">
+                Slug <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control font-monospace"
+                id="pg-slug"
+                name="slug"
+                required
+                minlength="3"
+                maxlength="255"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Hanya huruf kecil, angka, dan tanda hubung"
+                placeholder="page-slug"
+                autocomplete="off"
+              />
+              <div class="form-text">
+                {{- if eq .page_form_mode "create" }}
+                Otomatis dibuat dari judul sampai Anda mengeditnya. Gunakan huruf kecil, angka, dan tanda hubung saja.
+                {{- else }}
+                Mengubah slug dapat merusak tautan lama. Edit hanya jika perlu.
+                {{- end }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-form-section">
+          <h6 class="post-form-section__title">Konten</h6>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label d-block mb-2" for="pg-content">
+                Isi <span class="text-danger">*</span>
+              </label>
+              <textarea
+                id="pg-content"
+                class="form-control post-tinymce-source"
+                rows="14"
+                aria-label="Isi halaman"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="post-form-actions d-flex flex-wrap align-items-center gap-2 pt-3 mt-2 border-top border-opacity-50 position-sticky py-2 bg-body shadow-sm"
+          style="bottom: 0; z-index: 1020"
+        >
+          <button
+            type="submit"
+            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+            id="pg-submit"
+            data-label-default="{{ if eq .page_form_mode "create" }}Simpan Page{{ else }}Simpan perubahan{{ end }}"
+            data-label-busy="Menyimpan..."
+          >
+            <span
+              class="spinner-border spinner-border-sm d-none"
+              id="pg-submit-spinner"
+              aria-hidden="true"
+            ></span>
+            <i class="bi bi-check-lg pg-submit-icon" aria-hidden="true"></i>
+            <span id="pg-submit-label"
+              >{{- if eq .page_form_mode "create" }}Simpan Page{{ else }}Simpan perubahan{{ end -}}</span
+            >
+          </button>
+          <a href="/admin/pages" class="btn btn-light border">Batal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/static/vendor/tinymce/tinymce.min.js?v={{ .asset_version }}"></script>
+<script src="/static/js/admin/tinymce.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/name_slug_crud.min.js?v={{ .asset_version }}"></script>
+<script defer src="/static/js/admin/page_form.min.js?v={{ .asset_version }}"></script>
+
+{{ end }}
+
+{{ template "layouts-admin-app" . }}

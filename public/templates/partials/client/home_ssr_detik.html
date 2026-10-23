@@ -1,0 +1,526 @@
+{{ define "client-home-ssr-detik" }}
+<style>
+  .home-detik-grid.home-detik-creative {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-detik-creative .home-detik-hero {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 92%, #0b1220 8%), var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 14px;
+  }
+
+  .home-detik-creative .blog-feature-carousel {
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .home-detik-creative .blog-feature-carousel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14%;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.36) 45%, rgba(0, 0, 0, 0.62) 100%);
+    z-index: 4;
+  }
+
+  .home-detik-creative .blog-feature-nav {
+    display: none !important;
+  }
+
+  .home-detik-creative .blog-feature-slide::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 42%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.68));
+    pointer-events: none;
+  }
+
+  .home-detik-creative .blog-feature-slide-caption {
+    left: 0.8rem;
+    right: 0.8rem;
+    bottom: 0.35rem;
+    max-width: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0.35rem 0.4rem 0.5rem;
+    text-align: center;
+    z-index: 5;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.58);
+  }
+
+  .home-detik-creative .home-feature-dots {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    width: 100%;
+  }
+
+  .home-detik-creative .home-feature-dot {
+    width: 1.35rem;
+    height: 0.42rem;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted) 55%, var(--surface));
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .home-detik-creative .home-feature-dot:hover {
+    background: color-mix(in srgb, var(--accent) 52%, var(--surface));
+  }
+
+  .home-detik-creative .home-feature-dot.is-active {
+    width: 2.05rem;
+    background: var(--accent);
+  }
+
+  .home-detik-creative .blog-feature-slide-title {
+    font-size: clamp(1rem, 1.35vw + 0.55rem, 1.4rem);
+    line-height: 1.25;
+    font-weight: 700;
+    margin: 0.22rem 0;
+    color: #fff;
+    text-align: center;
+  }
+
+  .home-detik-creative .blog-feature-slide-time {
+    margin-top: 0.28rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.86);
+    text-align: center;
+  }
+
+  .home-detik-creative .blog-feature-cat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.42rem;
+    padding: 0.28rem 0.62rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .home-detik-creative .blog-feature-cat::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -0.48rem;
+    width: 1.35rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .home-detik-creative .blog-latest-section {
+    margin-top: 14px;
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .home-detik-creative .blog-latest-section .blog-section-head {
+    margin-bottom: 0.7rem;
+    align-items: center;
+  }
+
+  .home-detik-creative .blog-latest-section .blog-section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 750;
+  }
+
+  .home-detik-creative .blog-latest-section .blog-section-more {
+    font-size: calc(var(--sidebar-font-size, 14px) * 0.9);
+    font-weight: 600;
+  }
+
+  .home-detik-creative .blog-latest-card {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+    box-shadow: none;
+  }
+
+  .home-detik-creative .blog-latest-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.42rem;
+    padding: 0.55rem 0.65rem 0.55rem 0.1rem;
+  }
+
+  .home-detik-creative .blog-latest-stack {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .home-detik-creative .blog-latest-stack-item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 10px;
+    padding: 9px;
+    min-height: 78px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .home-detik-creative .blog-latest-stack-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.24rem;
+    min-width: 0;
+  }
+
+  .home-detik-creative .blog-latest-stack-item:hover .blog-latest-stack-title {
+    color: var(--accent);
+  }
+
+  .home-detik-creative .blog-latest-stack-item:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+  }
+
+  .home-detik-creative .blog-latest-stack-thumb {
+    display: block;
+    width: 96px;
+    height: 64px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .home-detik-creative .blog-latest-stack-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .home-detik-creative .blog-latest-stack-title {
+    font-size: 0.92rem;
+    line-height: 1.34;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+    overflow: hidden;
+    max-height: calc(1.34em * 3);
+    word-break: break-word;
+  }
+
+  .home-detik-creative .blog-latest-stack-time {
+    margin-top: 0.24rem;
+    font-size: calc(var(--sidebar-font-size, 14px) * 0.82);
+    color: color-mix(in srgb, var(--muted) 88%, var(--text) 12%);
+  }
+
+  .home-detik-creative .blog-latest-thumb {
+    width: 100%;
+    aspect-ratio: 280 / 180;
+    max-width: none;
+  }
+
+  .home-detik-creative .blog-latest-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .home-detik-creative .blog-latest-title {
+    font-size: 1.05rem;
+    line-height: 1.3;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    margin: 0.1rem 0 0;
+  }
+
+  .home-detik-creative .blog-latest-time {
+    margin: 0;
+    font-size: calc(var(--sidebar-font-size, 14px) * 0.9);
+    color: var(--muted);
+  }
+
+  .home-detik-creative .blog-feed-head.home-detik-feed-title {
+    margin-top: 2px;
+    margin-bottom: 0;
+    padding: 0.35rem 0.2rem 0;
+  }
+
+  .home-detik-creative .home-detik-feed-title .blog-section-title {
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+    text-transform: none;
+  }
+
+  .home-detik-creative .blog-article-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .home-detik-creative .blog-article-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: none;
+    gap: 10px;
+  }
+
+  .home-detik-creative .blog-article-thumb {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .home-detik-creative .blog-article-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .home-detik-creative .blog-article-text {
+    padding: 0;
+    gap: 8px;
+  }
+
+  .home-detik-creative .blog-article-title {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .home-detik-creative .blog-article-footer {
+    margin-top: 0;
+  }
+
+  @media (max-width: 960px) {
+    .home-detik-creative .blog-latest-card {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .home-detik-creative .blog-article-list {
+      grid-template-columns: 1fr;
+    }
+    .home-detik-creative .home-detik-hero {
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .home-detik-creative .blog-feature-carousel::after {
+      width: 16%;
+    }
+    .home-detik-creative .blog-feature-carousel {
+      min-height: 0;
+      max-height: none;
+    }
+    .home-detik-creative .blog-feature-viewport,
+    .home-detik-creative .blog-feature-slide {
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+      max-height: none;
+    }
+    .home-detik-creative .blog-feature-slide-caption {
+      bottom: 0.28rem;
+    }
+    .home-detik-creative .blog-feature-cat {
+      font-size: 0.65rem;
+      padding: 0.24rem 0.56rem;
+    }
+    .home-detik-creative .home-feature-dot {
+      width: 1.15rem;
+    }
+    .home-detik-creative .home-feature-dot.is-active {
+      width: 1.7rem;
+    }
+    .home-detik-creative .blog-latest-stack {
+      grid-template-columns: 1fr;
+    }
+    .home-detik-creative .blog-latest-body {
+      padding: 0.55rem 0.72rem 0.6rem;
+    }
+    .home-detik-creative .blog-latest-section .blog-section-title {
+      font-size: 1.05rem;
+    }
+    .home-detik-creative .blog-latest-title {
+      font-size: 1.05rem;
+    }
+    .home-detik-creative .blog-latest-stack-item {
+      grid-template-columns: 84px minmax(0, 1fr);
+      padding: 8px;
+      min-height: 72px;
+    }
+    .home-detik-creative .blog-latest-stack-thumb {
+      width: 84px;
+      height: 58px;
+    }
+  }
+</style>
+
+<div class="home-detik-grid home-detik-creative">
+  <section class="home-detik-hero">
+    <div class="blog-home-feature-block">
+      {{ if .home_slides }}
+      <div class="blog-feature-carousel" role="region" aria-label="Artikel unggulan">
+        <div class="blog-feature-viewport">
+          <div class="blog-feature-track">
+            {{ range $i, $s := .home_slides }}
+            <article class="blog-feature-slide" aria-hidden="{{ if eq $i 0 }}false{{ else }}true{{ end }}">
+              <a
+                class="blog-feature-slide-media blog-media--img-loading"
+                href="{{ $s.href }}"
+                aria-label="{{ $s.title }}"
+              >
+                <img src="{{ $s.thumb }}" alt="" decoding="async" loading="{{ if eq $i 0 }}eager{{ else }}lazy{{ end }}" />
+                {{ if $s.breaking }}<span class="blog-feature-badge blog-feature-badge--breaking">BREAKING</span>{{ end }}
+                <span class="blog-feature-slide-shade" aria-hidden="true"></span>
+              </a>
+              <div class="blog-feature-slide-caption">
+                {{ if $s.has_cat }}<span class="blog-feature-cat">{{ $s.cat_upper }}</span>{{ end }}
+                <p class="blog-feature-slide-title">{{ $s.title }}</p>
+                {{ if $s.rel_time }}<p class="blog-feature-slide-time">{{ $s.rel_time }}</p>{{ end }}
+              </div>
+            </article>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+      <div class="home-feature-dots" aria-label="Navigasi slide unggulan">
+        {{ range $i, $s := .home_slides }}
+        <button
+          type="button"
+          class="home-feature-dot{{ if eq $i 0 }} is-active{{ end }}"
+          data-feature-dot-index="{{ $i }}"
+          aria-label="Pindah slide unggulan"
+          aria-current="{{ if eq $i 0 }}true{{ else }}false{{ end }}"
+        ></button>
+        {{ end }}
+      </div>
+      {{ end }}
+      {{ if or .home_latest .home_feed }}
+      <section class="blog-latest-section">
+        <div class="blog-section-head">
+          <h2 class="blog-section-title"><span class="blog-section-title-bar" aria-hidden="true"></span>Headline utama</h2>
+          <a class="blog-section-more" href="{{ .public_base }}/posts">Indeks berita <span aria-hidden="true">→</span></a>
+        </div>
+        {{ if .home_latest }}
+        <article class="blog-latest-card">
+          <div class="blog-latest-thumb blog-media--img-loading">
+            <img src="{{ .home_latest.thumb }}" alt="" loading="eager" decoding="async" width="280" height="180" />
+          </div>
+          <div class="blog-latest-body">
+            {{ if .home_latest.has_cat }}{{ if .home_latest.has_cat_slug }}<a class="blog-latest-cat" href="{{ .home_latest.cat_href }}">{{ .home_latest.cat_name }}</a>{{ else }}<span class="blog-latest-cat">{{ .home_latest.cat_name }}</span>{{ end }}{{ end }}
+            <h3 class="blog-latest-title">{{ .home_latest.title }}</h3>
+            {{ if .home_latest.rel_time }}<p class="blog-latest-time">{{ .home_latest.rel_time }}</p>{{ end }}
+          </div>
+          <a class="blog-latest-overlay" href="{{ .home_latest.href }}" aria-label="{{ .home_latest.title }}"></a>
+        </article>
+        {{ end }}
+        {{ if .home_feed }}
+        <div class="blog-latest-stack">
+          {{ range $i, $p := .home_feed }}
+          {{ if lt $i 4 }}
+          <a class="blog-latest-stack-item" href="{{ $p.href }}">
+            <span class="blog-latest-stack-thumb blog-media--img-loading">
+              <img src="{{ $p.thumb }}" alt="" loading="lazy" decoding="async" />
+            </span>
+            <span class="blog-latest-stack-main">
+              <span class="blog-latest-stack-title">{{ $p.title }}</span>
+              <span class="blog-latest-stack-time">{{ $p.rel_time }}</span>
+            </span>
+          </a>
+          {{ end }}
+          {{ end }}
+        </div>
+        {{ end }}
+      </section>
+      {{ end }}
+    </div>
+    {{ if .ads_center }}
+    <div class="site-ad site-ad--center site-ad--inhome" aria-label="Iklan">{{ .ads_center }}</div>
+    {{ end }}
+    <div class="blog-feed-head home-detik-feed-title" id="blog-article-feed">
+      <h2 class="blog-section-title blog-section-title--feed">
+        <span class="blog-section-title-bar" aria-hidden="true"></span>
+        Radar Berita
+      </h2>
+    </div>
+    <div class="blog-posts-list" id="blog-posts-list-ssr">
+      {{ range $i, $p := .home_feed }}
+      {{ if and (ge $i 4) (lt $i 19) }}
+      <a class="blog-posts-item" href="{{ $p.href }}">
+        <span class="blog-posts-thumb blog-posts-thumb--loading" aria-hidden="true" data-thumb-skeleton>
+          <img src="{{ $p.thumb }}" alt="" width="88" height="66" loading="lazy" decoding="async" />
+        </span>
+        <span class="blog-posts-text">
+          <span class="blog-posts-title">{{ $p.title }}</span>
+          {{ if $p.rel_time }}<span class="blog-posts-time">{{ $p.rel_time }}</span>{{ end }}
+        </span>
+      </a>
+      {{ end }}
+      {{ end }}
+    </div>
+  </section>
+</div>
+{{ if gt .home_feed_total_pages 1 }}
+<div class="blog-feed-loadmore">
+  <button type="button" class="btn btn-ghost blog-feed-loadmore-btn" data-home-feed-more data-home-visible-step="15" data-next-page="2" data-total-pages="{{ .home_feed_total_pages }}">
+    <span class="blog-feed-loadmore-inner">
+      <span class="blog-feed-loadmore-label">Muat lagi</span>
+      <svg class="blog-feed-loadmore-arrow" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+        <path fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5" />
+      </svg>
+    </span>
+  </button>
+</div>
+{{ end }}
+{{ end }}
