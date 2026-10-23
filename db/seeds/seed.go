@@ -30,15 +30,22 @@ func Run(db *gorm.DB) error {
 		if err := seedPages(db); err != nil {
 			return err
 		}
-		return seedSiteWebImageProviders(db)
+		if err := seedSiteWebImageProviders(db); err != nil {
+			return err
+		}
+		// Categories were skipped on the first install. FirstOrCreate fills only missing slugs.
+		if _, err := seedCategories(db); err != nil {
+			return err
+		}
+		return seedScraperCategoryFeeds(db)
 	}
 
 	if _, err := seedUsers(db); err != nil {
 		return err
 	}
-	// if _, err := seedCategories(db); err != nil {
-	// 	return err
-	// }
+	if _, err := seedCategories(db); err != nil {
+		return err
+	}
 	if err := seedSiteSetting(db); err != nil {
 		return err
 	}
