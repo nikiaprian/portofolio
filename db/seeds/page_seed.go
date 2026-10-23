@@ -12,16 +12,17 @@ func seedPages(db *gorm.DB) error {
 		{
 			Title: "Kebijakan Privasi",
 			Slug:  "kebijakan-privasi",
-			Content: `<p>Tirtayasa (tirtayasa.id) menghargai privasi pengunjung. Halaman ini menjelaskan data yang dikumpulkan, termasuk cookie iklan pihak ketiga.</p>
-					<h2>Informasi yang Kami Kumpulkan</h2>
+			Content: `<p>Tirtayasa (tirtayasa.id) menjelaskan di halaman ini data apa yang terkumpul saat Anda membaca panduan layanan warga, termasuk cookie iklan pihak ketiga.</p>
+					<h2>Informasi yang kami kumpulkan</h2>
 					<ul>
-					<li>Data teknis seperti alamat IP, jenis browser, dan halaman yang diakses.</li>
-					<li>Data yang Anda kirimkan melalui formulir, seperti nama dan email.</li>
+					<li>Data teknis seperti alamat IP, jenis browser, dan halaman yang dibuka.</li>
+					<li>Pesan yang Anda kirim ke redaksi, seperti nama dan alamat email.</li>
 					</ul>
+					<p>Situs ini tidak meminta NIK, kata sandi bank, PIN, atau OTP. Jangan mengirim data itu lewat email.</p>
 					<h2>Cookie dan iklan</h2>
-					<p>Situs ini dapat memakai cookie untuk mengingat preferensi dan mengukur kunjungan. Jika iklan tampil, mitra iklan seperti Google AdSense dapat menempatkan cookie untuk menayangkan dan mengukur iklan. Anda dapat menolak cookie iklan yang dipersonalisasi lewat pengaturan iklan Google dan pengaturan browser.</p>
-					<h2>Penggunaan Informasi</h2>
-					<p>Informasi digunakan untuk menjalankan situs, menjawab pertanyaan, dan memahami bacaan mana yang berguna.</p>
+					<p>Situs dapat memakai cookie untuk mengingat preferensi dan mengukur kunjungan. Jika iklan tampil, mitra iklan seperti Google AdSense dapat menempatkan cookie untuk menayangkan dan mengukur iklan. Anda dapat menolak cookie iklan yang dipersonalisasi lewat pengaturan iklan Google dan pengaturan browser.</p>
+					<h2>Penggunaan informasi</h2>
+					<p>Informasi dipakai untuk menjalankan situs, membalas pertanyaan, dan memperbaiki panduan yang keliru.</p>
 					<h2>Kontak</h2>
 					<p>Pertanyaan privasi: <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>`,
 			Status: "published",
@@ -46,37 +47,51 @@ func seedPages(db *gorm.DB) error {
 		{
 			Title: "Tentang Kami",
 			Slug:  "tentang-kami",
-			Content: `<p>Tirtayasa adalah redaksi di tirtayasa.id. Kami menulis dan menyunting artikel sendiri agar pembaca mendapat bacaan yang jelas, bukan salinan dari situs lain.</p>
-					<h2>Misi</h2>
-					<p>Menyajikan tulisan yang bermanfaat, mudah diikuti, dan bisa dipertanggungjawabkan.</p>
-					<h2>Nilai Kami</h2>
-					<ul>
-					<li>Artikel orisinal atas nama redaksi Tirtayasa.</li>
-					<li>Koreksi jika ada kekeliruan fakta.</li>
-					<li>Kontak yang bisa dihubungi pembaca.</li>
-					</ul>`,
+			Content: `<p>Tirtayasa adalah redaksi di tirtayasa.id. Kami menulis panduan mengurus layanan warga lewat jalur pemerintah: bansos dan DTSEN, BPJS, SKCK, NISN, serta urusan kerja. Setiap panduan menyebut berkas, situs resmi, dan hal yang tidak mempercepat proses.</p>
+					<h2>Bukan calo</h2>
+					<p>Tirtayasa bukan instansi pemerintah, bukan bank, dan tidak mengurus pencairan bantuan. Kami tidak menjanjikan dana cair, tidak meminta biaya, dan tidak meminta OTP.</p>
+					<h2>Redaksi</h2>
+					<p>Naskah disunting redaksi Tirtayasa. Pertanyaan dan koreksi dibalas di <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>
+					<p>Jika aturan berubah, kami memperbaiki halaman dan mencatat tanggal pemeriksaan. Lihat juga <a href="/kebijakan-koreksi">kebijakan koreksi</a>.</p>`,
 			Status: "published",
 		},
 		{
 			Title: "Kontak",
 			Slug:  "kontak",
-			Content: `<p>Redaksi Tirtayasa menerima masukan, pertanyaan, dan kerja sama melalui email.</p>
-					<h2>Hubungi Kami</h2>
-					<p>Email: <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a></p>
+			Content: `<p>Redaksi membalas email yang masuk ke alamat di bawah. Pesan tentang kekeliruan fakta, tautan resmi yang mati, atau pertanyaan pembaca ditanggapi pada hari kerja.</p>
+					<h2>Email redaksi</h2>
+					<p><a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a></p>
 					<p>Situs: <a href="https://tirtayasa.id">tirtayasa.id</a></p>
-					<p>Jam operasional: Senin–Jumat, 09.00–17.00 WIB.</p>`,
+					<p>Jam balasan: Senin–Jumat, 09.00–17.00 WIB.</p>
+					<p>Sertakan tautan halaman dan kalimat yang ingin diperbaiki. Jangan kirim NIK, PIN, OTP, atau kata sandi.</p>`,
 			Status: "published",
 		},
 		{
 			Title: "Disclaimer",
 			Slug:  "disclaimer",
-			Content: `<p>Tulisan di tirtayasa.id disediakan untuk informasi umum oleh redaksi Tirtayasa.</p>
-					<h2>Akurasi Informasi</h2>
-					<p>Kami berusaha menjaga ketepatan fakta, tetapi tidak menjamin setiap halaman selalu bebas dari kesalahan atau keterlambatan pembaruan.</p>
-					<h2>Tautan Eksternal</h2>
-					<p>Situs dapat menautkan sumber lain. Tirtayasa tidak mengendalikan isi situs pihak ketiga tersebut.</p>
+			Content: `<p>Tulisan di tirtayasa.id adalah panduan umum dari redaksi Tirtayasa, bukan keputusan instansi.</p>
+					<h2>Akurasi informasi</h2>
+					<p>Kami menautkan situs pemerintah dan mencatat tanggal pemeriksaan. Aturan bisa berubah. Status bansos, iuran BPJS, atau data NISN hanya sah di layanan resmi, bukan di halaman ini.</p>
+					<h2>Tautan eksternal</h2>
+					<p>Situs dapat menautkan domain pemerintah dan sumber lain. Tirtayasa tidak mengendalikan isi situs pihak ketiga.</p>
 					<h2>Iklan</h2>
-					<p>Ruang iklan, bila ada, ditayangkan oleh mitra pihak ketiga dan tidak selalu mencerminkan pandangan redaksi.</p>`,
+					<p>Ruang iklan, bila ada, ditayangkan oleh mitra pihak ketiga dan tidak mencerminkan pandangan redaksi. Iklan yang menjanjikan pencairan instan atau meminta OTP bukan bagian dari panduan ini.</p>`,
+			Status: "published",
+		},
+		{
+			Title: "Kebijakan Koreksi",
+			Slug:  "kebijakan-koreksi",
+			Content: `<p>Jika sebuah panduan keliru, redaksi Tirtayasa memperbaikinya. Kirim koreksi ke <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>
+					<h2>Yang kami perbaiki</h2>
+					<ul>
+					<li>Nama lembaga, alamat situs resmi, atau syarat berkas yang sudah berubah.</li>
+					<li>Angka, tanggal, atau langkah yang tidak lagi sesuai pengumuman resmi.</li>
+					<li>Kalimat yang terdengar seperti janji pencairan atau jasa calo.</li>
+					</ul>
+					<h2>Cara mengirim</h2>
+					<p>Sertakan tautan halaman, kalimat yang salah, dan tautan pengumuman resmi bila ada. Kami membalas pada hari kerja.</p>
+					<h2>Setelah diperbaiki</h2>
+					<p>Halaman yang diubah mencantumkan tanggal pemeriksaan baru. Koreksi fakta tidak dihapus diam-diam dari catatan redaksi.</p>`,
 			Status: "published",
 		},
 	}

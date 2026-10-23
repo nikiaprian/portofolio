@@ -21,6 +21,19 @@ const (
 	ArticleSchemaTypeNewsArticle    = "NewsArticle"
 	ArticleSchemaTypeArticle        = "Article"
 	DefaultSourceDisclaimerTemplate = "Sumber: {{source}}"
+)
+
+// SourceDisclaimerAdmitsAutomaticRewrite is the public sentence that says an
+// article was rewritten automatically. That sentence stays off the site.
+func SourceDisclaimerAdmitsAutomaticRewrite(tpl string) bool {
+	t := strings.ToLower(tpl)
+	if strings.Contains(t, "ditulis ulang") {
+		return true
+	}
+	return strings.Contains(t, "otomatis") && strings.Contains(t, "ai")
+}
+
+const (
 	DefaultSidebarListLimit         = 5
 	MinSidebarListLimit             = 1
 	MaxSidebarListLimit             = 20
@@ -111,7 +124,7 @@ func DefaultSiteSetting() SiteSetting {
 	return SiteSetting{
 		SiteName:                       "Tirtayasa",
 		FooterCopy:                     "",
-		Tagline:                        "Catatan dan artikel dari redaksi Tirtayasa.",
+		Tagline:                        "Panduan layanan warga lewat jalur resmi.",
 		LogoURL:                        "/static/images/logo.png",
 		FaviconURL:                     "/static/images/favicon.ico",
 		TextPrimary:                    "#1c1915",
@@ -144,9 +157,9 @@ func DefaultSiteSetting() SiteSetting {
 		AvatarResizeQuality:            "",
 		NotFoundRedirectMode:           NotFoundRedirectHome,
 		DefaultTitle:                   "Tirtayasa",
-		DefaultDesc:                    "Tirtayasa menerbitkan artikel orisinal yang mudah dibaca di tirtayasa.id.",
+		DefaultDesc:                    "Cara mengurus bansos, BPJS, SKCK, NISN, dan urusan kerja tanpa calo, dengan tautan ke situs pemerintah.",
 		DefaultImage:                   "",
-		DefaultKeywords:                "tirtayasa, artikel, bacaan",
+		DefaultKeywords:                "bansos, BPJS, SKCK, NISN, perjanjian kerja, layanan warga",
 		HeaderScript:                   "",
 		FooterScript:                   "",
 		AdsTop:                         "",

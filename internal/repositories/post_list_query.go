@@ -6,13 +6,18 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/nikiaprian/tirtayasa/internal/entity"
+	"github.com/nikiaprian/tirtayasa/internal/helper/publicshelf"
 	"github.com/nikiaprian/tirtayasa/internal/helper/publishedpost"
 )
 
 const postClientListColumns = "id, title, slug, content, image, category_id, updated_at, created_at"
 
 func publishedPostsQuery(db *gorm.DB) *gorm.DB {
-	return db.Model(&entity.Post{}).Scopes(publishedpost.ScopeVisiblePublished("", time.Now()))
+	q := db.Model(&entity.Post{}).Scopes(publishedpost.ScopeVisiblePublished("", time.Now()))
+	if publicshelf.LayoutActive(db) {
+		q = q.Scopes(publicshelf.Scope(""))
+	}
+	return q
 }
 
 func publishedPostsByCategoryID(db *gorm.DB, categoryID uint) *gorm.DB {

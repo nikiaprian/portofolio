@@ -31,6 +31,7 @@ import (
 	"github.com/nikiaprian/tirtayasa/internal/helper/autohref"
 	"github.com/nikiaprian/tirtayasa/internal/helper/imagecaption"
 	"github.com/nikiaprian/tirtayasa/internal/helper/posthtml"
+	"github.com/nikiaprian/tirtayasa/internal/helper/publicshelf"
 	"github.com/nikiaprian/tirtayasa/internal/helper/publishedpost"
 	"github.com/nikiaprian/tirtayasa/internal/helper/scraperguard"
 	"github.com/nikiaprian/tirtayasa/internal/media"
@@ -317,7 +318,7 @@ func buildNeoFeaturedCategoryTabs(db *gorm.DB, siteSetting entity.SiteSetting, m
 		})
 	}
 
-	for _, cat := range loadNavCategories(db) {
+	for _, cat := range loadNavCategories(db, siteSetting.HomepageLayout) {
 		if len(tabs) >= maxTabs {
 			break
 		}
@@ -1196,7 +1197,7 @@ func loadClientMenuPages(db *gorm.DB, limit int) []entity.Page {
 }
 
 // loadNavCategories returns categories for the client header (ordered by admin sort, then name).
-func loadNavCategories(db *gorm.DB) []entity.NavCategoryNode {
+func loadNavCategories(db *gorm.DB, layout string) []entity.NavCategoryNode {
 	// declare cache param
 	store := cache.GlobalStore()
 	var cats []entity.Category
@@ -1208,7 +1209,7 @@ func loadNavCategories(db *gorm.DB) []entity.NavCategoryNode {
 	// get nav_categories
 	if store != nil {
 		if ok, _ := store.GetJSON(context.Background(), loadNavCategoriesCacheKey, &cats); ok {
-			return entity.BuildNavCategoryTree(cats)
+			return navTreeForLayout(db, layout, entity.BuildNavCategoryTree(cats))
 		}
 	}
 
@@ -1227,7 +1228,59 @@ func loadNavCategories(db *gorm.DB) []entity.NavCategoryNode {
 	if store != nil {
 		store.SetJSON(context.Background(), loadNavCategoriesCacheKey, &cats, loadNavCategoriesCacheTTL)
 	}
-	return entity.BuildNavCategoryTree(cats)
+	return navTreeForLayout(db, layout, entity.BuildNavCategoryTree(cats))
+}
+
+func navTreeForLayout(db *gorm.DB, layout string, tree []entity.NavCategoryNode) []entity.NavCategoryNode {
+	if !publicshelf.Active(layout) {
+		return tree
+	}
+	return filterNavToShelf(tree, shelfCategoryIDs(db))
+}
+
+func visiblePublicScopes(layout string) []func(*gorm.DB) *gorm.DB {
+	scopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+	if publicshelf.Active(layout) {
+		scopes = append(scopes, publicshelf.Scope(""))
+	}
+	return scopes
+}
+
+func shelfCategoryIDs(db *gorm.DB) map[uint]struct{} {
+	var ids []uint
+	_ = db.Model(&entity.Post{}).
+		Scopes(publishedpost.ScopeVisiblePublished("", time.Now()), publicshelf.Scope("")).
+		Distinct("category_id").
+		Pluck("category_id", &ids).Error
+	out := make(map[uint]struct{}, len(ids))
+	for _, id := range ids {
+		if id != 0 {
+			out[id] = struct{}{}
+		}
+	}
+	return out
+}
+
+func filterNavToShelf(nodes []entity.NavCategoryNode, allowed map[uint]struct{}) []entity.NavCategoryNode {
+	if len(nodes) == 0 {
+		return nil
+	}
+	out := make([]entity.NavCategoryNode, 0, len(nodes))
+	for _, node := range nodes {
+		children := make([]entity.NavCategoryChild, 0, len(node.Children))
+		for _, child := range node.Children {
+			if _, ok := allowed[child.ID]; ok {
+				children = append(children, child)
+			}
+		}
+		_, keep := allowed[node.ID]
+		if !keep && len(children) == 0 {
+			continue
+		}
+		node.Children = children
+		out = append(out, node)
+	}
+	return out
 }
 
 // serveClientStaticPage renders a published static Page (e.g. /kebijakan-privasi).
@@ -1290,7 +1343,7 @@ func serveClientStaticPage(c *gin.Context, db *gorm.DB, page *entity.Page) error
 		"page_title":            title,
 		"page_content":          template.HTML(posthtml.EnsureExternalAnchorsNofollowBlank(page.Content, canonicalBaseURL(c))),
 		"client_pages":          loadClientMenuPages(db, 0),
-		"nav_categories":        loadNavCategories(db),
+		"nav_categories":        loadNavCategories(db, siteSetting.HomepageLayout),
 		"login_href":            entity.EffectiveLoginHref(siteSetting.LoginURL),
 	}
 	injectClientVerificationMeta(db, data)
@@ -1474,7 +1527,7 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 			"current_url":            clientCanonicalURL(c),
 			"local_timezone":         clientPublicTimezone,
 			"client_pages":           loadClientMenuPages(db, 0),
-			"nav_categories":         loadNavCategories(db),
+			"nav_categories":         loadNavCategories(db, siteSetting.HomepageLayout),
 			"popular_posts":          popularRows,
 			"latest_posts":           latestRows,
 			"detik_recommend_posts":  buildRandomRecommendationRows(popularRows, latestRows, siteSetting.SidebarListLimitLatest),
@@ -1645,7 +1698,7 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 			"current_url":           clientCanonicalURL(c),
 			"local_timezone":        clientPublicTimezone,
 			"client_pages":          loadClientMenuPages(db, 0),
-			"nav_categories":        loadNavCategories(db),
+			"nav_categories":        loadNavCategories(db, siteSetting.HomepageLayout),
 			"rss_rows":              rows,
 		}
 		for k, v := range clientSocialLinksH(siteSetting) {
@@ -1711,9 +1764,13 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		cutoff := time.Now().Add(-48 * time.Hour)
 
 		var posts []entity.Post
+		newsScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+		if publicshelf.Active(site.HomepageLayout) {
+			newsScopes = append(newsScopes, publicshelf.Scope("posts"))
+		}
 		err := db.
 			Preload("Category").
-			Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+			Scopes(newsScopes...).
 			Where("COALESCE(posts.updated_at, posts.created_at) >= ?", cutoff).
 			Order("COALESCE(posts.updated_at, posts.created_at) DESC").
 			Limit(1500).
@@ -1772,7 +1829,9 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 
 	r.GET("/ads.txt", func(c *gin.Context) {
 		site := loadSiteSetting(db)
-		body := strings.TrimSpace(site.AdsTxt)
+		// Leave this empty until AdSense approves the site and returns a publisher ID.
+		// A sample pub- line is not a valid authorization and is not served.
+		body := publicAdsTxt(site.AdsTxt)
 		c.Header("Cache-Control", "no-store")
 		c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(body+"\n"))
 	})
@@ -1791,11 +1850,15 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		// Special feed: latest posts across all categories.
 		if categorySlug == "latest-posts" {
 			var posts []entity.Post
+			latestScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+			if publicshelf.Active(site.HomepageLayout) {
+				latestScopes = append(latestScopes, publicshelf.Scope(""))
+			}
 			err := db.
 				Preload("Author").
 				Preload("Category").
 				Preload("Tags").
-				Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+				Scopes(latestScopes...).
 				Order("updated_at DESC").
 				Limit(1000).
 				Find(&posts).Error
@@ -1904,12 +1967,16 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		}
 
 		var posts []entity.Post
+		catScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+		if publicshelf.Active(site.HomepageLayout) {
+			catScopes = append(catScopes, publicshelf.Scope(""))
+		}
 		err := db.
 			Preload("Author").
 			Preload("Category").
 			Preload("Tags").
 			Where("category_id = ?", category.ID).
-			Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+			Scopes(catScopes...).
 			Order("updated_at DESC").
 			Find(&posts).Error
 		if err != nil {
@@ -2045,7 +2112,7 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 			"text_secondary":       siteSetting.TextSecondary,
 			"border_color":         siteSetting.BorderColor,
 			"client_pages":         loadClientMenuPages(db, 0),
-			"nav_categories":       loadNavCategories(db),
+			"nav_categories":       loadNavCategories(db, siteSetting.HomepageLayout),
 			"login_href":           loginHref,
 			"static_version":       clientStaticVersion,
 		}
@@ -4074,12 +4141,16 @@ func loadArticleRelatedPosts(db *gorm.DB, post *entity.Post, limit int) []entity
 		return nil
 	}
 	var out []entity.Post
+	relatedScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+	if publicshelf.Active(loadSiteSetting(db).HomepageLayout) {
+		relatedScopes = append(relatedScopes, publicshelf.Scope(""))
+	}
 	_ = db.
 		Select("id, title, slug, content, image, category_id, updated_at, created_at").
 		Preload("Category").
 		Where("category_id = ?", post.CategoryID).
 		Where("id <> ?", post.ID).
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(relatedScopes...).
 		Order("updated_at DESC").
 		Limit(limit).
 		Find(&out).Error
@@ -4120,7 +4191,7 @@ func loadArticleRecommendPosts(db *gorm.DB, excludePostID uint, limit int) []ent
 	q := db.
 		Select("id, title, slug, content, image, category_id, updated_at, created_at").
 		Preload("Category").
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(visiblePublicScopes(loadSiteSetting(db).HomepageLayout)...).
 		Order("updated_at DESC").
 		Limit(need)
 	if len(seenIDs) > 0 {
@@ -4241,14 +4312,18 @@ func postsSliceFromBootstrap(bootstrap []entity.Post, skip, limit int) []entity.
 
 func buildHomePageViewModel(db *gorm.DB, siteSetting entity.SiteSetting) (gin.H, []entity.Post) {
 	vm := gin.H{"home_ssr": false}
+	homeScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+	if publicshelf.Active(siteSetting.HomepageLayout) {
+		homeScopes = append(homeScopes, publicshelf.Scope(""))
+	}
 	var totalPublished int64
-	if err := db.Model(&entity.Post{}).Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).Count(&totalPublished).Error; err != nil || totalPublished == 0 {
+	if err := db.Model(&entity.Post{}).Scopes(homeScopes...).Count(&totalPublished).Error; err != nil || totalPublished == 0 {
 		return vm, nil
 	}
 
 	var bootstrap []entity.Post
 	_ = db.Preload("Category").Preload("Tags").Preload("Author").
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(homeScopes...).
 		Order("updated_at DESC").
 		Limit(homeBootstrapSize).
 		Find(&bootstrap).Error
@@ -4406,7 +4481,7 @@ func baseClientData(c *gin.Context, db *gorm.DB, title, metaTitle, metaDescripti
 		"social_rss_url":         strings.TrimSpace(siteSetting.SocialRSSURL),
 		"current_url":            clientCanonicalURL(c),
 		"client_pages":           loadClientMenuPages(db, 0),
-		"nav_categories":         loadNavCategories(db),
+		"nav_categories":         loadNavCategories(db, siteSetting.HomepageLayout),
 		"load_app_js":            false,
 		"load_post_js":           false,
 		"local_timezone":         clientPublicTimezone,
@@ -4431,10 +4506,14 @@ func loadSidebarPosts(db *gorm.DB, siteSetting entity.SiteSetting, popularLimit,
 	// Jika tidak ada view di jendela, tampilkan Artikel terbaru yang dipublikasikan.
 	if len(popular) == 0 {
 		var fill []entity.Post
+		fillScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+		if publicshelf.Active(siteSetting.HomepageLayout) {
+			fillScopes = append(fillScopes, publicshelf.Scope(""))
+		}
 		_ = db.
 			Preload("Category").
 			Select("id, title, slug, content, image, category_id, updated_at, created_at").
-			Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+			Scopes(fillScopes...).
 			Order("COALESCE(updated_at, created_at) DESC").
 			Limit(popularLimit).
 			Find(&fill).Error
@@ -4467,10 +4546,14 @@ func loadSidebarPosts(db *gorm.DB, siteSetting entity.SiteSetting, popularLimit,
 	if len(latestPrefetch) >= latestLimit {
 		latest = latestPrefetch[:latestLimit]
 	} else {
+		latestScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+		if publicshelf.Active(siteSetting.HomepageLayout) {
+			latestScopes = append(latestScopes, publicshelf.Scope(""))
+		}
 		_ = db.
 			Preload("Category").
 			Select("id, title, slug, content, image, category_id, updated_at, created_at").
-			Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+			Scopes(latestScopes...).
 			Order("updated_at DESC").
 			Limit(latestLimit).
 			Find(&latest).Error
@@ -4562,6 +4645,9 @@ func serveClientCategoryPage(c *gin.Context, db *gorm.DB, category *entity.Categ
 	data["pagination_links"] = buildClientPaginationLinks(page, totalPages, categoryPublicWebPath(*category))
 	data["pagination_page"] = page
 	data["pagination_total_pages"] = totalPages
+	if publicshelf.Active(siteSetting.HomepageLayout) && total == 0 {
+		data["robots"] = "noindex, follow"
+	}
 	rebuildClientJSONLD(data)
 	return tmpl.ExecuteTemplate(c.Writer, "layouts-client-app", data)
 }
@@ -4622,9 +4708,14 @@ func serveClientPostsPage(c *gin.Context, db *gorm.DB) error {
 		return err
 	}
 
+	siteSetting := loadSiteSetting(db)
+	listScopes := []func(*gorm.DB) *gorm.DB{publishedpost.ScopeVisiblePublished("", time.Now())}
+	if publicshelf.Active(siteSetting.HomepageLayout) {
+		listScopes = append(listScopes, publicshelf.Scope(""))
+	}
 	var total int64
 	if err := db.Model(&entity.Post{}).
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(listScopes...).
 		Count(&total).Error; err != nil {
 		return err
 	}
@@ -4645,14 +4736,13 @@ func serveClientPostsPage(c *gin.Context, db *gorm.DB) error {
 	var posts []entity.Post
 	if err := db.
 		Select("id, title, slug, content, image, category_id, updated_at, created_at").
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(listScopes...).
 		Order("updated_at DESC").
 		Limit(perPage).
 		Offset(offset).
 		Find(&posts).Error; err != nil {
 		return err
 	}
-	siteSetting := loadSiteSetting(db)
 	entity.NormalizeSidebarListLimits(&siteSetting)
 	popularRows, latestRows := loadSidebarPosts(db, siteSetting, siteSetting.SidebarListLimitPopular, siteSetting.SidebarListLimitLatest, nil)
 	metaTitle := "Semua postingan" + clientBrowserTitleSuffix(siteSetting)
@@ -4717,10 +4807,12 @@ func serveClientAuthorPage(c *gin.Context, db *gorm.DB, slug string) error {
 		return gorm.ErrRecordNotFound
 	}
 
+	siteSetting := loadSiteSetting(db)
+	authorScopes := visiblePublicScopes(siteSetting.HomepageLayout)
 	var total int64
 	if err := db.Model(&entity.Post{}).
 		Where("author_id = ?", author.ID).
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(authorScopes...).
 		Count(&total).Error; err != nil {
 		return err
 	}
@@ -4743,7 +4835,7 @@ func serveClientAuthorPage(c *gin.Context, db *gorm.DB, slug string) error {
 		Preload("Category").
 		Select("id, title, slug, content, image, category_id, updated_at, created_at").
 		Where("author_id = ?", author.ID).
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(authorScopes...).
 		Order("updated_at DESC").
 		Limit(perPage).
 		Offset(offset).
@@ -4751,7 +4843,6 @@ func serveClientAuthorPage(c *gin.Context, db *gorm.DB, slug string) error {
 		return err
 	}
 
-	siteSetting := loadSiteSetting(db)
 	entity.NormalizeSidebarListLimits(&siteSetting)
 	popularRows, latestRows := loadSidebarPosts(db, siteSetting, siteSetting.SidebarListLimitPopular, siteSetting.SidebarListLimitLatest, nil)
 	authorName := strings.TrimSpace(author.Name)
@@ -4993,10 +5084,15 @@ func serveClientArticlePage(c *gin.Context, db *gorm.DB, post *entity.Post) erro
 		displayTitle,
 	))
 
+	robots := "index, follow"
+	if publicshelf.Active(siteSetting.HomepageLayout) && !publicshelf.Matches(post.Title, post.Slug) {
+		robots = "noindex, follow"
+	}
 	data := gin.H{
 		"title":                      metaHead,
 		"meta_title":                 metaTitleForHead,
 		"meta_description":           metaDesc,
+		"robots":                     robots,
 		"meta_keywords":              metaKw,
 		"meta_image":                 metaImg,
 		"meta_author":                authorName,
@@ -5047,7 +5143,7 @@ func serveClientArticlePage(c *gin.Context, db *gorm.DB, post *entity.Post) erro
 		"social_rss_url":             strings.TrimSpace(siteSetting.SocialRSSURL),
 		"current_url":                clientCanonicalURL(c),
 		"client_pages":               loadClientMenuPages(db, 0),
-		"nav_categories":             loadNavCategories(db),
+		"nav_categories":             loadNavCategories(db, siteSetting.HomepageLayout),
 		"load_app_js":                false,
 		"load_post_js":               true,
 		"local_timezone":             clientPublicTimezone,
@@ -5097,6 +5193,28 @@ func serveClientArticlePage(c *gin.Context, db *gorm.DB, post *entity.Post) erro
 	return tmpl.ExecuteTemplate(c.Writer, "layouts-client-app", data)
 }
 
+// publicAdsTxt drops sample publisher IDs. A real line is served only after it is saved in admin.
+func publicAdsTxt(body string) string {
+	body = strings.TrimSpace(body)
+	if body == "" {
+		return ""
+	}
+	lines := strings.Split(body, "\n")
+	kept := make([]string, 0, len(lines))
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		lower := strings.ToLower(line)
+		if strings.Contains(lower, "pub-0000000000000000") || strings.Contains(lower, "pub-xxxxxxxxxxxxxxxx") {
+			continue
+		}
+		kept = append(kept, line)
+	}
+	return strings.Join(kept, "\n")
+}
+
 func buildSourceDisclaimerHTML(mode, customTpl, sourceURL, sourceLabel string) string {
 	sourceURL = strings.TrimSpace(sourceURL)
 	if sourceURL == "" {
@@ -5109,7 +5227,7 @@ func buildSourceDisclaimerHTML(mode, customTpl, sourceURL, sourceLabel string) s
 	anchor := `<a href="` + template.HTMLEscapeString(sourceURL) + `" target="_blank" rel="nofollow noopener noreferrer">` + template.HTMLEscapeString(anchorText) + `</a>`
 	if strings.EqualFold(strings.TrimSpace(mode), "custom") {
 		tpl := strings.TrimSpace(customTpl)
-		if tpl == "" {
+		if tpl == "" || entity.SourceDisclaimerAdmitsAutomaticRewrite(tpl) {
 			tpl = entity.DefaultSourceDisclaimerTemplate
 		}
 		escaped := template.HTMLEscapeString(tpl)
@@ -5169,7 +5287,7 @@ func loadAISetting(db *gorm.DB) entity.AISetting {
 func randomPublishedPostPath(db *gorm.DB) string {
 	ss := loadSiteSetting(db)
 	baseScope := db.Model(&entity.Post{}).
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(visiblePublicScopes(ss.HomepageLayout)...).
 		Where("TRIM(slug) <> ''")
 	var total int64
 	if err := baseScope.Count(&total).Error; err != nil || total < 1 {
@@ -5180,7 +5298,7 @@ func randomPublishedPostPath(db *gorm.DB) string {
 	var post entity.Post
 	if err := db.
 		Preload("Category").
-		Scopes(publishedpost.ScopeVisiblePublished("", time.Now())).
+		Scopes(visiblePublicScopes(ss.HomepageLayout)...).
 		Where("TRIM(slug) <> ''").
 		Order("id ASC").
 		Offset(int(offset)).

@@ -9,7 +9,7 @@ import (
 func seedSiteSetting(db *gorm.DB) error {
 	siteSetting := entity.SiteSetting{
 		SiteName:                 "Tirtayasa",
-		Tagline:                  "Catatan dan artikel dari redaksi Tirtayasa.",
+		Tagline:                  "Panduan layanan warga lewat jalur resmi.",
 		LogoURL:                  "",
 		FaviconURL:               "",
 		TextPrimary:              "#1c1915",
@@ -22,9 +22,9 @@ func seedSiteSetting(db *gorm.DB) error {
 		BorderColor:              "#e4d9c8",
 		NotFoundRedirectMode:     entity.NotFoundRedirectHome,
 		DefaultTitle:             "Tirtayasa",
-		DefaultDesc:              "Tirtayasa menerbitkan artikel orisinal yang mudah dibaca di tirtayasa.id.",
+		DefaultDesc:              "Cara mengurus bansos, BPJS, SKCK, NISN, dan urusan kerja tanpa calo, dengan tautan ke situs pemerintah.",
 		DefaultImage:             "",
-		DefaultKeywords:          "tirtayasa, artikel, bacaan",
+		DefaultKeywords:          "bansos, BPJS, SKCK, NISN, perjanjian kerja, layanan warga",
 		HeaderScript:             "",
 		FooterScript:             "",
 		AdsTop:                   "",

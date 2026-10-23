@@ -27,6 +27,9 @@ func Run(db *gorm.DB) error {
 		if err := EnsureAISettingDefaults(db); err != nil {
 			return err
 		}
+		if err := seedPages(db); err != nil {
+			return err
+		}
 		return seedSiteWebImageProviders(db)
 	}
 

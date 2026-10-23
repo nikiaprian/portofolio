@@ -8,7 +8,7 @@ log() {
 }
 
 echo "==============================================="
-echo " Bebii Blog Production Setup (Ubuntu)"
+echo " Tirtayasa Production Setup (Ubuntu)"
 echo "==============================================="
 echo ""
 
@@ -74,10 +74,11 @@ run_repo_minify() {
 GITHUB_TOKEN_FILE="${GITHUB_TOKEN_FILE:-/root/.github_token}"
 GITHUB_USERNAME="${GITHUB_USERNAME:-}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-GIT_URL="${GIT_URL:-https://github.com/Bebii-Digital/bebii-blog.git}"
+GIT_URL="${GIT_URL:-https://github.com/nikiaprian/portofolio.git}"
+GIT_BRANCH="${GIT_BRANCH:-blog}"
 GITHUB_AUTH_HEADER=""
 
-# Password root MariaDB/MySQL (opsional): sudo MYSQL_ROOT_PASSWORD='rahasia' ./setup-production.sh
+# Password root MariaDB/MySQL (opsional): sudo MYSQL_ROOT_PASSWORD='rahasia' ./scripts/add.sh
 # Kosong = mysql tanpa -p (perilaku default).
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-}"
 
@@ -282,16 +283,18 @@ log "3) Clone/update repository..."
 if [[ -z "${GITHUB_TOKEN}" ]]; then
   echo "GITHUB_TOKEN belum diisi."
   echo "Gunakan salah satu:"
-  echo "  1) sudo GITHUB_TOKEN='ghp_xxx' ./setup-production.sh"
-  echo "  2) simpan token di ${GITHUB_TOKEN_FILE}, lalu: sudo ./setup-production.sh"
+  echo "  1) sudo GITHUB_TOKEN='your_github_token' ./scripts/add.sh"
+  echo "  2) simpan token di ${GITHUB_TOKEN_FILE}, lalu: sudo ./scripts/add.sh"
   exit 1
 fi
 
 if [[ ! -d "${APP_REPO_DIR}/.git" ]]; then
-  sudo -u "${APP_USER}" git -c credential.username="${GITHUB_USERNAME}" -c http.extraHeader="${GITHUB_AUTH_HEADER}" clone "${GIT_URL}" "${APP_REPO_DIR}"
+  sudo -u "${APP_USER}" git -c credential.username="${GITHUB_USERNAME}" -c http.extraHeader="${GITHUB_AUTH_HEADER}" clone -b "${GIT_BRANCH}" "${GIT_URL}" "${APP_REPO_DIR}"
 else
-  sudo -u "${APP_USER}" git -c credential.username="${GITHUB_USERNAME}" -c http.extraHeader="${GITHUB_AUTH_HEADER}" -C "${APP_REPO_DIR}" fetch --all
-  sudo -u "${APP_USER}" git -C "${APP_REPO_DIR}" reset --hard origin/main
+  sudo -u "${APP_USER}" git -C "${APP_REPO_DIR}" remote set-url origin "${GIT_URL}"
+  sudo -u "${APP_USER}" git -c credential.username="${GITHUB_USERNAME}" -c http.extraHeader="${GITHUB_AUTH_HEADER}" -C "${APP_REPO_DIR}" fetch --prune origin "${GIT_BRANCH}"
+  sudo -u "${APP_USER}" git -C "${APP_REPO_DIR}" checkout -B "${GIT_BRANCH}" "origin/${GIT_BRANCH}"
+  sudo -u "${APP_USER}" git -C "${APP_REPO_DIR}" reset --hard "origin/${GIT_BRANCH}"
 fi
 
 log "3a) Minify asset JS (generate public/static/js/*.min.js)..."
@@ -357,7 +360,7 @@ chown -h "${APP_USER}:${APP_GROUP}" "${APP_BIN_LINK}"
 log "7) Buat/Update systemd service..."
 cat > "${APP_SYSTEMD_FILE}" <<EOF
 [Unit]
-Description=Bebii Blog Service
+Description=Tirtayasa Service
 After=network.target mysql.service redis-server.service
 Wants=network-online.target
 

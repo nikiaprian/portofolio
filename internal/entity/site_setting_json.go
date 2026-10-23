@@ -311,6 +311,10 @@ func UnpackSiteSettingJSON(s *SiteSetting) {
 		unmarshalSiteSettingJSON(s.StoredSourceDisclaimer, &disclaimer)
 		s.SourceDisclaimerMode = disclaimer.Mode
 		s.SourceDisclaimerTemplate = disclaimer.Template
+		if SourceDisclaimerAdmitsAutomaticRewrite(s.SourceDisclaimerTemplate) {
+			s.SourceDisclaimerMode = SourceDisclaimerDefault
+			s.SourceDisclaimerTemplate = DefaultSourceDisclaimerTemplate
+		}
 	}
 	if strings.TrimSpace(s.StoredAlsoRead) != "" {
 		var alsoRead siteAlsoReadJSON

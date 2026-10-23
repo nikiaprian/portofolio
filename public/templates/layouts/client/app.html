@@ -6,7 +6,7 @@
     <title>
       {{ if .meta_title }}{{ .meta_title }}{{ else }}{{ .title }}{{ end }}
     </title>
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="{{ if .robots }}{{ .robots }}{{ else }}index, follow{{ end }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="tirtayasa-sidebar-list-limit-popular" content="{{ if .sidebar_list_limit_popular }}{{ .sidebar_list_limit_popular }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}" />
     <meta name="tirtayasa-sidebar-list-limit-latest" content="{{ if .sidebar_list_limit_latest }}{{ .sidebar_list_limit_latest }}{{ else if .sidebar_list_limit }}{{ .sidebar_list_limit }}{{ else }}5{{ end }}" />

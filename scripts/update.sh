@@ -6,6 +6,7 @@ set -euo pipefail
 GITHUB_TOKEN_FILE="${GITHUB_TOKEN_FILE:-/root/.github_token}"
 GITHUB_USERNAME="${GITHUB_USERNAME:-}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
+GIT_URL="${GIT_URL:-https://github.com/nikiaprian/portofolio.git}"
 
 log() { echo ""; echo "[INFO] $1"; }
 warn() { echo "[WARN] $1"; }
@@ -53,10 +54,10 @@ load_github_credentials() {
 
 usage() {
   cat <<'EOF'
-Ubuntu deploy updater for Bebii Blog multi-instance.
+Ubuntu deploy updater for Tirtayasa multi-instance.
 
 Usage:
-  sudo ./scripts/deploy-update-ubuntu.sh [options]
+  sudo ./scripts/update.sh [options]
 
 Selectors:
   --all
@@ -64,7 +65,7 @@ Selectors:
   --domains a.com,b.com
 
 Options:
-  --branch main
+  --branch blog
   --seed
   --no-health
   --dry-run
@@ -282,11 +283,13 @@ update_one_slug() {
   fi
 
   log "[${slug}] Fetch + reset origin/${branch}"
+  sudo -u "${app_user}" git -C "${app_repo}" remote set-url origin "${GIT_URL}"
   if [[ -n "${gh_header}" ]]; then
-    sudo -u "${app_user}" git -c credential.username="${gh_user}" -c http.extraHeader="${gh_header}" -C "${app_repo}" fetch --all --prune
+    sudo -u "${app_user}" git -c credential.username="${gh_user}" -c http.extraHeader="${gh_header}" -C "${app_repo}" fetch --prune origin "${branch}"
   else
-    sudo -u "${app_user}" git -C "${app_repo}" fetch --all --prune
+    sudo -u "${app_user}" git -C "${app_repo}" fetch --prune origin "${branch}"
   fi
+  sudo -u "${app_user}" git -C "${app_repo}" checkout -B "${branch}" "origin/${branch}"
   sudo -u "${app_user}" git -C "${app_repo}" reset --hard "origin/${branch}"
 
   log "[${slug}] Minify asset JS"
@@ -353,7 +356,7 @@ require_cmd base64
 GO_BIN="$(detect_go_bin || true)"
 [[ -n "${GO_BIN}" ]] || { err "Go tidak ditemukan."; exit 1; }
 
-BRANCH="main"
+BRANCH="${GIT_BRANCH:-blog}"
 SELECT_ALL=false
 APPS_CSV=""
 DOMAINS_CSV=""
@@ -366,7 +369,7 @@ while [[ $# -gt 0 ]]; do
     --all) SELECT_ALL=true; shift ;;
     --apps) APPS_CSV="${2:-}"; shift 2 ;;
     --domains) DOMAINS_CSV="${2:-}"; shift 2 ;;
-    --branch) BRANCH="${2:-main}"; shift 2 ;;
+    --branch) BRANCH="${2:-blog}"; shift 2 ;;
     --seed) RUN_SEED=true; shift ;;
     --no-health) DO_HEALTH=false; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
