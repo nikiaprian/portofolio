@@ -116,8 +116,8 @@ func DefaultSiteSetting() SiteSetting {
 		FaviconURL:                     "/static/images/favicon.ico",
 		TextPrimary:                    "#1c1915",
 		TextSecondary:                  "#5c564c",
-		BackgroundPrimary:              "#fbf7f0",
-		BackgroundSecondary:            "#f6f1e7",
+		BackgroundPrimary:              "#ffffff",
+		BackgroundSecondary:            "#ffffff",
 		PrimaryButton:                  "#0f3d3e",
 		SecondaryButton:                "#8a8175",
 		AccentColor:                    "#0f3d3e",
@@ -292,18 +292,32 @@ type SiteSetting struct {
 	RobotsTxt          string `gorm:"type:text" json:"robots_txt"`
 	// ArticleAdsJSON stores in-article ads as a JSON array, e.g. [{"position":25,"content":"<script>...</script>"}].
 	// Position is an integer 1-99 representing the percentage of article paragraphs to render after.
-	ArticleAdsJSON     string `gorm:"column:article_ads_json;type:text" json:"article_ads_json"`
-	HomepageLayout     string `gorm:"size:20;not null;default:default" json:"homepage_layout"`
-	ColorTheme         string `gorm:"size:24;not null;default:default" json:"color_theme"`
-	SocialFacebookURL  string `gorm:"size:500" json:"social_facebook_url"`
-	SocialXURL         string `gorm:"size:500" json:"social_x_url"`
-	SocialInstagramURL string `gorm:"size:500" json:"social_instagram_url"`
-	SocialYouTubeURL   string `gorm:"size:500" json:"social_youtube_url"`
-	SocialTikTokURL    string `gorm:"size:500" json:"social_tiktok_url"`
-	SocialRSSURL       string `gorm:"size:500" json:"social_rss_url"`
-	LoginURL           string `gorm:"size:500" json:"login_url"`
-	ArticleSlugMode    string `gorm:"size:32;not null;default:direct" json:"article_slug_mode"`
-	ArticleSchemaType  string `gorm:"column:article_schema_type;size:30;not null;default:Article" json:"article_schema_type"`
+	ArticleAdsJSON string `gorm:"column:article_ads_json;type:text" json:"article_ads_json"`
+	// JSON blobs shared with the portfolio schema. Runtime fields below stay in sync via Pack/Unpack.
+	StoredColorTheme       string `gorm:"column:color_theme;type:text" json:"-"`
+	StoredAdsScript        string `gorm:"column:ads_script;type:text" json:"-"`
+	StoredImgResizeSelf    string `gorm:"column:img_resize_self;type:text" json:"-"`
+	StoredImgResizeCDN     string `gorm:"column:img_resize_cdn;type:text" json:"-"`
+	StoredSocialLinks      string `gorm:"column:social_links;type:text" json:"-"`
+	StoredTypography       string `gorm:"column:typography;type:text" json:"-"`
+	StoredSidebarConfig    string `gorm:"column:sidebar_config;type:text" json:"-"`
+	StoredImageCaption     string `gorm:"column:image_caption;type:text" json:"-"`
+	StoredDefaultMeta      string `gorm:"column:default_meta;type:text" json:"-"`
+	StoredSourceDisclaimer string `gorm:"column:source_disclaimer;type:text" json:"-"`
+	StoredAlsoRead         string `gorm:"column:also_read;type:text" json:"-"`
+	StoredPostDateConfig   string `gorm:"column:post_date_config;type:text" json:"-"`
+	StoredSeoFiles         string `gorm:"column:seo_files;type:text" json:"-"`
+	HomepageLayout         string `gorm:"size:20;not null;default:default" json:"homepage_layout"`
+	ColorTheme             string `gorm:"-" json:"color_theme"`
+	SocialFacebookURL      string `gorm:"size:500" json:"social_facebook_url"`
+	SocialXURL             string `gorm:"size:500" json:"social_x_url"`
+	SocialInstagramURL     string `gorm:"size:500" json:"social_instagram_url"`
+	SocialYouTubeURL       string `gorm:"size:500" json:"social_youtube_url"`
+	SocialTikTokURL        string `gorm:"size:500" json:"social_tiktok_url"`
+	SocialRSSURL           string `gorm:"size:500" json:"social_rss_url"`
+	LoginURL               string `gorm:"size:500" json:"login_url"`
+	ArticleSlugMode        string `gorm:"size:32;not null;default:direct" json:"article_slug_mode"`
+	ArticleSchemaType      string `gorm:"column:article_schema_type;size:30;not null;default:Article" json:"article_schema_type"`
 	// ScraperAutoTag when false disables scraper tag inference, in-body tag links, and post tag associations (all categories and bulk runs).
 	ScraperAutoTag bool `gorm:"column:scraper_auto_tag;not null;default:true" json:"scraper_auto_tag"`
 	// AutoHrefEnabled when true enables auto-linking of category names and article titles in post contents.
@@ -312,6 +326,8 @@ type SiteSetting struct {
 	AlsoReadEnabled bool `gorm:"column:also_read_enabled;not null;default:true" json:"also_read_enabled"`
 	// AlsoReadMaxInserts caps how many "Baca juga" boxes are injected per published article (1–20).
 	AlsoReadMaxInserts int `gorm:"column:also_read_max_inserts;not null;default:6" json:"also_read_max_inserts"`
+	// AlsoReadParagraphInterval is kept so saves round-trip the shared JSON blob. This app does not apply the interval itself.
+	AlsoReadParagraphInterval int `gorm:"-" json:"also_read_paragraph_interval"`
 	// PostDateRefreshEnabled when false disables the background job that refreshes old published post dates.
 	PostDateRefreshEnabled bool `gorm:"column:post_date_refresh_enabled;not null;default:false" json:"post_date_refresh_enabled"`
 	// PostDateRefreshDays: when >0, published posts older than N days get their updated_at refreshed by background worker.

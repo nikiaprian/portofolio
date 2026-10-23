@@ -35,6 +35,7 @@ func (r *siteSettingRepository) Get() (*entity.SiteSetting, error) {
 }
 
 func (r *siteSettingRepository) Create(s *entity.SiteSetting) error {
+	entity.PackSiteSettingJSON(s)
 	if err := r.db.Create(s).Error; err != nil {
 		return err
 	}
@@ -46,6 +47,7 @@ func (r *siteSettingRepository) Save(s *entity.SiteSetting) error {
 	if s == nil {
 		return nil
 	}
+	entity.PackSiteSettingJSON(s)
 	var err error
 	if s.ID == 0 {
 		err = r.db.Create(s).Error

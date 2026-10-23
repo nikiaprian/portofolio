@@ -354,7 +354,10 @@
   function syncIconOnlySearchOpenState(q) {
     var form = document.getElementById("header-search-form");
     if (!form) return;
-    if (!document.body.classList.contains("site-layout-detik")) {
+    if (
+      !document.body.classList.contains("site-layout-detik") &&
+      !document.body.classList.contains("site-layout-tirtayasa")
+    ) {
       return;
     }
     var input = form.querySelector('input[name="q"]');
@@ -698,7 +701,10 @@
     var submitBtn = form.querySelector(".header-search-submit");
 
     function isIconOnlySearch() {
-      return document.body.classList.contains("site-layout-detik");
+      return (
+        document.body.classList.contains("site-layout-detik") ||
+        document.body.classList.contains("site-layout-tirtayasa")
+      );
     }
     function isOpen() {
       return form.classList.contains("header-search--open");

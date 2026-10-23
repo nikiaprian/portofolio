@@ -10,6 +10,7 @@ import (
 
 var stripInnerTagsRE = regexp.MustCompile(`<[^>]*>`)
 var leadingDupH1RE = regexp.MustCompile(`(?is)^\s*<h1\b[^>]*>([\s\S]*?)</h1>\s*`)
+var articleTableRE = regexp.MustCompile(`(?i)<table\b[^>]*>[\s\S]*?</table>`)
 
 // StripLeadingDuplicateH1HTML removes one leading <h1> when its text duplicates the article title,
 // mirroring SSR and client duplicate-title stripping.
@@ -52,5 +53,13 @@ func BuildPublicPostBodyHTML(siteBaseURL string, rawContent string, displayTitle
 	if slots := ParseArticleAdsJSON(siteSetting.ArticleAdsJSON); len(slots) > 0 {
 		postBodyHTML = InjectArticleAds(postBodyHTML, slots)
 	}
-	return postBodyHTML
+	return wrapArticleTables(postBodyHTML)
+}
+
+// wrapArticleTables keeps wide comparison tables inside the article column.
+func wrapArticleTables(html string) string {
+	if !strings.Contains(strings.ToLower(html), "<table") {
+		return html
+	}
+	return articleTableRE.ReplaceAllString(html, `<div class="article-table-scroll">$0</div>`)
 }

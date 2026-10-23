@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	siteSettingCacheTTL   = 5 * time.Minute
-	siteSettingRedisKey   = "data:site_setting"
+	siteSettingCacheTTL = 5 * time.Minute
+	siteSettingRedisKey = "data:site_setting"
 )
 
 var (
@@ -79,6 +79,7 @@ func setCachedSiteSetting(row entity.SiteSetting) {
 }
 
 func normalizeSiteSettingRow(s entity.SiteSetting) entity.SiteSetting {
+	entity.UnpackSiteSettingJSON(&s)
 	s.HomepageLayout = entity.NormalizeHomeLayout(strings.TrimSpace(s.HomepageLayout))
 	s.ColorTheme = entity.NormalizeColorTheme(strings.TrimSpace(s.ColorTheme))
 	s.NotFoundRedirectMode = entity.NormalizeNotFoundRedirectMode(strings.TrimSpace(s.NotFoundRedirectMode))

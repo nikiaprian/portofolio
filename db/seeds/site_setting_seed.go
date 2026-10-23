@@ -14,8 +14,8 @@ func seedSiteSetting(db *gorm.DB) error {
 		FaviconURL:               "",
 		TextPrimary:              "#1c1915",
 		TextSecondary:            "#5c564c",
-		BackgroundPrimary:        "#fbf7f0",
-		BackgroundSecondary:      "#f6f1e7",
+		BackgroundPrimary:        "#ffffff",
+		BackgroundSecondary:      "#ffffff",
 		PrimaryButton:            "#0f3d3e",
 		SecondaryButton:          "#8a8175",
 		AccentColor:              "#0f3d3e",
@@ -47,5 +47,6 @@ func seedSiteSetting(db *gorm.DB) error {
 		ImageCaptionMode:         entity.ImageCaptionModeDefault,
 		ImageCaptionTemplate:     entity.DefaultImageCaptionTemplate,
 	}
+	entity.PackSiteSettingJSON(&siteSetting)
 	return db.Create(&siteSetting).Error
 }

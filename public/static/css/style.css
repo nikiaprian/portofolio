@@ -8895,50 +8895,46 @@ body.blog-modal-open {
 
 /* Layout Tirtayasa: kertas hangat, tinta hijau-tua, tanpa chrome portal berita. */
 body.site-layout-tirtayasa {
-  --bg: #f3efe6;
-  --surface: #fbf8f2;
+  --bg: #ffffff;
+  --surface: #ffffff;
   --text: #1c1915;
   --muted: #5e574c;
-  --border: #e3d8c6;
+  --border: #e5e7eb;
   --accent: #0f3d3e;
   --accent-hover: #082827;
   --article-link: #0f3d3e;
   --article-link-hover: #082827;
   --nav-blue: #0f3d3e;
-  --nav-active: #f3efe6;
+  --nav-active: #ffffff;
   --font: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   background: var(--bg);
   color: var(--text);
 }
 
 .site-header--tirtayasa {
-  background: #f6f1e7;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #ffffff;
   color: #1c1915;
-  border-bottom: 1px solid #e3d8c6;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.ty-mast {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 1rem 1.25rem;
-  max-width: 68rem;
+.ty-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 72rem;
+  height: 4rem;
   margin: 0 auto;
-  padding: 1.35rem 1.25rem 0.85rem;
-}
-
-.ty-mast-center {
-  text-align: center;
-  min-width: 0;
+  padding: 0 1.25rem;
 }
 
 .ty-wordmark {
-  display: inline-block;
+  flex: 0 0 auto;
   font-family: Georgia, "Palatino Linotype", Palatino, serif;
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 1.35rem;
+  font-weight: 700;
   color: #0f3d3e;
   text-decoration: none;
   line-height: 1;
@@ -8949,58 +8945,89 @@ body.site-layout-tirtayasa {
   text-decoration: none;
 }
 
-.ty-tagline {
-  margin: 0.45rem 0 0;
-  color: #5e574c;
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
+.ty-logo {
+  display: block;
+  max-height: 2.25rem;
+  width: auto;
 }
 
-.ty-search {
+.ty-bar-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  min-height: 0;
+}
+
+.ty-bar-tools {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin: 0;
-  flex: 0 1 auto;
-  max-width: none;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.site-header--tirtayasa .ty-menu-toggle {
+  display: none;
+}
+
+.site-header--tirtayasa .header-search {
+  width: 2.4rem;
+  max-width: 2.4rem;
+  min-width: 2.4rem;
+  flex: 0 0 auto;
   padding: 0;
   border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  background: #f3f4f6;
+  border-radius: 0.55rem;
+  justify-content: center;
+  gap: 0;
 }
 
-.ty-search input[type="search"] {
-  width: 9.5rem;
+.site-header--tirtayasa #header-search-form:not(.header-search--open) .header-search-icon,
+.site-header--tirtayasa #header-search-form:not(.header-search--open) input[name="q"] {
+  display: none;
+}
+
+.site-header--tirtayasa .header-search.header-search--open {
+  width: min(18rem, 46vw);
+  max-width: min(18rem, 46vw);
+  min-width: 12rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  justify-content: flex-start;
+  gap: 0.45rem;
+}
+
+.site-header--tirtayasa .header-search-submit {
+  display: inline-flex;
   border: 0;
-  border-bottom: 1px solid #0f3d3e;
   background: transparent;
   color: #1c1915;
-  border-radius: 0;
-  padding: 0.35rem 0;
-  font: inherit;
-}
-
-.ty-search .header-search-submit {
-  border: 0;
-  background: transparent;
-  color: #0f3d3e;
-  font: inherit;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  padding: 0.2rem;
   cursor: pointer;
-  padding: 0.35rem 0;
 }
 
-.header-nav-strip--tirtayasa {
-  background: transparent;
-  border-top: 1px solid #e3d8c6;
+.site-header--tirtayasa .header-search-icon-svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.site-header--tirtayasa .header-nav-primary,
+.site-header--tirtayasa .header-nav-link,
+.site-header--tirtayasa .header-nav-link--home,
+.site-header--tirtayasa .header-nav-cats > a.header-nav-link,
+.site-header--tirtayasa .header-nav-dropdown > .header-nav-link--has-children {
+  min-height: 0;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  font-size: 0.85rem;
+  color: #3f3a33;
 }
 
 .site-layout-tirtayasa .header-nav-link {
   color: #3f3a33;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
 }
 
 .site-layout-tirtayasa .header-nav-link:hover,
@@ -9070,15 +9097,6 @@ body.site-layout-tirtayasa {
 .ty-support-title a:hover,
 .ty-reading-link:hover {
   color: #0f3d3e;
-}
-
-.ty-lead-excerpt,
-.ty-support-excerpt,
-.ty-reading-excerpt {
-  margin: 0.75rem 0 0;
-  color: #3f3a33;
-  font-size: 1.05rem;
-  line-height: 1.55;
 }
 
 .ty-meta {
@@ -9168,23 +9186,12 @@ body.site-layout-tirtayasa {
 }
 
 @media (max-width: 800px) {
-  .ty-mast {
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
+  .site-header--tirtayasa .ty-bar-nav {
+    display: none;
   }
 
-  .ty-mast-center {
-    grid-column: 1 / -1;
-    order: -1;
-  }
-
-  .ty-search {
-    grid-column: 1 / -1;
-  }
-
-  .ty-search input[type="search"] {
-    flex: 1;
-    width: auto;
+  .site-header--tirtayasa .ty-menu-toggle {
+    display: inline-flex;
   }
 
   .ty-lead,
@@ -9196,4 +9203,27 @@ body.site-layout-tirtayasa {
     min-height: 12rem;
     order: -1;
   }
+}
+
+/* Tabel artikel menggulir di dalam kolom isi, tidak menimpa sidebar. */
+.blog-article-layout,
+.blog-article-single,
+.blog-article-body.post-body {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.article-table-scroll {
+  max-width: 100%;
+  margin: 0.5rem 0 1.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.article-table-scroll > table {
+  width: max-content;
+  min-width: 100%;
+  max-width: none;
+  margin: 0;
+  table-layout: auto;
 }

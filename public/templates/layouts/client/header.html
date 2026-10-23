@@ -1,76 +1,89 @@
 {{ define "client-header" }}
 {{ if eq .homepage_layout "tirtayasa" }}
 <header class="site-header site-header--tirtayasa">
-  <div class="ty-mast">
-    <button
-      type="button"
-      class="menu-toggle ty-menu-toggle"
-      id="site-menu-toggle"
-      aria-expanded="false"
-      aria-controls="site-offcanvas"
-      aria-label="Menu"
-    >
-      <span class="menu-toggle-bars" aria-hidden="true"></span>
-    </button>
-    <div class="ty-mast-center">
-      <a class="ty-wordmark" href="{{ .public_base }}/">{{ if .site_name }}{{ .site_name }}{{ else }}Tirtayasa{{ end }}</a>
-      {{ with .tagline }}<p class="ty-tagline">{{ . }}</p>{{ end }}
-    </div>
-    <form class="header-search ty-search" action="/" method="get" role="search" id="header-search-form">
-      <input
-        type="search"
-        name="q"
-        id="header-search-input"
-        placeholder="Cari bacaan"
-        autocomplete="off"
-        aria-label="Cari bacaan"
-      />
-      <button type="submit" class="header-search-submit" aria-label="Cari">Cari</button>
-    </form>
-  </div>
-  <div class="header-nav-strip header-nav-strip--tirtayasa">
-    <div class="header-nav-inner">
-      <nav class="header-nav-primary" aria-label="Kategori">
-        <a href="{{ .public_base }}/" class="header-nav-link header-nav-link--home" data-nav="home">Beranda</a>
-        <div class="header-nav-scroll" id="header-nav-scroll">
-          <div class="header-nav-cats" id="header-nav-cats">
-            {{- range .nav_categories -}}
-            {{- if .Children -}}
-            <div class="header-nav-dropdown" data-dropdown-panel="nav-dd-{{ .ID }}">
-              <a
-                class="header-nav-link header-nav-link--has-children"
-                href="{{ $.public_base }}/{{ .Slug }}"
-                data-cat-slug="{{ .Slug }}"
-                aria-haspopup="true"
-                aria-expanded="false"
-                aria-controls="nav-dd-{{ .ID }}"
-              >
-                {{ .Name }}
-                <svg class="header-nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-            {{- else -}}
-            <a class="header-nav-link" href="{{ $.public_base }}/{{ .Slug }}" data-cat-slug="{{ .Slug }}">{{ .Name }}</a>
-            {{- end -}}
-            {{- end -}}
+  <div class="ty-bar">
+    <a class="ty-wordmark" href="{{ .public_base }}/">
+      {{ if .logo_url }}
+      <img class="ty-logo" src="{{ .logo_url }}" alt="{{ if .site_name }}{{ .site_name }}{{ else }}Tirtayasa{{ end }}" width="160" height="40" decoding="sync" onerror="this.replaceWith(document.createTextNode(this.alt))" />
+      {{ else }}
+      {{ if .site_name }}{{ .site_name }}{{ else }}Tirtayasa{{ end }}
+      {{ end }}
+    </a>
+    <nav class="header-nav-primary ty-bar-nav" aria-label="Kategori">
+      <a href="{{ .public_base }}/" class="header-nav-link header-nav-link--home" data-nav="home">Beranda</a>
+      <div class="header-nav-scroll" id="header-nav-scroll">
+        <div class="header-nav-cats" id="header-nav-cats">
+          {{- range .nav_categories -}}
+          {{- if .Children -}}
+          <div class="header-nav-dropdown" data-dropdown-panel="nav-dd-{{ .ID }}">
+            <a
+              class="header-nav-link header-nav-link--has-children"
+              href="{{ $.public_base }}/{{ .Slug }}"
+              data-cat-slug="{{ .Slug }}"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="nav-dd-{{ .ID }}"
+            >
+              {{ .Name }}
+              <svg class="header-nav-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
           </div>
-          <button
-            type="button"
-            class="header-nav-scroll-next"
-            id="header-nav-scroll-next"
-            aria-label="Lihat kategori berikutnya"
-            hidden
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
+          {{- else -}}
+          <a class="header-nav-link" href="{{ $.public_base }}/{{ .Slug }}" data-cat-slug="{{ .Slug }}">{{ .Name }}</a>
+          {{- end -}}
+          {{- end -}}
         </div>
-      </nav>
+        <button
+          type="button"
+          class="header-nav-scroll-next"
+          id="header-nav-scroll-next"
+          aria-label="Lihat kategori berikutnya"
+          hidden
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </button>
+      </div>
+    </nav>
+    <div class="ty-bar-tools">
+      <form class="header-search" action="/" method="get" role="search" id="header-search-form">
+        <span class="header-search-icon" aria-hidden="true">
+          <svg class="header-search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="6.75" stroke="currentColor" stroke-width="2" />
+            <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <input
+          type="search"
+          name="q"
+          id="header-search-input"
+          placeholder="Cari artikel..."
+          autocomplete="off"
+          aria-label="Cari artikel"
+        />
+        <button type="submit" class="header-search-submit" aria-label="Cari">
+          <svg class="header-search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="6.75" stroke="currentColor" stroke-width="2" />
+            <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </form>
+      <button
+        type="button"
+        class="menu-toggle ty-menu-toggle"
+        id="site-menu-toggle"
+        aria-expanded="false"
+        aria-controls="site-offcanvas"
+        aria-label="Menu"
+      >
+        <span class="menu-toggle-bars" aria-hidden="true"></span>
+      </button>
     </div>
-    <div class="header-nav-dropdown-layer" id="header-nav-dropdown-layer" aria-hidden="true">
+  </div>
+  <div class="header-nav-dropdown-layer" id="header-nav-dropdown-layer" aria-hidden="true">
       {{- range .nav_categories -}}
       {{- if .Children -}}
       <div
@@ -94,7 +107,6 @@
       {{- end -}}
       {{- end -}}
     </div>
-  </div>
 </header>
 {{ else }}
 {{ if eq .homepage_layout "neo" }}

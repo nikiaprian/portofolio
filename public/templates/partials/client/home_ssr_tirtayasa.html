@@ -5,11 +5,11 @@
     <div class="ty-lead-copy">
       {{ if .has_cat }}<a class="ty-kicker" href="{{ .cat_href }}">{{ .cat_name }}</a>{{ end }}
       <h1 class="ty-lead-title"><a href="{{ .href }}">{{ .title }}</a></h1>
-      {{ if .excerpt }}<p class="ty-lead-excerpt">{{ .excerpt }}</p>{{ end }}
+      {{ if .date_label }}
       <p class="ty-meta">
-        {{ if .author_name }}<span>{{ .author_name }}</span>{{ end }}
-        {{ if .date_label }}<time>{{ .date_label }}</time>{{ end }}
+        <time>{{ .date_label }}</time>
       </p>
+      {{ end }}
     </div>
     {{ if .thumb }}
     <a class="ty-lead-media" href="{{ .href }}">
@@ -32,7 +32,6 @@
         <div class="ty-support-copy">
           {{ if $s.has_cat }}<a class="ty-kicker" href="{{ $s.cat_href }}">{{ $s.cat_name }}</a>{{ end }}
           <h2 class="ty-support-title"><a href="{{ $s.href }}">{{ $s.title }}</a></h2>
-          {{ if $s.excerpt }}<p class="ty-support-excerpt">{{ $s.excerpt }}</p>{{ end }}
         </div>
       </article>
       {{ end }}
@@ -48,7 +47,6 @@
         {{ if ge $i 3 }}
         <li class="ty-reading-item">
           <a class="ty-reading-link" href="{{ $row.href }}">{{ $row.title }}</a>
-          {{ if $row.excerpt }}<p class="ty-reading-excerpt">{{ $row.excerpt }}</p>{{ end }}
           <p class="ty-meta">
             {{ if $row.cat_name }}
               {{ if $row.has_cat_slug }}<a href="{{ $row.cat_href }}">{{ $row.cat_name }}</a>{{ else }}<span>{{ $row.cat_name }}</span>{{ end }}
