@@ -10,9 +10,9 @@
       {{ end }}
     </a>
     <nav class="header-nav-primary ty-bar-nav" aria-label="Kategori">
-      <a href="{{ .public_base }}/" class="header-nav-link header-nav-link--home" data-nav="home">Beranda</a>
       <div class="header-nav-scroll" id="header-nav-scroll">
         <div class="header-nav-cats" id="header-nav-cats">
+          <a href="{{ .public_base }}/" class="header-nav-link header-nav-link--home" data-nav="home">Beranda</a>
           {{- range .nav_categories -}}
           {{- if .Children -}}
           <div class="header-nav-dropdown" data-dropdown-panel="nav-dd-{{ .ID }}">
