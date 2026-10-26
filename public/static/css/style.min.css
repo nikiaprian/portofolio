@@ -283,10 +283,17 @@ body.site-layout-tirtayasa {
 }
 
 .ty-lead-media {
+  position: relative;
   display: block;
-  min-height: 16rem;
+  width: 100%;
+  aspect-ratio: 3 / 2;
   background: #eff6ff;
   overflow: hidden;
+}
+
+.ty-lead-media img {
+  position: absolute;
+  inset: 0;
 }
 
 .ty-support {
@@ -361,7 +368,6 @@ body.site-layout-tirtayasa {
   }
 
   .ty-lead-media {
-    min-height: 12rem;
     order: -1;
   }
 }
