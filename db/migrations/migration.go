@@ -132,7 +132,38 @@ func Run(db *gorm.DB) error {
 	if err := ensureSiteSettingImgResizeEnabledColumn(db); err != nil {
 		return err
 	}
+	if err := ensureIndexingColumns(db); err != nil {
+		return err
+	}
 	return ensurePerformanceIndexes(db)
+}
+
+func ensureIndexingColumns(db *gorm.DB) error {
+	m := db.Migrator()
+	specs := []struct {
+		model any
+		cols  []string
+	}{
+		{&entity.Post{}, []string{"IndexingStatus", "IndexedAt", "IndexingMessage"}},
+		{&entity.Page{}, []string{"IndexingStatus", "IndexedAt", "IndexingMessage"}},
+		{&entity.Category{}, []string{"IndexingStatus", "IndexedAt", "IndexingMessage"}},
+		{&entity.Tag{}, []string{"IndexingStatus", "IndexedAt", "IndexingMessage"}},
+		{&entity.SiteConnection{}, []string{"GoogleIndexingEnabled", "GoogleServiceAccountJSON"}},
+	}
+	for _, spec := range specs {
+		if !m.HasTable(spec.model) {
+			continue
+		}
+		for _, col := range spec.cols {
+			if m.HasColumn(spec.model, col) {
+				continue
+			}
+			if err := m.AddColumn(spec.model, col); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func ensurePerformanceIndexes(db *gorm.DB) error {

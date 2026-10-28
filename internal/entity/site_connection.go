@@ -45,6 +45,9 @@ type SiteConnection struct {
 	InstagramScope        string `gorm:"column:instagram_scope;size:500" json:"instagram_scope"`
 	InstagramAccountID    string `gorm:"column:instagram_account_id;size:255" json:"instagram_account_id"`
 
+	GoogleIndexingEnabled    bool   `gorm:"column:google_indexing_enabled;default:false" json:"google_indexing_enabled"`
+	GoogleServiceAccountJSON string `gorm:"column:google_service_account_json;type:text" json:"google_service_account_json"`
+
 	CreatedAt time.Time `json:"created_at" swaggerignore:"true"`
 	UpdatedAt time.Time `json:"updated_at" swaggerignore:"true"`
 }

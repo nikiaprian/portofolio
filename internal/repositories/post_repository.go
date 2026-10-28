@@ -10,7 +10,7 @@ import (
 	"github.com/nikiaprian/tirtayasa/internal/helper/publishedpost"
 )
 
-const postSelectColumnsNoView = "posts.id, posts.title, posts.slug, posts.content, posts.image, posts.image_origin, posts.image_origin_detail, posts.meta_desc, posts.meta_keywords, posts.source, posts.include_source, posts.status, posts.publish_at, posts.author_id, posts.category_id, posts.created_at, posts.updated_at"
+const postSelectColumnsNoView = "posts.id, posts.title, posts.slug, posts.content, posts.image, posts.image_origin, posts.image_origin_detail, posts.meta_desc, posts.meta_keywords, posts.source, posts.include_source, posts.status, posts.publish_at, posts.author_id, posts.category_id, posts.indexing_status, posts.indexed_at, posts.indexing_message, posts.created_at, posts.updated_at"
 
 // post repository interface
 type PostRepository interface {
@@ -102,12 +102,12 @@ func (r *postRepository) FindPaginated(page int, size int, q string, status stri
 
 	var list []entity.Post
 	query := base.
-		Select("id", "title", "slug", "status", "publish_at", "author_id", "category_id", "created_at", "updated_at").
+		Select("id", "title", "slug", "status", "publish_at", "author_id", "category_id", "indexing_status", "indexed_at", "indexing_message", "created_at", "updated_at").
 		Preload("Author", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name")
 		}).
 		Preload("Category", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name")
+			return db.Select("id", "name", "slug")
 		})
 	err := orderAdminPostList(query, status).
 		Order("id DESC").
@@ -158,12 +158,12 @@ func (r *postRepository) FindPaginatedByAuthor(page int, size int, authorID uint
 
 	var list []entity.Post
 	query := base.
-		Select("id", "title", "slug", "status", "publish_at", "author_id", "category_id", "created_at", "updated_at").
+		Select("id", "title", "slug", "status", "publish_at", "author_id", "category_id", "indexing_status", "indexed_at", "indexing_message", "created_at", "updated_at").
 		Preload("Author", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name")
 		}).
 		Preload("Category", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name")
+			return db.Select("id", "name", "slug")
 		})
 	err := orderAdminPostList(query, status).
 		Order("id DESC").

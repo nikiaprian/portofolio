@@ -69,6 +69,11 @@ func (s *categoryService) Update(id uint, c *entity.Category) (*entity.Category,
 	existing.Keyword = c.Keyword
 	existing.Description = c.Description
 	existing.ParentID = c.ParentID
+	if existing.IndexingStatus != "" && existing.IndexingStatus != entity.IndexingStatusNotIndexed {
+		existing.IndexingStatus = entity.IndexingStatusNotIndexed
+		existing.IndexedAt = nil
+		existing.IndexingMessage = ""
+	}
 	return existing, s.repo.Update(existing)
 }
 

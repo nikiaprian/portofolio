@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/nikiaprian/tirtayasa/internal/entity"
 	"github.com/nikiaprian/tirtayasa/internal/routes/dto"
@@ -16,11 +17,12 @@ import (
 // CategoryHandler struct
 type CategoryHandler struct {
 	svc services.CategoryService
+	db  *gorm.DB
 }
 
 // function to create a new CategoryHandler
-func NewCategoryHandler(svc services.CategoryService) *CategoryHandler {
-	return &CategoryHandler{svc: svc}
+func NewCategoryHandler(svc services.CategoryService, db *gorm.DB) *CategoryHandler {
+	return &CategoryHandler{svc: svc, db: db}
 }
 
 // List
@@ -117,6 +119,7 @@ func (h *CategoryHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat kategori"})
 		return
 	}
+	h.maybeAutoIndexGSC(&input)
 	c.JSON(http.StatusCreated, input)
 }
 
@@ -178,6 +181,7 @@ func (h *CategoryHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui kategori"})
 		return
 	}
+	h.maybeAutoIndexGSC(item)
 	c.JSON(http.StatusOK, item)
 }
 

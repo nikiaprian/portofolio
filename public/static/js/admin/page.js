@@ -148,7 +148,7 @@
       if (!tbody) return;
       var tr = document.createElement("tr");
       var td = document.createElement("td");
-      td.colSpan = 6;
+      td.colSpan = 7;
       td.className = "text-secondary py-5 text-center";
       td.innerHTML =
         '<div class="d-flex flex-column align-items-center gap-2">' +
@@ -162,6 +162,7 @@
     renderRow: function (item) {
       var id = item && item.id != null ? item.id : "";
       var tr = document.createElement("tr");
+      tr.setAttribute("data-indexing-status", String((item && item.indexing_status) || "not_indexed"));
 
       var tdMain = document.createElement("td");
       var rowFlex = document.createElement("div");
@@ -211,6 +212,49 @@
       } else {
         tdStatus.textContent = "—";
       }
+
+      var tdIndexing = document.createElement("td");
+      tdIndexing.className = "admin-crud-meta";
+      var idxStatus = String((item && item.indexing_status) || "not_indexed").toLowerCase();
+      var idxMsg = item && item.indexing_message ? String(item.indexing_message) : "";
+      var idxAt = item && item.indexed_at ? AC.formatDate(item.indexed_at) : "";
+      var idxWrap = document.createElement("div");
+      idxWrap.className = "d-flex align-items-center gap-1";
+      var idxBadge = document.createElement(idxStatus === "indexed" && pubHref ? "a" : "span");
+      idxBadge.className = "badge rounded-pill small ";
+      if (idxStatus === "indexed") {
+        idxBadge.className += "text-bg-success";
+        idxBadge.textContent = "Terindeks";
+        if (idxAt) idxBadge.title = "Terindeks di Google: " + idxAt;
+        if (pubHref) {
+          idxBadge.href = "https://www.google.com/search?q=site:" + encodeURIComponent(pubHref);
+          idxBadge.target = "_blank";
+          idxBadge.rel = "noopener";
+          idxBadge.style.textDecoration = "none";
+        }
+      } else if (idxStatus === "submitted") {
+        idxBadge.className += "text-bg-info";
+        idxBadge.textContent = "Terkirim";
+        if (idxAt) idxBadge.title = "Terkirim: " + idxAt;
+      } else if (idxStatus === "failed") {
+        idxBadge.className += "text-bg-danger";
+        idxBadge.textContent = "Gagal";
+        if (idxMsg) idxBadge.title = idxMsg;
+      } else {
+        idxBadge.className += "text-bg-secondary";
+        idxBadge.textContent = "Belum Dikirim";
+      }
+      idxWrap.appendChild(idxBadge);
+      if (idxStatus !== "indexed") {
+        var indexBtn = document.createElement("button");
+        indexBtn.type = "button";
+        indexBtn.className = "btn btn-sm btn-light border admin-crud-btn-index-gsc ms-1 p-1 lh-1";
+        indexBtn.setAttribute("data-item-id", String(id));
+        indexBtn.setAttribute("title", "Kirim Request Indexing ke Google Search Console");
+        indexBtn.innerHTML = '<i class="bi bi-google text-primary small"></i>';
+        idxWrap.appendChild(indexBtn);
+      }
+      tdIndexing.appendChild(idxWrap);
 
       var tdUpdated = document.createElement("td");
       tdUpdated.className = "admin-crud-meta";
@@ -263,6 +307,7 @@
       tr.appendChild(tdMain);
       tr.appendChild(tdSlug);
       tr.appendChild(tdStatus);
+      tr.appendChild(tdIndexing);
       tr.appendChild(tdUpdated);
       tr.appendChild(tdActions);
       return tr;
@@ -272,6 +317,87 @@
     },
     afterBind: function (ctx) {
       consumePageSavedFlash();
+
+      var pagesTbody = document.getElementById("pages-tbody");
+      if (pagesTbody) {
+        pagesTbody.addEventListener("click", async function (ev) {
+          var btn = ev.target.closest(".admin-crud-btn-index-gsc");
+          if (!btn) return;
+          var id = btn.getAttribute("data-item-id");
+          if (!id) return;
+          btn.disabled = true;
+          var origHTML = btn.innerHTML;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+          try {
+            var res = await ctx.fetchJSON("POST", API + "/" + encodeURIComponent(id) + "/index-gsc", {});
+            var data = await res.json().catch(function () { return null; });
+            if (!res.ok) throw new Error((data && data.error) || "Gagal mengirim request indexing");
+            var msgStr = (data && data.message) || "Pengindeksan Google Search Console berhasil dikirim";
+            if (typeof Swal !== "undefined") {
+              await Swal.fire({ icon: "success", title: "Berhasil Terkirim!", text: msgStr, confirmButtonText: "OK" });
+            } else {
+              alert("Berhasil Terkirim!\n" + msgStr);
+            }
+            await ctx.loadList();
+          } catch (err) {
+            var errMsg = (err && err.message) || "Terjadi kesalahan saat pengiriman indexing.";
+            if (typeof Swal !== "undefined") {
+              await Swal.fire({ icon: "error", title: "Indexing GSC Gagal", text: errMsg, confirmButtonText: "Tutup" });
+            } else {
+              alert("Indexing GSC Gagal:\n" + errMsg);
+            }
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHTML;
+          }
+        });
+      }
+
+      var bulkIndexBtn = document.querySelector('[data-admin-crud-bulk-index-gsc="pages-tbody"]');
+      if (bulkIndexBtn) {
+        bulkIndexBtn.classList.remove("d-none");
+        bulkIndexBtn.disabled = false;
+        bulkIndexBtn.addEventListener("click", async function () {
+          var checkboxes = pagesTbody ? pagesTbody.querySelectorAll(".admin-crud-row-select:checked") : [];
+          var ids = [];
+          var skipped = 0;
+          Array.prototype.slice.call(checkboxes).forEach(function (cb) {
+            var tr = cb.closest("tr");
+            if (tr && tr.getAttribute("data-indexing-status") === "indexed") { skipped++; return; }
+            var rowId = (cb.getAttribute("data-item-id") || "").trim();
+            if (rowId) ids.push(Number(rowId));
+          });
+          if (!ids.length) {
+            if (skipped > 0) AC.showSuccessToast("Semua item yang dipilih sudah terindeks.");
+            return;
+          }
+          AC.openBulkLoadingModal("Mengirim Request Indexing GSC Halaman", ids.length);
+          bulkIndexBtn.disabled = true;
+          try {
+            var res = await ctx.fetchJSON("POST", API + "/bulk-index-gsc", { ids: ids });
+            AC.closeBulkLoadingModal();
+            var data = await res.json().catch(function () { return null; });
+            if (!res.ok) throw new Error((data && data.error) || "Gagal mengirim request indexing massal");
+            var msgStr = (data && data.message) || "Request indexing massal berhasil dikirim.";
+            if (typeof Swal !== "undefined") {
+              await Swal.fire({ icon: "success", title: "Berhasil Terkirim!", text: msgStr, confirmButtonText: "OK" });
+            } else {
+              alert("Berhasil Terkirim!\n" + msgStr);
+            }
+          } catch (e) {
+            AC.closeBulkLoadingModal();
+            var errMsg = (e && e.message) || "Gagal meng-index secara massal.";
+            if (typeof Swal !== "undefined") {
+              await Swal.fire({ icon: "error", title: "Indexing GSC Gagal", text: errMsg, confirmButtonText: "Tutup" });
+            } else {
+              alert("Indexing GSC Gagal:\n" + errMsg);
+            }
+          } finally {
+            bulkIndexBtn.disabled = false;
+          }
+          await ctx.loadList();
+        });
+      }
 
       var bulkPublishBtn = document.querySelector('[data-admin-crud-bulk-publish="pages-tbody"]');
       var bulkDraftBtn = document.querySelector('[data-admin-crud-bulk-draft="pages-tbody"]');

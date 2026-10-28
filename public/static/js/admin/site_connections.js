@@ -234,7 +234,65 @@
       instagramScope.value = data.instagram_scope;
     if (instagramAccountID && data.instagram_account_id != null)
       instagramAccountID.value = data.instagram_account_id;
+    var googleIndexingEnabled = qs("#sc-google-indexing-enabled");
+    var googleServiceAccountJSON = qs("#sc-google-service-account-json");
+    if (googleIndexingEnabled)
+      googleIndexingEnabled.checked = !!data.google_indexing_enabled;
+    if (googleServiceAccountJSON && data.google_service_account_json != null) {
+      googleServiceAccountJSON.value = data.google_service_account_json;
+      updateGSCJSONPreview();
+    }
     updateHelpLinks();
+  }
+
+  function escapeStr(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function updateGSCJSONPreview() {
+    var area = qs("#sc-google-service-account-json");
+    var infoBox = qs("#sc-gsc-file-info");
+    var infoDetails = qs("#sc-gsc-file-details");
+    if (!area || !infoBox || !infoDetails) return;
+
+    var val = (area.value || "").trim();
+    if (!val) {
+      infoBox.classList.add("d-none");
+      infoDetails.innerHTML = "";
+      return;
+    }
+
+    try {
+      var obj = JSON.parse(val);
+      if (!obj || typeof obj !== "object") throw new Error("Format JSON tidak valid");
+      var clientEmail = obj.client_email || "";
+      var projectId = obj.project_id || "";
+      var type = obj.type || "";
+
+      if (!clientEmail || type !== "service_account") {
+        infoBox.classList.remove("d-none");
+        infoBox.className = "alert alert-warning py-2.5 px-3 small mt-3 mb-0";
+        infoDetails.innerHTML = "<strong>Peringatan:</strong> Format JSON terdeteksi tetapi properti <code>client_email</code> atau <code>type: service_account</code> tidak ditemukan.";
+        return;
+      }
+
+      infoBox.classList.remove("d-none");
+      infoBox.className = "alert alert-success py-2.5 px-3 small mt-3 mb-0";
+      infoDetails.innerHTML =
+        "<div><strong>Project ID:</strong> " + escapeStr(projectId) + "</div>" +
+        "<div><strong>Client Email:</strong> <code class='user-select-all fw-bold text-dark'>" + escapeStr(clientEmail) + "</code></div>" +
+        "<div class='mt-1 text-muted fs-7'><i class='bi bi-info-circle me-1'></i>Salin email di atas dan tambahkan sebagai Pemilik (Owner) di Google Search Console.</div>";
+    } catch (e) {
+      infoBox.classList.remove("d-none");
+      infoBox.className = "alert alert-danger py-2.5 px-3 small mt-3 mb-0";
+      infoDetails.innerHTML = "<strong>Error:</strong> Script JSON tidak valid (" + escapeStr(e.message) + ").";
+    }
   }
 
   function applyOAuthDefaults() {
@@ -371,6 +429,33 @@
     var aBing = qs("#sc-link-bing");
     if (aGoogle) aGoogle.addEventListener("click", blockEmptyDashboardClick);
     if (aBing) aBing.addEventListener("click", blockEmptyDashboardClick);
+
+    var fileInput = qs("#sc-gsc-file-input");
+    if (fileInput) {
+      fileInput.addEventListener("change", function () {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var content = (e.target && e.target.result) || "";
+          var area = qs("#sc-google-service-account-json");
+          if (area) {
+            area.value = content;
+            updateGSCJSONPreview();
+            showSuccessToast("File JSON kredensial berhasil dimuat. Jangan lupa klik Simpan.");
+          }
+        };
+        reader.onerror = function () {
+          alert("Gagal membaca file JSON.");
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    var jsonArea = qs("#sc-google-service-account-json");
+    if (jsonArea) {
+      jsonArea.addEventListener("input", updateGSCJSONPreview);
+    }
 
     if (testBtn) {
       testBtn.addEventListener("click", function () {
@@ -514,6 +599,14 @@
         instagram_account_id:
           (qs("#sc-instagram-account-id") &&
             qs("#sc-instagram-account-id").value) ||
+          "",
+        google_indexing_enabled: !!(
+          qs("#sc-google-indexing-enabled") &&
+          qs("#sc-google-indexing-enabled").checked
+        ),
+        google_service_account_json:
+          (qs("#sc-google-service-account-json") &&
+            qs("#sc-google-service-account-json").value) ||
           "",
       };
 

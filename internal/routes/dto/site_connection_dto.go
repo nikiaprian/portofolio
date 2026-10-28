@@ -41,6 +41,9 @@ type UpdateSiteConnectionRequest struct {
 	InstagramPublishURL   string `json:"instagram_publish_url" binding:"max=500"`
 	InstagramScope        string `json:"instagram_scope" binding:"max=500"`
 	InstagramAccountID    string `json:"instagram_account_id" binding:"max=255"`
+
+	GoogleIndexingEnabled    bool   `json:"google_indexing_enabled"`
+	GoogleServiceAccountJSON string `json:"google_service_account_json" binding:"max=50000"`
 }
 
 // TestAutoPostRequest triggers a manual webhook test without publishing a real post.

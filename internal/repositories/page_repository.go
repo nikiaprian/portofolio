@@ -59,7 +59,7 @@ func (r *pageRepository) FindPaginated(page int, size int, q string) ([]entity.P
 
 	var list []entity.Page
 	err := base.
-		Select("id", "title", "slug", "status", "created_at", "updated_at").
+		Select("id", "title", "slug", "status", "indexing_status", "indexed_at", "indexing_message", "created_at", "updated_at").
 		Order("updated_at desc").
 		Limit(size).
 		Offset(offset).

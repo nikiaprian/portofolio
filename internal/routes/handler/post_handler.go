@@ -1826,6 +1826,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 	if h.autoPoster != nil && strings.EqualFold(strings.TrimSpace(input.Status), "published") {
 		_ = h.autoPoster.OnPublishedPost(c.Request.Context(), &input)
 	}
+	h.maybeAutoIndexGSC(&input)
 	c.JSON(http.StatusCreated, input)
 }
 
@@ -1915,6 +1916,9 @@ func (h *PostHandler) Update(c *gin.Context) {
 	}
 	if h.autoPoster != nil && item != nil && !wasPublished && strings.EqualFold(strings.TrimSpace(item.Status), "published") {
 		_ = h.autoPoster.OnPublishedPost(c.Request.Context(), item)
+	}
+	if item != nil && strings.EqualFold(strings.TrimSpace(item.Status), "published") {
+		h.maybeAutoIndexGSC(item)
 	}
 	if existing != nil && item != nil {
 		oldImage := strings.TrimSpace(derefString(existing.Image))

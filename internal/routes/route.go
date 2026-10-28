@@ -60,8 +60,8 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 	pageHandler := handler.NewPageHandler(pageSvc, db, cfg)
 	postHandler := handler.NewPostHandler(postSvc, aiGen, cfg, aiSettingRepo, db, autoPoster)
 	aiSettingHandler := handler.NewAISettingHandler(aiSettingSvc, db, cfg)
-	categoryHandler := handler.NewCategoryHandler(categorySvc)
-	tagHandler := handler.NewTagHandler(tagSvc)
+	categoryHandler := handler.NewCategoryHandler(categorySvc, db)
+	tagHandler := handler.NewTagHandler(tagSvc, db)
 	siteSettingHandler := handler.NewSiteSettingHandler(siteSettingSvc, db, cfg)
 	siteConnHandler := handler.NewSiteConnectionHandler(siteConnSvc, autoPoster)
 	siteCloudStorageHandler := handler.NewSiteCloudStorageHandler(siteCloudStorageSvc)
@@ -155,6 +155,8 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 						pages.POST("", pageHandler.Create)
 						pages.POST("/upload-image", pageHandler.UploadImage)
 						pages.POST("/bulk-status", pageHandler.BulkUpdateStatus)
+						pages.POST("/bulk-index-gsc", pageHandler.BulkIndexGSC)
+						pages.POST("/:id/index-gsc", pageHandler.IndexGSC)
 						pages.PUT("/:id", pageHandler.Update)
 						pages.DELETE("/:id", pageHandler.Delete)
 					}
@@ -163,7 +165,9 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 					categoriesAdmin := adminOnly.Group("/categories")
 					{
 						categoriesAdmin.POST("", categoryHandler.Create)
+						categoriesAdmin.POST("/bulk-index-gsc", categoryHandler.BulkIndexGSC)
 						categoriesAdmin.GET("/:id", categoryHandler.GetByID)
+						categoriesAdmin.POST("/:id/index-gsc", categoryHandler.IndexGSC)
 						categoriesAdmin.PUT("/:id", categoryHandler.Update)
 						categoriesAdmin.DELETE("/:id", categoryHandler.Delete)
 					}
@@ -188,7 +192,9 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 					{
 						tags.GET("", tagHandler.List)
 						tags.POST("", tagHandler.Create)
+						tags.POST("/bulk-index-gsc", tagHandler.BulkIndexGSC)
 						tags.GET("/:id", tagHandler.GetByID)
+						tags.POST("/:id/index-gsc", tagHandler.IndexGSC)
 						tags.PUT("/:id", tagHandler.Update)
 						tags.DELETE("/:id", tagHandler.Delete)
 					}
@@ -208,6 +214,8 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 						posts.POST("/bulk-generate-jobs/:id/cancel", postHandler.CancelBulkGenerateJob)
 						posts.POST("/upload-image", postHandler.UploadImage)
 						posts.POST("/bulk-status", postHandler.BulkUpdateStatus)
+						posts.POST("/bulk-index-gsc", postHandler.BulkIndexGSC)
+						posts.POST("/:id/index-gsc", postHandler.IndexGSC)
 						posts.GET("/:id", postHandler.GetByID)
 						posts.POST("", postHandler.Create)
 						posts.PUT("/:id", postHandler.Update)

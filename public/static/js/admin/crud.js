@@ -121,6 +121,57 @@
     return window.confirm(fallbackText);
   }
 
+  function bulkLoadingHtml() {
+    return (
+      '<div class="text-start">' +
+      '<p class="small text-secondary mb-2 mb-md-3" id="bulk-loading-msg">…</p>' +
+      '<div class="progress" style="height:1.35rem" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bulk-loading-progress-root">' +
+      '<div id="bulk-loading-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width:0%">0%</div>' +
+      "</div></div>"
+    );
+  }
+
+  function openBulkLoadingModal(title, total) {
+    if (typeof Swal === "undefined") return;
+    Swal.fire({
+      title: title,
+      html: bulkLoadingHtml(),
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      width: "28rem",
+      didOpen: function () {
+        if (total && total > 0) {
+          updateBulkLoadingModal(1, "Memulai (0 / " + total + ")…");
+        } else {
+          updateBulkLoadingModal(100, "Memproses…");
+        }
+      },
+    });
+  }
+
+  function updateBulkLoadingModal(pct, msg) {
+    if (typeof Swal === "undefined" || !Swal.isVisible()) return;
+    var root = Swal.getHtmlContainer();
+    if (!root) return;
+    var bar = root.querySelector("#bulk-loading-bar");
+    var label = root.querySelector("#bulk-loading-msg");
+    if (bar) {
+      pct = Math.max(0, Math.min(100, pct));
+      bar.style.width = pct + "%";
+      bar.textContent = pct + "%";
+      bar.setAttribute("aria-valuenow", pct);
+    }
+    if (label && msg) {
+      label.textContent = msg;
+    }
+  }
+
+  function closeBulkLoadingModal() {
+    if (typeof Swal === "undefined") return;
+    Swal.close();
+  }
+
   function setGlobalError(el, message) {
     if (!el) return;
     if (!message) {
@@ -759,6 +810,9 @@
     showSuccessToast: showSuccessToast,
     showErrorToast: showErrorToast,
     confirmAction: confirmAction,
+    openBulkLoadingModal: openBulkLoadingModal,
+    updateBulkLoadingModal: updateBulkLoadingModal,
+    closeBulkLoadingModal: closeBulkLoadingModal,
     setGlobalError: setGlobalError,
     setInlineError: setInlineError,
     hideModal: hideModal,

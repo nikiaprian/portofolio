@@ -85,6 +85,11 @@ func (s *pageService) Update(id uint, p *entity.Page) (*entity.Page, error) {
 	existing.Slug = p.Slug
 	existing.Content = p.Content
 	existing.Status = p.Status
+	if existing.IndexingStatus != "" && existing.IndexingStatus != entity.IndexingStatusNotIndexed {
+		existing.IndexingStatus = entity.IndexingStatusNotIndexed
+		existing.IndexedAt = nil
+		existing.IndexingMessage = ""
+	}
 
 	return existing, s.pageRepo.Update(existing)
 }

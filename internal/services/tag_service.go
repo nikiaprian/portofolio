@@ -47,6 +47,11 @@ func (s *tagService) Update(id uint, t *entity.Tag) (*entity.Tag, error) {
 	}
 	existing.Name = t.Name
 	existing.Slug = t.Slug
+	if existing.IndexingStatus != "" && existing.IndexingStatus != entity.IndexingStatusNotIndexed {
+		existing.IndexingStatus = entity.IndexingStatusNotIndexed
+		existing.IndexedAt = nil
+		existing.IndexingMessage = ""
+	}
 	return existing, s.repo.Update(existing)
 }
 

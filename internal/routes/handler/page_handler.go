@@ -124,6 +124,7 @@ func (h *PageHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat halaman"})
 		return
 	}
+	h.maybeAutoIndexGSC(&input)
 	c.JSON(http.StatusCreated, input)
 }
 
@@ -159,6 +160,9 @@ func (h *PageHandler) Update(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui halaman"})
 		return
+	}
+	if item != nil {
+		h.maybeAutoIndexGSC(item)
 	}
 	c.JSON(http.StatusOK, item)
 }

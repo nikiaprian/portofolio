@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/nikiaprian/tirtayasa/internal/entity"
 	"github.com/nikiaprian/tirtayasa/internal/routes/dto"
@@ -24,11 +25,12 @@ func isDuplicateTagErr(err error) bool {
 // TagHandler struct
 type TagHandler struct {
 	svc services.TagService
+	db  *gorm.DB
 }
 
 // function to create a new TagHandler
-func NewTagHandler(svc services.TagService) *TagHandler {
-	return &TagHandler{svc: svc}
+func NewTagHandler(svc services.TagService, db *gorm.DB) *TagHandler {
+	return &TagHandler{svc: svc, db: db}
 }
 
 // List
@@ -114,6 +116,7 @@ func (h *TagHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat tag"})
 		return
 	}
+	h.maybeAutoIndexGSC(&input)
 	c.JSON(http.StatusCreated, input)
 }
 
@@ -151,6 +154,7 @@ func (h *TagHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui tag"})
 		return
 	}
+	h.maybeAutoIndexGSC(item)
 	c.JSON(http.StatusOK, item)
 }
 

@@ -169,6 +169,11 @@ func (s *postService) Update(id uint, p *entity.Post) (*entity.Post, error) {
 	existing.Slug = p.Slug
 	existing.Content = p.Content
 	existing.Status = p.Status
+	if existing.IndexingStatus != "" && existing.IndexingStatus != entity.IndexingStatusNotIndexed {
+		existing.IndexingStatus = entity.IndexingStatusNotIndexed
+		existing.IndexedAt = nil
+		existing.IndexingMessage = nil
+	}
 	switch strings.ToLower(strings.TrimSpace(p.Status)) {
 	case "scheduled":
 		if p.PublishAt != nil && !p.PublishAt.IsZero() {
