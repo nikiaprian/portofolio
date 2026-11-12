@@ -1820,21 +1820,27 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		})
 	})
 
-	r.GET("/robots.txt", func(c *gin.Context) {
+	// GET and HEAD share one handler. Gin does not attach HEAD to GET, and a missed
+	// HEAD used to fall through to NoRoute, which 301s to the homepage. AdSense treats
+	// that redirect as a missing ads.txt and drops a previous authorization.
+	serveRobotsTxt := func(c *gin.Context) {
 		site := loadSiteSetting(db)
 		body := strings.TrimSpace(site.RobotsTxt)
 		c.Header("Cache-Control", "no-store")
 		c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(body+"\n"))
-	})
-
-	r.GET("/ads.txt", func(c *gin.Context) {
+	}
+	serveAdsTxt := func(c *gin.Context) {
 		site := loadSiteSetting(db)
 		// Leave this empty until AdSense approves the site and returns a publisher ID.
 		// A sample pub- line is not a valid authorization and is not served.
 		body := publicAdsTxt(site.AdsTxt)
 		c.Header("Cache-Control", "no-store")
 		c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(body+"\n"))
-	})
+	}
+	r.GET("/robots.txt", serveRobotsTxt)
+	r.HEAD("/robots.txt", serveRobotsTxt)
+	r.GET("/ads.txt", serveAdsTxt)
+	r.HEAD("/ads.txt", serveAdsTxt)
 
 	// RSS
 	r.GET("/rss/:slug", func(c *gin.Context) {
@@ -2854,6 +2860,16 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
+		// Never send crawlers from these files to an HTML page. A redirect to /
+		// makes AdSense treat a previously authorized ads.txt as not found.
+		switch strings.ToLower(p) {
+		case "/ads.txt":
+			serveAdsTxt(c)
+			return
+		case "/robots.txt":
+			serveRobotsTxt(c)
+			return
+		}
 		if strings.HasPrefix(p, "/static/") || p == "/health" || p == "/sitemap.xml" || strings.HasPrefix(p, "/rss/") {
 			redirectHome(c)
 			return
@@ -2864,6 +2880,14 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		p := c.Request.URL.Path
 		if strings.HasPrefix(p, "/api/") {
 			c.JSON(http.StatusMethodNotAllowed, gin.H{"error": "method not allowed"})
+			return
+		}
+		switch strings.ToLower(p) {
+		case "/ads.txt":
+			serveAdsTxt(c)
+			return
+		case "/robots.txt":
+			serveRobotsTxt(c)
 			return
 		}
 		serveClientErrorPage(c, db, http.StatusMethodNotAllowed, "Metode tidak didukung", "Permintaan tidak dapat diproses dengan metode ini.")
