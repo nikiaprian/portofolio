@@ -17,7 +17,7 @@ func seedUsers(db *gorm.DB) (*entity.User, error) {
 
 	admin := &entity.User{
 		Name:     "Super Admin",
-		Email:    "admin@tirtayasa.id",
+		Email:    "admin@seodigital.id",
 		Password: string(hashedAdmin),
 		Role:     "admin",
 		Username: "admin",
@@ -42,7 +42,7 @@ func seedUsers(db *gorm.DB) (*entity.User, error) {
 
 	writer := &entity.User{
 		Name:     "Writer User",
-		Email:    "writer@tirtayasa.id",
+		Email:    "writer@seodigital.id",
 		Password: string(hashedWriter),
 		Role:     "writer",
 		Username: "writer",

@@ -65,7 +65,7 @@ Selectors:
   --domains a.com,b.com
 
 Options:
-  --branch blog
+  --branch news
   --seed
   --no-health
   --dry-run
@@ -356,7 +356,7 @@ require_cmd base64
 GO_BIN="$(detect_go_bin || true)"
 [[ -n "${GO_BIN}" ]] || { err "Go tidak ditemukan."; exit 1; }
 
-BRANCH="${GIT_BRANCH:-blog}"
+BRANCH="${GIT_BRANCH:-news}"
 SELECT_ALL=false
 APPS_CSV=""
 DOMAINS_CSV=""
@@ -369,7 +369,7 @@ while [[ $# -gt 0 ]]; do
     --all) SELECT_ALL=true; shift ;;
     --apps) APPS_CSV="${2:-}"; shift 2 ;;
     --domains) DOMAINS_CSV="${2:-}"; shift 2 ;;
-    --branch) BRANCH="${2:-blog}"; shift 2 ;;
+    --branch) BRANCH="${2:-news}"; shift 2 ;;
     --seed) RUN_SEED=true; shift ;;
     --no-health) DO_HEALTH=false; shift ;;
     --dry-run) DRY_RUN=true; shift ;;

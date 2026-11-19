@@ -14,7 +14,7 @@ import (
 	"github.com/nikiaprian/tirtayasa/internal/repositories"
 )
 
-const ua = "TirtayasaBlog-PostDateUrlRecycle/1.0"
+const ua = "SeodigitalBlog-PostDateUrlRecycle/1.0"
 
 var (
 	qMu     sync.Mutex

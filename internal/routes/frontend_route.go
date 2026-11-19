@@ -1422,7 +1422,7 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 			mt = strings.TrimSpace(siteSetting.SiteName)
 		}
 		if mt == "" {
-			mt = "Tirtayasa"
+			mt = "Seodigital"
 		}
 		metaDesc := strings.TrimSpace(siteMeta.DefaultDesc)
 		if metaDesc == "" {

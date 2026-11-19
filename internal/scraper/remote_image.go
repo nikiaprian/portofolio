@@ -77,7 +77,7 @@ func downloadRemotePostImage(ctx context.Context, client *http.Client, store sto
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-news-scraper/1.2; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-news-scraper/1.2; +https://seodigital.id)")
 	if referer != "" {
 		req.Header.Set("Referer", referer)
 	}

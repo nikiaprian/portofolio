@@ -65,7 +65,7 @@ func ExtractFromBytes(raw []byte) ([]string, error) {
 		return nil, fmt.Errorf("XML is too large (max %d bytes)", maxXMLBytes)
 	}
 	if scraperguard.ContainsMarkerBytes(raw) {
-		return nil, fmt.Errorf("feed is from the same Tirtayasa system; skipped")
+		return nil, fmt.Errorf("feed is from the same Seodigital system; skipped")
 	}
 	safe := sanitizeAmpersandsForXML(string(raw))
 	b := []byte(safe)
@@ -269,7 +269,7 @@ func FetchAndExtract(client *http.Client, feedURL string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "TirtayasaBlogBulkFeedTitles/1.0")
+	req.Header.Set("User-Agent", "SeodigitalBlogBulkFeedTitles/1.0")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -286,7 +286,7 @@ func FetchAndExtract(client *http.Client, feedURL string) ([]string, error) {
 		return nil, fmt.Errorf("downloaded file is too large (max %d bytes)", maxXMLBytes)
 	}
 	if scraperguard.ContainsMarkerBytes(body) {
-		return nil, fmt.Errorf("feed is from the same Tirtayasa system; skipped")
+		return nil, fmt.Errorf("feed is from the same Seodigital system; skipped")
 	}
 	titles, err := ExtractFromBytes(body)
 	if err == nil && len(titles) > 0 {
@@ -345,7 +345,7 @@ func fetchURLBytes(client *http.Client, rawURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "TirtayasaBlogBulkFeedTitles/1.0")
+	req.Header.Set("User-Agent", "SeodigitalBlogBulkFeedTitles/1.0")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err

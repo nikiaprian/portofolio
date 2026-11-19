@@ -8,7 +8,7 @@ log() {
 }
 
 echo "==============================================="
-echo " Tirtayasa Production Setup (Ubuntu)"
+echo " Seodigital Production Setup (Ubuntu)"
 echo "==============================================="
 echo ""
 
@@ -75,7 +75,7 @@ GITHUB_TOKEN_FILE="${GITHUB_TOKEN_FILE:-/root/.github_token}"
 GITHUB_USERNAME="${GITHUB_USERNAME:-}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 GIT_URL="${GIT_URL:-https://github.com/nikiaprian/portofolio.git}"
-GIT_BRANCH="${GIT_BRANCH:-blog}"
+GIT_BRANCH="${GIT_BRANCH:-news}"
 GITHUB_AUTH_HEADER=""
 
 # Password root MariaDB/MySQL (opsional): sudo MYSQL_ROOT_PASSWORD='rahasia' ./scripts/add.sh
@@ -360,7 +360,7 @@ chown -h "${APP_USER}:${APP_GROUP}" "${APP_BIN_LINK}"
 log "7) Buat/Update systemd service..."
 cat > "${APP_SYSTEMD_FILE}" <<EOF
 [Unit]
-Description=Tirtayasa Service
+Description=Seodigital Service
 After=network.target mysql.service redis-server.service
 Wants=network-online.target
 
@@ -468,9 +468,8 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name ${DOMAIN_NON_WWW} ${DOMAIN_WWW};
 
     ssl_certificate ${LE_SSL_CERT};
@@ -565,9 +564,8 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name ${DOMAIN_NON_WWW} ${DOMAIN_WWW};
 
     ssl_certificate ${LE_SSL_CERT};

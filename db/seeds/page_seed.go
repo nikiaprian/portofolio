@@ -12,7 +12,7 @@ func seedPages(db *gorm.DB) error {
 		{
 			Title: "Kebijakan Privasi",
 			Slug:  "kebijakan-privasi",
-			Content: `<p>Tirtayasa (tirtayasa.id) menjelaskan di halaman ini data apa yang terkumpul saat Anda membaca panduan layanan warga, termasuk cookie iklan pihak ketiga.</p>
+			Content: `<p>Seodigital (seodigital.id) menjelaskan di halaman ini data apa yang terkumpul saat Anda membaca berita, termasuk cookie iklan pihak ketiga.</p>
 					<h2>Informasi yang kami kumpulkan</h2>
 					<ul>
 					<li>Data teknis seperti alamat IP, jenis browser, dan halaman yang dibuka.</li>
@@ -22,17 +22,17 @@ func seedPages(db *gorm.DB) error {
 					<h2>Cookie dan iklan</h2>
 					<p>Situs dapat memakai cookie untuk mengingat preferensi dan mengukur kunjungan. Jika iklan tampil, mitra iklan seperti Google AdSense dapat menempatkan cookie untuk menayangkan dan mengukur iklan. Anda dapat menolak cookie iklan yang dipersonalisasi lewat pengaturan iklan Google dan pengaturan browser.</p>
 					<h2>Penggunaan informasi</h2>
-					<p>Informasi dipakai untuk menjalankan situs, membalas pertanyaan, dan memperbaiki panduan yang keliru.</p>
+					<p>Informasi dipakai untuk menjalankan situs, membalas pertanyaan, dan memperbaiki berita yang keliru.</p>
 					<h2>Kontak</h2>
-					<p>Pertanyaan privasi: <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>`,
+					<p>Pertanyaan privasi: <a href="mailto:redaksi@seodigital.id">redaksi@seodigital.id</a>.</p>`,
 			Status: "published",
 		},
 		{
 			Title: "Syarat dan Ketentuan",
 			Slug:  "syarat-ketentuan",
-			Content: `<p>Dengan mengakses tirtayasa.id, Anda setuju pada syarat berikut dari redaksi Tirtayasa.</p>
+			Content: `<p>Dengan mengakses seodigital.id, Anda setuju pada syarat berikut dari redaksi Seodigital.</p>
 					<h2>Penggunaan Konten</h2>
-					<p>Artikel disediakan untuk dibaca. Menyalin ulang tulisan Tirtayasa tanpa izin tertulis tidak diperbolehkan.</p>
+					<p>Artikel disediakan untuk dibaca. Menyalin ulang tulisan Seodigital tanpa izin tertulis tidak diperbolehkan.</p>
 					<h2>Tanggung Jawab Pengguna</h2>
 					<ul>
 					<li>Tidak menyalahgunakan situs untuk aktivitas yang melanggar hukum.</li>
@@ -41,18 +41,18 @@ func seedPages(db *gorm.DB) error {
 					<h2>Perubahan Layanan</h2>
 					<p>Redaksi dapat mengubah atau menghentikan bagian layanan sewaktu-waktu.</p>
 					<h2>Batasan Tanggung Jawab</h2>
-					<p>Tirtayasa tidak bertanggung jawab atas kerugian yang timbul dari penggunaan informasi di situs ini.</p>`,
+					<p>Seodigital tidak bertanggung jawab atas kerugian yang timbul dari penggunaan informasi di situs ini.</p>`,
 			Status: "published",
 		},
 		{
 			Title: "Tentang Kami",
 			Slug:  "tentang-kami",
-			Content: `<p>Tirtayasa adalah redaksi di tirtayasa.id. Kami menulis panduan mengurus layanan warga lewat jalur pemerintah: bansos dan DTSEN, BPJS, SKCK, NISN, serta urusan kerja. Setiap panduan menyebut berkas, situs resmi, dan hal yang tidak mempercepat proses.</p>
-					<h2>Bukan calo</h2>
-					<p>Tirtayasa bukan instansi pemerintah, bukan bank, dan tidak mengurus pencairan bantuan. Kami tidak menjanjikan dana cair, tidak meminta biaya, dan tidak meminta OTP.</p>
+			Content: `<p>Seodigital adalah redaksi di seodigital.id. Kami menerbitkan berita dan informasi untuk dibaca, dengan judul, tanggal, dan sumber yang jelas.</p>
+					<h2>Bukan instansi</h2>
+					<p>Seodigital bukan instansi pemerintah, bukan bank, dan tidak mengurus layanan atas nama pembaca. Kami tidak meminta biaya, OTP, atau data rekening.</p>
 					<h2>Redaksi</h2>
-					<p>Naskah disunting redaksi Tirtayasa. Pertanyaan dan koreksi dibalas di <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>
-					<p>Jika aturan berubah, kami memperbaiki halaman dan mencatat tanggal pemeriksaan. Lihat juga <a href="/kebijakan-koreksi">kebijakan koreksi</a>.</p>`,
+					<p>Naskah disunting redaksi Seodigital. Pertanyaan dan koreksi dibalas di <a href="mailto:redaksi@seodigital.id">redaksi@seodigital.id</a>.</p>
+					<p>Jika ada kekeliruan, kami memperbaiki halaman. Lihat juga <a href="/kebijakan-koreksi">kebijakan koreksi</a>.</p>`,
 			Status: "published",
 		},
 		{
@@ -60,8 +60,8 @@ func seedPages(db *gorm.DB) error {
 			Slug:  "kontak",
 			Content: `<p>Redaksi membalas email yang masuk ke alamat di bawah. Pesan tentang kekeliruan fakta, tautan resmi yang mati, atau pertanyaan pembaca ditanggapi pada hari kerja.</p>
 					<h2>Email redaksi</h2>
-					<p><a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a></p>
-					<p>Situs: <a href="https://tirtayasa.id">tirtayasa.id</a></p>
+					<p><a href="mailto:redaksi@seodigital.id">redaksi@seodigital.id</a></p>
+					<p>Situs: <a href="https://seodigital.id">seodigital.id</a></p>
 					<p>Jam balasan: Senin–Jumat, 09.00–17.00 WIB.</p>
 					<p>Sertakan tautan halaman dan kalimat yang ingin diperbaiki. Jangan kirim NIK, PIN, OTP, atau kata sandi.</p>`,
 			Status: "published",
@@ -69,29 +69,29 @@ func seedPages(db *gorm.DB) error {
 		{
 			Title: "Disclaimer",
 			Slug:  "disclaimer",
-			Content: `<p>Tulisan di tirtayasa.id adalah panduan umum dari redaksi Tirtayasa, bukan keputusan instansi.</p>
+			Content: `<p>Tulisan di seodigital.id adalah berita dan informasi dari redaksi Seodigital, bukan pengumuman resmi suatu instansi.</p>
 					<h2>Akurasi informasi</h2>
-					<p>Kami menautkan situs pemerintah dan mencatat tanggal pemeriksaan. Aturan bisa berubah. Status bansos, iuran BPJS, atau data NISN hanya sah di layanan resmi, bukan di halaman ini.</p>
+					<p>Kami mencantumkan sumber dan tanggal bila ada. Fakta dapat berubah. Keterangan yang bersifat resmi hanya sah di situs lembaga yang bersangkutan.</p>
 					<h2>Tautan eksternal</h2>
-					<p>Situs dapat menautkan domain pemerintah dan sumber lain. Tirtayasa tidak mengendalikan isi situs pihak ketiga.</p>
+					<p>Situs dapat menautkan sumber lain. Seodigital tidak mengendalikan isi situs pihak ketiga.</p>
 					<h2>Iklan</h2>
-					<p>Ruang iklan, bila ada, ditayangkan oleh mitra pihak ketiga dan tidak mencerminkan pandangan redaksi. Iklan yang menjanjikan pencairan instan atau meminta OTP bukan bagian dari panduan ini.</p>`,
+					<p>Ruang iklan, bila ada, ditayangkan oleh mitra pihak ketiga dan tidak mencerminkan pandangan redaksi.</p>`,
 			Status: "published",
 		},
 		{
 			Title: "Kebijakan Koreksi",
 			Slug:  "kebijakan-koreksi",
-			Content: `<p>Jika sebuah panduan keliru, redaksi Tirtayasa memperbaikinya. Kirim koreksi ke <a href="mailto:redaksi@tirtayasa.id">redaksi@tirtayasa.id</a>.</p>
+			Content: `<p>Jika sebuah berita keliru, redaksi Seodigital memperbaikinya. Kirim koreksi ke <a href="mailto:redaksi@seodigital.id">redaksi@seodigital.id</a>.</p>
 					<h2>Yang kami perbaiki</h2>
 					<ul>
-					<li>Nama lembaga, alamat situs resmi, atau syarat berkas yang sudah berubah.</li>
-					<li>Angka, tanggal, atau langkah yang tidak lagi sesuai pengumuman resmi.</li>
-					<li>Kalimat yang terdengar seperti janji pencairan atau jasa calo.</li>
+					<li>Nama, tanggal, angka, atau kutipan yang tidak sesuai sumber.</li>
+					<li>Tautan yang sudah mati atau mengarah ke halaman yang salah.</li>
+					<li>Kalimat yang menyesatkan pembaca.</li>
 					</ul>
 					<h2>Cara mengirim</h2>
-					<p>Sertakan tautan halaman, kalimat yang salah, dan tautan pengumuman resmi bila ada. Kami membalas pada hari kerja.</p>
+					<p>Sertakan tautan halaman, kalimat yang salah, dan sumber pembanding bila ada. Kami membalas pada hari kerja.</p>
 					<h2>Setelah diperbaiki</h2>
-					<p>Halaman yang diubah mencantumkan tanggal pemeriksaan baru. Koreksi fakta tidak dihapus diam-diam dari catatan redaksi.</p>`,
+					<p>Halaman yang diubah diperbarui di situs. Koreksi fakta tidak dihapus diam-diam dari catatan redaksi.</p>`,
 			Status: "published",
 		},
 	}

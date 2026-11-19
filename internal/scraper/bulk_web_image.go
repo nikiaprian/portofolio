@@ -291,7 +291,7 @@ func tryOpenverseImageResult(ctx context.Context, client *http.Client, store sto
 	if err != nil {
 		return nil
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	req.Header.Set("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -349,7 +349,7 @@ func tryWikimediaImageResult(ctx context.Context, client *http.Client, store sto
 	if err != nil {
 		return nil
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	req.Header.Set("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -473,7 +473,7 @@ func tryPixabayAPIImageResult(ctx context.Context, client *http.Client, store st
 		return nil
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil
@@ -536,7 +536,7 @@ func tryPexelsAPIImageResult(ctx context.Context, client *http.Client, store sto
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", key)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil
@@ -590,7 +590,7 @@ func tryWordPressRESTImageResult(ctx context.Context, client *http.Client, store
 		return nil
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	res, err := client.Do(req)
 	if err != nil {
 		return nil
@@ -661,7 +661,7 @@ func trySearchPageImageResultAt(ctx context.Context, client *http.Client, store 
 	if err != nil {
 		return nil
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; tirtayasa-web-image/1.0; +https://tirtayasa.id)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; seodigital-web-image/1.0; +https://seodigital.id)")
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/*,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7")
 	res, err := client.Do(req)

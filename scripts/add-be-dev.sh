@@ -405,9 +405,8 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name ${DOMAIN_NON_WWW} ${DOMAIN_WWW};
 
     ssl_certificate ${LE_SSL_CERT};
@@ -501,9 +500,8 @@ server {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name ${DOMAIN_NON_WWW} ${DOMAIN_WWW};
 
     ssl_certificate ${LE_SSL_CERT};

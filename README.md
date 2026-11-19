@@ -1,4 +1,4 @@
-## Tirtayasa (Go, Gin, GORM, MySQL)
+## Seodigital (Go, Gin, GORM, MySQL)
 
 A **Go** blog application using **Gin**, **GORM**, and **MySQL**: a `/api/v1` REST API, **JWT** authentication, schema migrations via GORM `AutoMigrate`, development seed data, **server-rendered HTML** (public site, admin dashboard, content management pages), and a configurable **news scraper** that imports articles from RSS/Atom feeds.
 
@@ -114,7 +114,7 @@ On startup, the app:
    - `scraper_settings`, `scraper_category_feeds`
    - `ai_settings`
 4. If `APP_ENV=development` and there are no rows in site settings yet (seed has not run), runs `seeds.Run(db)`:
-   - Sample admin: `admin@tirtayasa.id` / `admin123` (development only).
+   - Sample admin: `admin@seodigital.id` / `admin123` (development only).
    - Categories, tags, sample posts, pages, default site/SEO settings, initial scraper setting, AI setting.
 
 The server listens at `http://localhost:{HTTP_PORT}` (default **8080**). If the **`PORT`** environment variable is set, it is used for binding instead of `HTTP_PORT`.

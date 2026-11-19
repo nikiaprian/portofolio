@@ -122,9 +122,9 @@ func NormalizeArticleSchemaType(v string) string {
 // DefaultSiteSetting returns baseline values when no row exists in site_settings yet.
 func DefaultSiteSetting() SiteSetting {
 	return SiteSetting{
-		SiteName:                       "Tirtayasa",
+		SiteName:                       "Seodigital",
 		FooterCopy:                     "",
-		Tagline:                        "Panduan layanan warga lewat jalur resmi.",
+		Tagline:                        "Berita dan informasi terkini.",
 		LogoURL:                        "/static/images/logo.png",
 		FaviconURL:                     "/static/images/favicon.ico",
 		TextPrimary:                    "#1e293b",
@@ -156,10 +156,10 @@ func DefaultSiteSetting() SiteSetting {
 		AvatarResizeWidth:              "",
 		AvatarResizeQuality:            "",
 		NotFoundRedirectMode:           NotFoundRedirectHome,
-		DefaultTitle:                   "Tirtayasa",
-		DefaultDesc:                    "Cara mengurus bansos, BPJS, SKCK, NISN, dan urusan kerja tanpa calo, dengan tautan ke situs pemerintah.",
+		DefaultTitle:                   "Seodigital",
+		DefaultDesc:                    "Berita dan informasi terkini dari redaksi Seodigital.",
 		DefaultImage:                   "",
-		DefaultKeywords:                "bansos, BPJS, SKCK, NISN, perjanjian kerja, layanan warga",
+		DefaultKeywords:                "berita, informasi, Seodigital",
 		HeaderScript:                   "",
 		FooterScript:                   "",
 		AdsTop:                         "",

@@ -21,7 +21,7 @@ func seedScraperSetting(db *gorm.DB) error {
 	scraperSetting := entity.ScraperSetting{
 		Enabled:      false,
 		IntervalMins: 5,
-		AuthorEmail:  "admin@tirtayasa.id",
+		AuthorEmail:  "admin@seodigital.id",
 	}
 	return db.Create(&scraperSetting).Error
 }
@@ -54,7 +54,7 @@ func seedScraperCategoryFeeds(db *gorm.DB) error {
 			ArticleStatus: "published",
 			ImageMode:     "scrape",
 			AutoTag:       true,
-			AuthorEmail:   "admin@tirtayasa.id",
+			AuthorEmail:   "admin@seodigital.id",
 		}
 		if err := db.Create(&row).Error; err != nil {
 			return err

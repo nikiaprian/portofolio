@@ -24,6 +24,9 @@ func Run(db *gorm.DB) error {
 	}
 	if settingCount > 0 {
 		// Full seed already ran before; still backfill newer default rows/settings.
+		if err := renameLegacyTirtayasaSite(db); err != nil {
+			return err
+		}
 		if err := EnsureAISettingDefaults(db); err != nil {
 			return err
 		}
@@ -72,4 +75,23 @@ func Run(db *gorm.DB) error {
 	}
 
 	return nil
+}
+
+// renameLegacyTirtayasaSite rewrites a fresh news install that still carries the old site name.
+func renameLegacyTirtayasaSite(db *gorm.DB) error {
+	var row entity.SiteSetting
+	if err := db.Order("id asc").First(&row).Error; err != nil {
+		return nil
+	}
+	if strings.TrimSpace(row.SiteName) != "Tirtayasa" && strings.TrimSpace(row.DefaultTitle) != "Tirtayasa" {
+		return nil
+	}
+	row.SiteName = "Seodigital"
+	row.Tagline = "Berita dan informasi terkini."
+	row.DefaultTitle = "Seodigital"
+	row.DefaultDesc = "Berita dan informasi terkini dari redaksi Seodigital."
+	row.DefaultKeywords = "berita, informasi, Seodigital"
+	return db.Model(&row).
+		Select("SiteName", "Tagline", "DefaultTitle", "DefaultDesc", "DefaultKeywords").
+		Updates(&row).Error
 }
