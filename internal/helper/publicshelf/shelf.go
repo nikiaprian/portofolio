@@ -1,93 +1,23 @@
 package publicshelf
 
-import (
-	"strings"
+import "gorm.io/gorm"
 
-	"gorm.io/gorm"
-
-	"github.com/nikiaprian/tirtayasa/internal/entity"
-)
-
-// Needles are the public-service topics Tirtayasa publishes on the homepage,
-// in listings, and in sitemaps. Other published posts stay reachable by URL
-// but are left out of those surfaces.
-var Needles = []string{
-	"bansos",
-	"dtsen",
-	"dtks",
-	"pkh",
-	"pip",
-	"bsu",
-	"blt",
-	"bpum",
-	"prakerja",
-	"indonesia pintar",
-	"kip ",
-	"kip-",
-	"-kip",
-	"bpjs",
-	"jkn",
-	"jht",
-	"jkk",
-	"jkm",
-	"puskesmas",
-	"posyandu",
-	"skck",
-	"nisn",
-	"ppdb",
-	"snbp",
-	"snbt",
-	"utbk",
-	"ikd",
-	"dukcapil",
-	"ktp",
-	"kartu keluarga",
-	"sktm",
-	"npwp",
-	"pajak",
-	"samsat",
-	"paspor",
-	"imigrasi",
-	"cpns",
-	"pppk",
-	"korlantas",
-	"perjanjian kerja",
-	"perjanjian-kerja",
-	"wawancara",
-}
-
-// Active reports whether the public site should stay on that shelf.
+// Active reports whether listings and sitemaps are limited to a topic shelf.
+// This news branch indexes every published article, so the shelf stays off.
 func Active(layout string) bool {
-	return entity.NormalizeHomeLayout(layout) == entity.HomeLayoutTirtayasa
-}
-
-// Matches reports whether a post title or slug belongs on the shelf.
-func Matches(title, slug string) bool {
-	blob := strings.ToLower(strings.TrimSpace(title) + " " + strings.TrimSpace(slug))
-	for _, needle := range Needles {
-		if strings.Contains(blob, needle) {
-			return true
-		}
-	}
 	return false
 }
 
-// Scope limits a posts query to the shelf. prefix is empty or a table alias.
+// Matches reports whether a post belongs on the shelf.
+// Every article is indexed on this branch.
+func Matches(title, slug string) bool {
+	return true
+}
+
+// Scope limits a posts query to the shelf. This branch does not limit it.
 func Scope(prefix string) func(*gorm.DB) *gorm.DB {
-	p := strings.TrimSpace(prefix)
-	if p != "" && !strings.HasSuffix(p, ".") {
-		p += "."
-	}
-	parts := make([]string, 0, len(Needles)*2)
-	args := make([]any, 0, len(Needles)*2)
-	for _, needle := range Needles {
-		like := "%" + needle + "%"
-		parts = append(parts, "LOWER("+p+"title) LIKE ?", "LOWER("+p+"slug) LIKE ?")
-		args = append(args, like, like)
-	}
-	clause := "(" + strings.Join(parts, " OR ") + ")"
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where(clause, args...)
+		return db
 	}
 }
 
