@@ -1553,7 +1553,11 @@ func RegisterFrontendRoutes(r *gin.Engine, db *gorm.DB, cfg config.Config) {
 		}
 	}
 
+	// Gin does not attach HEAD to GET. A crawler HEAD of the homepage used to miss
+	// this route, hit NoRoute, and 301 to "/". AdSense site verification needs a
+	// direct response, the same as GET.
 	r.GET("/", middleware.PublicSearchLimit(), serveClientIndex)
+	r.HEAD("/", middleware.PublicSearchLimit(), serveClientIndex)
 
 	// Kanonik artikel: /slug atau /kategori/slug; redirect permanen dari URL lama /post/slug.
 	r.GET("/post/:slug", func(c *gin.Context) {

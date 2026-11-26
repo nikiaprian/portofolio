@@ -36,6 +36,29 @@ func chdirModuleRoot(t *testing.T) {
 	}
 }
 
+func TestHomepageRegistersHead(t *testing.T) {
+	chdirModuleRoot(t)
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	RegisterFrontendRoutes(r, nil, config.Config{})
+
+	var get, head bool
+	for _, rt := range r.Routes() {
+		if rt.Path != "/" {
+			continue
+		}
+		switch rt.Method {
+		case http.MethodGet:
+			get = true
+		case http.MethodHead:
+			head = true
+		}
+	}
+	if !get || !head {
+		t.Fatalf("homepage routes get=%v head=%v", get, head)
+	}
+}
+
 func TestAdsTxtAndRobotsTxtDoNotRedirectHome(t *testing.T) {
 	chdirModuleRoot(t)
 	gin.SetMode(gin.TestMode)
